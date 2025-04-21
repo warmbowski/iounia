@@ -6,6 +6,7 @@ import * as TanstackQuery from './integrations/tanstack-query/root-provider'
 import { routeTree } from './routeTree.gen'
 
 import './styles.css'
+import AppConvexProvider from './integrations/convex/provider'
 
 // Create a new router instance
 export const createRouter = () => {
@@ -17,6 +18,7 @@ export const createRouter = () => {
       },
       scrollRestoration: true,
       defaultPreloadStaleTime: 0,
+      Wrap: ({ children }) => <AppConvexProvider>{children}</AppConvexProvider>,
     }),
     TanstackQuery.getContext().queryClient,
   )

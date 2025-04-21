@@ -4,6 +4,8 @@
     "**/*.tsx",
     "eslint.config.js",
     "prettier.config.js",
+    "tailwind.config.js",
+    "postcss.config.js",
     "vite.config.js"
   ],
 

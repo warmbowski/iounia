@@ -11,18 +11,34 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as AppRouteImport } from './routes/app/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
-import { Route as DemoConvexImport } from './routes/demo.convex'
-import { Route as DemoStartServerFuncsImport } from './routes/demo.start.server-funcs'
-import { Route as DemoStartApiRequestImport } from './routes/demo.start.api-request'
+import { Route as AppIndexImport } from './routes/app/index'
+import { Route as DemoTanstackQueryImport } from './routes/demo/tanstack-query'
+import { Route as DemoConvexImport } from './routes/demo/convex'
+import { Route as AppSessionsImport } from './routes/app/sessions'
+import { Route as AppOverviewImport } from './routes/app/overview'
+import { Route as DemoStartServerFuncsImport } from './routes/demo/start.server-funcs'
+import { Route as DemoStartApiRequestImport } from './routes/demo/start.api-request'
 
 // Create/Update Routes
+
+const AppRouteRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppIndexRoute = AppIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 const DemoTanstackQueryRoute = DemoTanstackQueryImport.update({
@@ -35,6 +51,18 @@ const DemoConvexRoute = DemoConvexImport.update({
   id: '/demo/convex',
   path: '/demo/convex',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppSessionsRoute = AppSessionsImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppOverviewRoute = AppOverviewImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 const DemoStartServerFuncsRoute = DemoStartServerFuncsImport.update({
@@ -60,6 +88,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/app/overview': {
+      id: '/app/overview'
+      path: '/overview'
+      fullPath: '/app/overview'
+      preLoaderRoute: typeof AppOverviewImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/app/sessions': {
+      id: '/app/sessions'
+      path: '/sessions'
+      fullPath: '/app/sessions'
+      preLoaderRoute: typeof AppSessionsImport
+      parentRoute: typeof AppRouteImport
+    }
     '/demo/convex': {
       id: '/demo/convex'
       path: '/demo/convex'
@@ -73,6 +122,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/tanstack-query'
       preLoaderRoute: typeof DemoTanstackQueryImport
       parentRoute: typeof rootRoute
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexImport
+      parentRoute: typeof AppRouteImport
     }
     '/demo/start/api-request': {
       id: '/demo/start/api-request'
@@ -93,18 +149,41 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface AppRouteRouteChildren {
+  AppOverviewRoute: typeof AppOverviewRoute
+  AppSessionsRoute: typeof AppSessionsRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppOverviewRoute: AppOverviewRoute,
+  AppSessionsRoute: AppSessionsRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/app/overview': typeof AppOverviewRoute
+  '/app/sessions': typeof AppSessionsRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app/': typeof AppIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/overview': typeof AppOverviewRoute
+  '/app/sessions': typeof AppSessionsRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app': typeof AppIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -112,8 +191,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/app/overview': typeof AppOverviewRoute
+  '/app/sessions': typeof AppSessionsRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app/': typeof AppIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -122,22 +205,33 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
+    | '/app/overview'
+    | '/app/sessions'
     | '/demo/convex'
     | '/demo/tanstack-query'
+    | '/app/'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app/overview'
+    | '/app/sessions'
     | '/demo/convex'
     | '/demo/tanstack-query'
+    | '/app'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   id:
     | '__root__'
     | '/'
+    | '/app'
+    | '/app/overview'
+    | '/app/sessions'
     | '/demo/convex'
     | '/demo/tanstack-query'
+    | '/app/'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
@@ -145,6 +239,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
   DemoConvexRoute: typeof DemoConvexRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
@@ -153,6 +248,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
   DemoConvexRoute: DemoConvexRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
@@ -170,6 +266,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/app",
         "/demo/convex",
         "/demo/tanstack-query",
         "/demo/start/api-request",
@@ -179,17 +276,37 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/app": {
+      "filePath": "app/route.tsx",
+      "children": [
+        "/app/overview",
+        "/app/sessions",
+        "/app/"
+      ]
+    },
+    "/app/overview": {
+      "filePath": "app/overview.tsx",
+      "parent": "/app"
+    },
+    "/app/sessions": {
+      "filePath": "app/sessions.tsx",
+      "parent": "/app"
+    },
     "/demo/convex": {
-      "filePath": "demo.convex.tsx"
+      "filePath": "demo/convex.tsx"
     },
     "/demo/tanstack-query": {
-      "filePath": "demo.tanstack-query.tsx"
+      "filePath": "demo/tanstack-query.tsx"
+    },
+    "/app/": {
+      "filePath": "app/index.tsx",
+      "parent": "/app"
     },
     "/demo/start/api-request": {
-      "filePath": "demo.start.api-request.tsx"
+      "filePath": "demo/start.api-request.tsx"
     },
     "/demo/start/server-funcs": {
-      "filePath": "demo.start.server-funcs.tsx"
+      "filePath": "demo/start.server-funcs.tsx"
     }
   }
 }
