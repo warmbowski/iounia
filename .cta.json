@@ -1,0 +1,19 @@
+{
+  "framework": "react",
+  "typescript": true,
+  "projectName": "iounia",
+  "mode": "file-router",
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "toolchain": "eslint+prettier",
+  "variableValues": {},
+  "git": true,
+  "version": 1,
+  "existingAddOns": [
+    "convex",
+    "netlify",
+    "start",
+    "t3env",
+    "tanstack-query"
+  ]
+}
