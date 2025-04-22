@@ -6,7 +6,7 @@ import { RouterLink } from '@/components/router-link'
 import { TopNav } from '@/components/topnav'
 
 const navigationItems = [
-  { name: 'Home', path: '/app', icon: 'lucide:home' },
+  { name: 'Home', path: '/app/', icon: 'lucide:home' },
   { name: 'Overview', path: '/app/overview', icon: 'lucide:folder' },
   { name: 'Sessoins', path: '/app/sessions', icon: 'lucide:folder' },
 ]

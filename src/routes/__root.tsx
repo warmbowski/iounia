@@ -11,11 +11,15 @@ import TanstackQueryLayout from '../integrations/tanstack-query/layout'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import type { ConvexQueryClient } from '@convex-dev/react-query'
 import { DEFAULT_THEME_MODE } from '@/constants'
 import { HeroUIProviderWithNav } from '@/integrations/heroui/provider-with-nav'
+import { ClerkProvider } from '@clerk/tanstack-react-start'
+import ConvexProviderWithClerk from '@/integrations/convex/provider-with-clerk'
 
 interface MyRouterContext {
   queryClient: QueryClient
+  convexClient: ConvexQueryClient
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -52,13 +56,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
 
   component: () => (
-    <RootDocument>
-      <HeroUIProviderWithNav>
-        <Outlet />
-        <TanStackRouterDevtools />
-        <TanstackQueryLayout />
-      </HeroUIProviderWithNav>
-    </RootDocument>
+    <ClerkProvider>
+      <ConvexProviderWithClerk>
+        <RootDocument>
+          <HeroUIProviderWithNav>
+            <Outlet />
+            <TanStackRouterDevtools />
+            <TanstackQueryLayout />
+          </HeroUIProviderWithNav>
+        </RootDocument>
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
   ),
 })
 

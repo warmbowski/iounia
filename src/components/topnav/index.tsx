@@ -4,10 +4,16 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 import { ModeToggle } from '../mode-toggle'
 import { SignUpLoginModal } from '../signup-login-modal'
 import { ProfileButton } from '../profile-button'
+import { useAuth, useUser } from '@clerk/tanstack-react-start'
 
-export function TopNav() {
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
-  const userInfo = null // Replace with actual user info from context or state
+interface TopNavProps {
+  showSignIn?: boolean
+}
+
+export function TopNav({ showSignIn }: TopNavProps) {
+  const [isSignUpOpen, setIsSignUpOpen] = useState(showSignIn || false)
+  const { user, isSignedIn, isLoaded } = useUser()
+  const { signOut } = useAuth()
 
   return (
     <div>
@@ -35,22 +41,23 @@ export function TopNav() {
             <ModeToggle />
           </NavbarItem>
           <NavbarItem>
-            {userInfo ? (
+            {user && isSignedIn ? (
               <ProfileButton
                 userInfo={{
-                  displayName: userInfo.displayName || '',
-                  email: userInfo.email || '',
-                  photoURL: userInfo.photoURL || '',
+                  displayName: user.fullName || '',
+                  email: user.emailAddresses[0] || '',
+                  photoURL: user.imageUrl || '',
                 }}
-                onLogout={() => logout()}
+                onLogout={() => signOut()}
               />
             ) : (
               <Button
                 color="primary"
                 variant="flat"
                 onPress={() => setIsSignUpOpen(true)}
+                isLoading={!isLoaded}
               >
-                Login/Sign Up
+                {isLoaded ? 'Login/Sign Up' : 'Checking...'}
               </Button>
             )}
           </NavbarItem>

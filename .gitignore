@@ -6,3 +6,5 @@ dist-ssr
 .output
 .vinxi
 count.txt
+.env
+.env.*

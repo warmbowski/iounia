@@ -10,7 +10,10 @@ import {
   ModalHeader,
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import type { FormEvent } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useSignIn } from '@clerk/tanstack-react-start'
+import { isClerkAPIResponseError } from '@clerk/tanstack-react-start/errors'
+import { type ClerkAPIError } from '@clerk/types'
 
 interface SignUpLoginModalProps {
   isOpen: boolean
@@ -21,30 +24,60 @@ export function SignUpLoginModal({
   isOpen,
   onOpenChange,
 }: SignUpLoginModalProps) {
-  const [isLogin, setIsLogin] = useState(false)
+  const { isLoaded, signIn, setActive } = useSignIn()
+  const navigate = useNavigate()
+
+  const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    if (isLogin) {
-      await login(email, password)
-    } else {
-      await register(email, password)
-    }
-    onOpenChange(false)
-  }
-
-  const handleGoogleAuth = async () => {
-    const userCred = await loginWithGoogle()
-    console.log('Logged in with Google:', userCred)
-    onOpenChange(false)
-  }
+  const [pending, setPending] = useState(false)
+  const [errors, setErrors] = useState<ClerkAPIError[]>()
 
   const toggleMode = () => {
     if (pending) return
     setIsLogin((prev) => !prev)
+    setEmail('')
     setPassword('')
+  }
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Clear any errors that may have occurred during previous form submission
+    setErrors(undefined)
+    setPending(true)
+
+    if (!isLoaded) {
+      setPending(false)
+      return
+    }
+
+    // Start the sign-in process using the email and password provided
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: email,
+        password,
+      })
+      if (signInAttempt.status === 'complete') {
+        await setActive({ session: signInAttempt.createdSessionId })
+        navigate({
+          to: '/app',
+        })
+        onOpenChange(false)
+      } else {
+        // If the status is not complete, check why. User may need to
+        // complete further steps.
+        console.error(JSON.stringify(signInAttempt, null, 2))
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        setErrors(err.errors)
+      }
+      console.error(JSON.stringify(err, null, 2))
+    } finally {
+      // Set pending to false after the sign-in attempt is complete
+      setPending(false)
+    }
   }
 
   return (
@@ -56,7 +89,7 @@ export function SignUpLoginModal({
               {isLogin ? 'Welcome Back' : 'Create an Account'}
             </ModalHeader>
             <ModalBody>
-              <Button
+              {/* <Button
                 className="w-full mb-4"
                 variant="flat"
                 color="default"
@@ -65,7 +98,7 @@ export function SignUpLoginModal({
                 isLoading={pending}
               >
                 {isLogin ? 'Log in with Google' : 'Sign up with Google'}
-              </Button>
+              </Button> */}
 
               <div className="relative my-4">
                 <Divider className="my-4" />
@@ -74,7 +107,7 @@ export function SignUpLoginModal({
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <form onSubmit={handleSignIn} className="flex flex-col gap-4">
                 <Input
                   label="Email"
                   placeholder="Enter your email"
@@ -102,6 +135,13 @@ export function SignUpLoginModal({
                   {isLogin ? 'Log In' : 'Create Account'}
                 </Button>
               </form>
+              {errors && (
+                <ul>
+                  {errors.map((err, index) => (
+                    <li key={index}>{err.longMessage}</li>
+                  ))}
+                </ul>
+              )}
             </ModalBody>
             <ModalFooter className="flex flex-col items-center pt-2 pb-4">
               <p className="text-center text-small text-default-500">

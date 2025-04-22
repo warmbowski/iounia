@@ -3,14 +3,23 @@ import { Button, Link } from '@heroui/react'
 import logo from '../logo.svg'
 import { TopNav } from '@/components/topnav'
 
+type HomeSearch = {
+  showSignIn?: boolean
+}
+
 export const Route = createFileRoute('/')({
+  validateSearch: (search): HomeSearch => {
+    return search.showSignIn === 'true' ? { showSignIn: true } : {}
+  },
   component: Home,
 })
 
 function Home() {
+  const { showSignIn } = Route.useSearch()
+
   return (
     <div className="flex flex-col h-screen">
-      <TopNav />
+      <TopNav showSignIn={showSignIn} />
       <div className="flex-1 overflow-auto">
         <div className="text-center">
           <header className="min-h-screen flex flex-col items-center justify-center text-[calc(10px+2vmin)]">
