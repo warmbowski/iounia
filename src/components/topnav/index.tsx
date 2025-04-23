@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button, Input, Navbar, NavbarContent, NavbarItem } from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { ModeToggle } from '../mode-toggle'
-import { SignUpLoginModal } from '../signup-login-modal'
+import { SignInOrSignUpLoginModal } from '../signin-or-signup-login-modal'
 import { ProfileButton } from '../profile-button'
 import { useAuth, useUser } from '@clerk/tanstack-react-start'
 
@@ -64,7 +64,10 @@ export function TopNav({ showSignIn }: TopNavProps) {
         </NavbarContent>
       </Navbar>
 
-      <SignUpLoginModal isOpen={isSignUpOpen} onOpenChange={setIsSignUpOpen} />
+      <SignInOrSignUpLoginModal
+        isOpen={isSignUpOpen}
+        onOpenChange={setIsSignUpOpen}
+      />
     </div>
   )
 }
