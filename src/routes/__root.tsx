@@ -4,25 +4,24 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
+import type { ConvexQueryClient } from '@convex-dev/react-query'
+import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import TanstackQueryLayout from '../integrations/tanstack-query/layout'
+import { HeroUIProviderWithNav } from '@/integrations/heroui/provider-with-nav'
+import { ConvexProviderWithClerk } from '@/integrations/convex/provider-with-clerk'
+import { DEFAULT_THEME_MODE } from '@/constants'
 
 import appCss from '../styles.css?url'
 
-import type { QueryClient } from '@tanstack/react-query'
-import type { ConvexQueryClient } from '@convex-dev/react-query'
-import { DEFAULT_THEME_MODE } from '@/constants'
-import { HeroUIProviderWithNav } from '@/integrations/heroui/provider-with-nav'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
-import ConvexProviderWithClerk from '@/integrations/convex/provider-with-clerk'
-
-interface MyRouterContext {
+interface RouterContext {
   queryClient: QueryClient
   convexClient: ConvexQueryClient
 }
 
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       {
@@ -62,7 +61,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           <HeroUIProviderWithNav>
             <Outlet />
             <TanStackRouterDevtools />
-            <TanstackQueryLayout />
+            <ReactQueryDevtools buttonPosition="bottom-right" />
           </HeroUIProviderWithNav>
         </RootDocument>
       </ConvexProviderWithClerk>

@@ -8,7 +8,7 @@ if (!CONVEX_URL) {
 }
 export const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
-export default function ConvexProviderWithClerk({
+export function ConvexProviderWithClerk({
   children,
 }: {
   children: React.ReactNode
