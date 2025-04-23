@@ -14,6 +14,11 @@ export default function SignInForm() {
   const [password, setPassword] = useState('')
   const [pending, setPending] = useState(false)
   const [errors, setErrors] = useState<ClerkAPIError[]>()
+  const [showPassword, setShowPassword] = useState(false)
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev)
+  }
 
   const handleGoogleAuth = async () => {}
 
@@ -85,14 +90,26 @@ export default function SignInForm() {
           value={email}
           onValueChange={setEmail}
           isRequired
+          aria-label="Email address"
         />
         <Input
           label="Password"
           placeholder="Enter your password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={password}
           onValueChange={setPassword}
           isRequired
+          aria-label="Password"
+          endContent={
+            <Button
+              variant="ghost"
+              isIconOnly
+              onPress={togglePasswordVisibility}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <Icon icon={showPassword ? 'lucide:eye' : 'lucide:eye-off'} />
+            </Button>
+          }
         />
         <Button
           type="submit"
@@ -100,6 +117,7 @@ export default function SignInForm() {
           className="w-full"
           isLoading={pending}
           disabled={!isLoaded}
+          aria-label="Sign in"
         >
           Sign In
         </Button>

@@ -16,6 +16,11 @@ export default function SignUpForm() {
   const [pendingVerification, setPendingVerification] = useState(false)
   const [pending, setPending] = useState(false)
   const [errors, setErrors] = useState<ClerkAPIError[]>()
+  const [showPassword, setShowPassword] = useState(false)
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev)
+  }
 
   const handleGoogleAuth = async () => {}
 
@@ -109,14 +114,26 @@ export default function SignUpForm() {
           value={email}
           onValueChange={setEmail}
           isRequired
+          aria-label="Email address"
         />
         <Input
           label="Password"
           placeholder="Enter your password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={password}
           onValueChange={setPassword}
           isRequired
+          aria-label="Password"
+          endContent={
+            <Button
+              variant="ghost"
+              isIconOnly
+              onPress={togglePasswordVisibility}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <Icon icon={showPassword ? 'lucide:eye' : 'lucide:eye-off'} />
+            </Button>
+          }
         />
         <Button
           type="submit"
@@ -124,6 +141,7 @@ export default function SignUpForm() {
           className="w-full"
           isLoading={pending}
           disabled={!isLoaded || pendingVerification}
+          aria-label="Sign up"
         >
           Sign Up
         </Button>
@@ -137,6 +155,7 @@ export default function SignUpForm() {
             value={code}
             onValueChange={setCode}
             isRequired
+            aria-label="Verification code"
           />
           <Button
             type="submit"
@@ -144,6 +163,7 @@ export default function SignUpForm() {
             className="w-full"
             isLoading={pending}
             disabled={!isLoaded}
+            aria-label="Verify code"
           >
             Verify Code
           </Button>

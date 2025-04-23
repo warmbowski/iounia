@@ -28,7 +28,14 @@ export function SignInOrSignUpLoginModal({
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      size="md"
+      aria-label={
+        isLogin ? 'Sign in to your account' : 'Sign up for a new account'
+      }
+    >
       <ModalContent>
         {(onClose) => (
           <>
@@ -46,6 +53,7 @@ export function SignInOrSignUpLoginModal({
                       className="p-0"
                       onPress={toggleMode}
                       disabled={!isLoaded}
+                      aria-label="Switch to sign-up form"
                     >
                       Sign up
                     </Button>
@@ -58,6 +66,7 @@ export function SignInOrSignUpLoginModal({
                       className="p-0"
                       onPress={toggleMode}
                       disabled={!isLoaded}
+                      aria-label="Switch to login form"
                     >
                       Log in
                     </Button>
