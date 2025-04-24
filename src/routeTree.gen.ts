@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AppRouteImport } from './routes/app/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AppIndexImport } from './routes/app/index'
+import { Route as SsoCallbackImport } from './routes/sso.callback'
 import { Route as DemoTanstackQueryImport } from './routes/demo/tanstack-query'
 import { Route as DemoConvexImport } from './routes/demo/convex'
 import { Route as AppSessionsImport } from './routes/app/sessions'
@@ -39,6 +40,12 @@ const AppIndexRoute = AppIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+
+const SsoCallbackRoute = SsoCallbackImport.update({
+  id: '/sso/callback',
+  path: '/sso/callback',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const DemoTanstackQueryRoute = DemoTanstackQueryImport.update({
@@ -123,6 +130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoTanstackQueryImport
       parentRoute: typeof rootRoute
     }
+    '/sso/callback': {
+      id: '/sso/callback'
+      path: '/sso/callback'
+      fullPath: '/sso/callback'
+      preLoaderRoute: typeof SsoCallbackImport
+      parentRoute: typeof rootRoute
+    }
     '/app/': {
       id: '/app/'
       path: '/'
@@ -172,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/app/sessions': typeof AppSessionsRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/sso/callback': typeof SsoCallbackRoute
   '/app/': typeof AppIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -183,6 +198,7 @@ export interface FileRoutesByTo {
   '/app/sessions': typeof AppSessionsRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/sso/callback': typeof SsoCallbackRoute
   '/app': typeof AppIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -196,6 +212,7 @@ export interface FileRoutesById {
   '/app/sessions': typeof AppSessionsRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/sso/callback': typeof SsoCallbackRoute
   '/app/': typeof AppIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -210,6 +227,7 @@ export interface FileRouteTypes {
     | '/app/sessions'
     | '/demo/convex'
     | '/demo/tanstack-query'
+    | '/sso/callback'
     | '/app/'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
@@ -220,6 +238,7 @@ export interface FileRouteTypes {
     | '/app/sessions'
     | '/demo/convex'
     | '/demo/tanstack-query'
+    | '/sso/callback'
     | '/app'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
@@ -231,6 +250,7 @@ export interface FileRouteTypes {
     | '/app/sessions'
     | '/demo/convex'
     | '/demo/tanstack-query'
+    | '/sso/callback'
     | '/app/'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
@@ -242,6 +262,7 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   DemoConvexRoute: typeof DemoConvexRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  SsoCallbackRoute: typeof SsoCallbackRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
@@ -251,6 +272,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   DemoConvexRoute: DemoConvexRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  SsoCallbackRoute: SsoCallbackRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }
@@ -269,6 +291,7 @@ export const routeTree = rootRoute
         "/app",
         "/demo/convex",
         "/demo/tanstack-query",
+        "/sso/callback",
         "/demo/start/api-request",
         "/demo/start/server-funcs"
       ]
@@ -297,6 +320,9 @@ export const routeTree = rootRoute
     },
     "/demo/tanstack-query": {
       "filePath": "demo/tanstack-query.tsx"
+    },
+    "/sso/callback": {
+      "filePath": "sso.callback.tsx"
     },
     "/app/": {
       "filePath": "app/index.tsx",

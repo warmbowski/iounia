@@ -22,7 +22,30 @@ export default function SignUpForm() {
     setShowPassword((prev) => !prev)
   }
 
-  const handleGoogleAuth = async () => {}
+  const handleGoogleAuth = async () => {
+    setErrors(undefined)
+    setPending(true)
+
+    if (!isLoaded) {
+      setPending(false)
+      return
+    }
+    try {
+      await signUp.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: '/sso/callback',
+        redirectUrlComplete: '/app',
+      })
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        setErrors(err.errors)
+      }
+      console.error(JSON.stringify(err, null, 2))
+    } finally {
+      // Set pending to false after the sign-in attempt is complete
+      setPending(false)
+    }
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
