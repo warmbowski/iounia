@@ -3,7 +3,7 @@ import { Icon } from '@iconify/react'
 import { useRouterState } from '@tanstack/react-router'
 
 import { RouterLink } from '@/components/router-link'
-import type { Doc, Id } from 'convex/_generated/dataModel'
+import type { Doc } from 'convex/_generated/dataModel'
 
 const getNavigationItems = (campaignId: string) => [
   {
