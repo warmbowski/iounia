@@ -29,12 +29,13 @@ export function TopNav({ forceSignIn }: TopNavProps) {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="flex-1">
-        <NavbarItem>
+      <NavbarContent className="flex-2">
+        <NavbarItem className="w-full">
           <Input
             classNames={{
               base: 'max-w-full sm:max-w-[24rem] h-10',
               mainWrapper: 'h-full',
+              inputWrapper: 'h-full',
               input: 'text-small',
             }}
             placeholder="Ask a question..."
@@ -47,7 +48,7 @@ export function TopNav({ forceSignIn }: TopNavProps) {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent justify="end">
+      <NavbarContent className="flex-1" justify="end">
         <NavbarItem>
           <ModeToggle />
         </NavbarItem>
