@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Button, Input, Navbar, NavbarContent, NavbarItem } from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
-import { ModeToggle } from '../mode-toggle'
 import { SignInOrSignUpLoginModal } from '../signin-or-signup-login-modal'
 import { ProfileButton } from '../profile-button'
 import { useAuth, useUser } from '@clerk/tanstack-react-start'
@@ -50,15 +49,12 @@ export function TopNav({ forceSignIn }: TopNavProps) {
 
       <NavbarContent className="flex-1" justify="end">
         <NavbarItem>
-          <ModeToggle />
-        </NavbarItem>
-        <NavbarItem>
           {user && isSignedIn ? (
             <ProfileButton
               userInfo={{
-                displayName: user.fullName || '',
-                email: user.emailAddresses[0] || '',
-                photoURL: user.imageUrl || '',
+                fullName: user.fullName || '',
+                emailAddress: user.primaryEmailAddress?.emailAddress || '',
+                imageUrl: user.imageUrl || '',
               }}
               onLogout={() => signOut()}
             />

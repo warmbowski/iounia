@@ -1,3 +1,5 @@
+import { THEME_LS_KEY } from '@/constants'
+import { useTheme } from '@/hooks/use-theme'
 import {
   Avatar,
   Button,
@@ -9,11 +11,22 @@ import {
 import { Icon } from '@iconify/react/dist/iconify.js'
 
 interface ProfileButtonProps {
-  userInfo: Pick<UserDoc, 'displayName' | 'email' | 'photoURL'>
+  userInfo: {
+    fullName: string
+    emailAddress: string
+    imageUrl: string
+  }
   onLogout?: () => void
 }
 
 export function ProfileButton({ userInfo, onLogout }: ProfileButtonProps) {
+  const { theme, setTheme } = useTheme(undefined, THEME_LS_KEY)
+  const isDark = theme === 'dark'
+
+  const handleToggle = () => {
+    setTheme(isDark ? 'light' : 'dark')
+  }
+
   return (
     <div>
       <Dropdown placement="bottom">
@@ -21,13 +34,15 @@ export function ProfileButton({ userInfo, onLogout }: ProfileButtonProps) {
           <Button variant="flat" className="w-full justify-start">
             <div className="flex items-center gap-3">
               <Avatar
-                src={userInfo.photoURL}
+                src={userInfo.imageUrl}
                 size="sm"
                 isBordered
                 alt="Profile image"
               />
               <div className="flex flex-col items-start">
-                <span className="text-sm">{userInfo.displayName}</span>
+                <span className="text-sm">
+                  {userInfo.fullName || userInfo.emailAddress}
+                </span>
                 <span className="text-xs text-default-500">View Profile</span>
               </div>
             </div>
@@ -40,12 +55,18 @@ export function ProfileButton({ userInfo, onLogout }: ProfileButtonProps) {
           >
             Settings
           </DropdownItem>
-          {/* <DropdownItem
+          <DropdownItem
             key="theme"
-            startContent={<Icon icon="lucide:palette" className="text-lg" />}
+            startContent={
+              <Icon
+                icon={isDark ? 'lucide:sun' : 'lucide:moon'}
+                className="text-lg"
+              />
+            }
+            onPress={handleToggle}
           >
             Theme
-          </DropdownItem> */}
+          </DropdownItem>
           <DropdownItem
             key="logout"
             className="text-danger"
