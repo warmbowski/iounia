@@ -6,6 +6,10 @@ export const env = createEnv({
     SERVER_URL: z.string().url().optional(),
     CONVEX_DEPLOYMENT: z.string(),
     CLERK_SECRET_KEY: z.string(),
+    CLERK_SIGN_IN_URL: z.string().default('/?sign-in'),
+    CLERK_SIGN_UP_URL: z.string().default('/?sign-up'),
+    CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.string().default('/app'),
+    CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.string().default('/app'),
   },
 
   /**

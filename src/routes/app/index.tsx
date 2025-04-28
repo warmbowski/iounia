@@ -21,7 +21,7 @@ import type { Id } from 'convex/_generated/dataModel'
 
 export const Route = createFileRoute('/app/')({
   beforeLoad: async ({ context }) => {
-    if (!context.userId) {
+    if (!context.user) {
       throw redirect({ to: '/', search: { forceSignIn: true } })
     }
   },

@@ -13,6 +13,7 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@clerk/backend": "^1.30.0",
     "@clerk/tanstack-react-start": "^0.13.7",
     "@convex-dev/react-query": "0.0.0-alpha.8",
     "@heroui/react": "2.7.6-beta.2",

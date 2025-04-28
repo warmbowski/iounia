@@ -58,11 +58,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   }),
 
   beforeLoad: async (ctx) => {
-    const { userId, token } = await authStateFn()
+    const { user, token } = await authStateFn()
     if (token) {
       ctx.context.convexClient.serverHttpClient?.setAuth(token)
     }
-    return { userId }
+    return { user }
   },
 
   component: () => (
