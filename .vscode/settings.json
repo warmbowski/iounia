@@ -7,5 +7,26 @@
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
-  }
+  },
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "Use HeroUI as the UI library."
+    },
+    {
+      "text": "Use Tanstack-Router for routing."
+    },
+    {
+      "text": "Use TypeScript."
+    },
+    {
+      "text": "Use Tailwind CSS for styling."
+    },
+    {
+      "text": "Use Convex for database and file storage."
+    },
+    {
+      "text": "Ensure accessibility standards are met."
+    }
+  ],
+  "editor.formatOnSave": true
 }

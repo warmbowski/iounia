@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as functions_campaigns from "../functions/campaigns.js";
+import type * as functions_sessions from "../functions/sessions.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -25,6 +26,7 @@ import type * as functions_campaigns from "../functions/campaigns.js";
  */
 declare const fullApi: ApiFromModules<{
   "functions/campaigns": typeof functions_campaigns;
+  "functions/sessions": typeof functions_sessions;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

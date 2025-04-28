@@ -18,9 +18,8 @@ const HeroUILinkComponent = forwardRef<HTMLAnchorElement, HeroUILinkProps>(
 )
 
 const RouterLinkComponent = createLink(HeroUILinkComponent)
+export type RouterLinkProps = LinkComponent<typeof HeroUILinkComponent>
 
-export const RouterLink: LinkComponent<typeof HeroUILinkComponent> = (
-  props,
-) => {
+export const RouterLink: RouterLinkProps = (props) => {
   return <RouterLinkComponent {...props} />
 }

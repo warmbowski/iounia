@@ -11,24 +11,15 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AppRouteImport } from './routes/app/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AppIndexImport } from './routes/app/index'
 import { Route as SsoCallbackImport } from './routes/sso.callback'
-import { Route as DemoTanstackQueryImport } from './routes/demo/tanstack-query'
-import { Route as DemoConvexImport } from './routes/demo/convex'
-import { Route as AppSessionsImport } from './routes/app/sessions'
-import { Route as AppOverviewImport } from './routes/app/overview'
-import { Route as DemoStartServerFuncsImport } from './routes/demo/start.server-funcs'
-import { Route as DemoStartApiRequestImport } from './routes/demo/start.api-request'
+import { Route as AppCampaignIdRouteImport } from './routes/app/$campaignId/route'
+import { Route as AppCampaignIdIndexImport } from './routes/app/$campaignId/index'
+import { Route as AppCampaignIdSessionsImport } from './routes/app/$campaignId/sessions'
+import { Route as AppCampaignIdSessionsSessionIdImport } from './routes/app/$campaignId/sessions.$sessionId'
 
 // Create/Update Routes
-
-const AppRouteRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -37,9 +28,9 @@ const IndexRoute = IndexImport.update({
 } as any)
 
 const AppIndexRoute = AppIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRouteRoute,
+  id: '/app/',
+  path: '/app/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const SsoCallbackRoute = SsoCallbackImport.update({
@@ -48,41 +39,30 @@ const SsoCallbackRoute = SsoCallbackImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const DemoTanstackQueryRoute = DemoTanstackQueryImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
+const AppCampaignIdRouteRoute = AppCampaignIdRouteImport.update({
+  id: '/app/$campaignId',
+  path: '/app/$campaignId',
   getParentRoute: () => rootRoute,
 } as any)
 
-const DemoConvexRoute = DemoConvexImport.update({
-  id: '/demo/convex',
-  path: '/demo/convex',
-  getParentRoute: () => rootRoute,
+const AppCampaignIdIndexRoute = AppCampaignIdIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppCampaignIdRouteRoute,
 } as any)
 
-const AppSessionsRoute = AppSessionsImport.update({
+const AppCampaignIdSessionsRoute = AppCampaignIdSessionsImport.update({
   id: '/sessions',
   path: '/sessions',
-  getParentRoute: () => AppRouteRoute,
+  getParentRoute: () => AppCampaignIdRouteRoute,
 } as any)
 
-const AppOverviewRoute = AppOverviewImport.update({
-  id: '/overview',
-  path: '/overview',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-
-const DemoStartServerFuncsRoute = DemoStartServerFuncsImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoStartApiRequestRoute = DemoStartApiRequestImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRoute,
-} as any)
+const AppCampaignIdSessionsSessionIdRoute =
+  AppCampaignIdSessionsSessionIdImport.update({
+    id: '/$sessionId',
+    path: '/$sessionId',
+    getParentRoute: () => AppCampaignIdSessionsRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -95,39 +75,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/app/overview': {
-      id: '/app/overview'
-      path: '/overview'
-      fullPath: '/app/overview'
-      preLoaderRoute: typeof AppOverviewImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/sessions': {
-      id: '/app/sessions'
-      path: '/sessions'
-      fullPath: '/app/sessions'
-      preLoaderRoute: typeof AppSessionsImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/demo/convex': {
-      id: '/demo/convex'
-      path: '/demo/convex'
-      fullPath: '/demo/convex'
-      preLoaderRoute: typeof DemoConvexImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryImport
+    '/app/$campaignId': {
+      id: '/app/$campaignId'
+      path: '/app/$campaignId'
+      fullPath: '/app/$campaignId'
+      preLoaderRoute: typeof AppCampaignIdRouteImport
       parentRoute: typeof rootRoute
     }
     '/sso/callback': {
@@ -139,142 +91,135 @@ declare module '@tanstack/react-router' {
     }
     '/app/': {
       id: '/app/'
-      path: '/'
-      fullPath: '/app/'
+      path: '/app'
+      fullPath: '/app'
       preLoaderRoute: typeof AppIndexImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestImport
       parentRoute: typeof rootRoute
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsImport
-      parentRoute: typeof rootRoute
+    '/app/$campaignId/sessions': {
+      id: '/app/$campaignId/sessions'
+      path: '/sessions'
+      fullPath: '/app/$campaignId/sessions'
+      preLoaderRoute: typeof AppCampaignIdSessionsImport
+      parentRoute: typeof AppCampaignIdRouteImport
+    }
+    '/app/$campaignId/': {
+      id: '/app/$campaignId/'
+      path: '/'
+      fullPath: '/app/$campaignId/'
+      preLoaderRoute: typeof AppCampaignIdIndexImport
+      parentRoute: typeof AppCampaignIdRouteImport
+    }
+    '/app/$campaignId/sessions/$sessionId': {
+      id: '/app/$campaignId/sessions/$sessionId'
+      path: '/$sessionId'
+      fullPath: '/app/$campaignId/sessions/$sessionId'
+      preLoaderRoute: typeof AppCampaignIdSessionsSessionIdImport
+      parentRoute: typeof AppCampaignIdSessionsImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface AppRouteRouteChildren {
-  AppOverviewRoute: typeof AppOverviewRoute
-  AppSessionsRoute: typeof AppSessionsRoute
-  AppIndexRoute: typeof AppIndexRoute
+interface AppCampaignIdSessionsRouteChildren {
+  AppCampaignIdSessionsSessionIdRoute: typeof AppCampaignIdSessionsSessionIdRoute
 }
 
-const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppOverviewRoute: AppOverviewRoute,
-  AppSessionsRoute: AppSessionsRoute,
-  AppIndexRoute: AppIndexRoute,
+const AppCampaignIdSessionsRouteChildren: AppCampaignIdSessionsRouteChildren = {
+  AppCampaignIdSessionsSessionIdRoute: AppCampaignIdSessionsSessionIdRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
+const AppCampaignIdSessionsRouteWithChildren =
+  AppCampaignIdSessionsRoute._addFileChildren(
+    AppCampaignIdSessionsRouteChildren,
+  )
+
+interface AppCampaignIdRouteRouteChildren {
+  AppCampaignIdSessionsRoute: typeof AppCampaignIdSessionsRouteWithChildren
+  AppCampaignIdIndexRoute: typeof AppCampaignIdIndexRoute
+}
+
+const AppCampaignIdRouteRouteChildren: AppCampaignIdRouteRouteChildren = {
+  AppCampaignIdSessionsRoute: AppCampaignIdSessionsRouteWithChildren,
+  AppCampaignIdIndexRoute: AppCampaignIdIndexRoute,
+}
+
+const AppCampaignIdRouteRouteWithChildren =
+  AppCampaignIdRouteRoute._addFileChildren(AppCampaignIdRouteRouteChildren)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
-  '/app/overview': typeof AppOverviewRoute
-  '/app/sessions': typeof AppSessionsRoute
-  '/demo/convex': typeof DemoConvexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app/$campaignId': typeof AppCampaignIdRouteRouteWithChildren
   '/sso/callback': typeof SsoCallbackRoute
-  '/app/': typeof AppIndexRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/app': typeof AppIndexRoute
+  '/app/$campaignId/sessions': typeof AppCampaignIdSessionsRouteWithChildren
+  '/app/$campaignId/': typeof AppCampaignIdIndexRoute
+  '/app/$campaignId/sessions/$sessionId': typeof AppCampaignIdSessionsSessionIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app/overview': typeof AppOverviewRoute
-  '/app/sessions': typeof AppSessionsRoute
-  '/demo/convex': typeof DemoConvexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/sso/callback': typeof SsoCallbackRoute
   '/app': typeof AppIndexRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/app/$campaignId/sessions': typeof AppCampaignIdSessionsRouteWithChildren
+  '/app/$campaignId': typeof AppCampaignIdIndexRoute
+  '/app/$campaignId/sessions/$sessionId': typeof AppCampaignIdSessionsSessionIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
-  '/app/overview': typeof AppOverviewRoute
-  '/app/sessions': typeof AppSessionsRoute
-  '/demo/convex': typeof DemoConvexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app/$campaignId': typeof AppCampaignIdRouteRouteWithChildren
   '/sso/callback': typeof SsoCallbackRoute
   '/app/': typeof AppIndexRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/app/$campaignId/sessions': typeof AppCampaignIdSessionsRouteWithChildren
+  '/app/$campaignId/': typeof AppCampaignIdIndexRoute
+  '/app/$campaignId/sessions/$sessionId': typeof AppCampaignIdSessionsSessionIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app'
-    | '/app/overview'
-    | '/app/sessions'
-    | '/demo/convex'
-    | '/demo/tanstack-query'
+    | '/app/$campaignId'
     | '/sso/callback'
-    | '/app/'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/app'
+    | '/app/$campaignId/sessions'
+    | '/app/$campaignId/'
+    | '/app/$campaignId/sessions/$sessionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/app/overview'
-    | '/app/sessions'
-    | '/demo/convex'
-    | '/demo/tanstack-query'
     | '/sso/callback'
     | '/app'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/app/$campaignId/sessions'
+    | '/app/$campaignId'
+    | '/app/$campaignId/sessions/$sessionId'
   id:
     | '__root__'
     | '/'
-    | '/app'
-    | '/app/overview'
-    | '/app/sessions'
-    | '/demo/convex'
-    | '/demo/tanstack-query'
+    | '/app/$campaignId'
     | '/sso/callback'
     | '/app/'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/app/$campaignId/sessions'
+    | '/app/$campaignId/'
+    | '/app/$campaignId/sessions/$sessionId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRouteRoute: typeof AppRouteRouteWithChildren
-  DemoConvexRoute: typeof DemoConvexRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  AppCampaignIdRouteRoute: typeof AppCampaignIdRouteRouteWithChildren
   SsoCallbackRoute: typeof SsoCallbackRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
+  AppIndexRoute: typeof AppIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRouteRoute: AppRouteRouteWithChildren,
-  DemoConvexRoute: DemoConvexRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  AppCampaignIdRouteRoute: AppCampaignIdRouteRouteWithChildren,
   SsoCallbackRoute: SsoCallbackRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+  AppIndexRoute: AppIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -288,51 +233,41 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/app",
-        "/demo/convex",
-        "/demo/tanstack-query",
+        "/app/$campaignId",
         "/sso/callback",
-        "/demo/start/api-request",
-        "/demo/start/server-funcs"
+        "/app/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/app": {
-      "filePath": "app/route.tsx",
+    "/app/$campaignId": {
+      "filePath": "app/$campaignId/route.tsx",
       "children": [
-        "/app/overview",
-        "/app/sessions",
-        "/app/"
+        "/app/$campaignId/sessions",
+        "/app/$campaignId/"
       ]
-    },
-    "/app/overview": {
-      "filePath": "app/overview.tsx",
-      "parent": "/app"
-    },
-    "/app/sessions": {
-      "filePath": "app/sessions.tsx",
-      "parent": "/app"
-    },
-    "/demo/convex": {
-      "filePath": "demo/convex.tsx"
-    },
-    "/demo/tanstack-query": {
-      "filePath": "demo/tanstack-query.tsx"
     },
     "/sso/callback": {
       "filePath": "sso.callback.tsx"
     },
     "/app/": {
-      "filePath": "app/index.tsx",
-      "parent": "/app"
+      "filePath": "app/index.tsx"
     },
-    "/demo/start/api-request": {
-      "filePath": "demo/start.api-request.tsx"
+    "/app/$campaignId/sessions": {
+      "filePath": "app/$campaignId/sessions.tsx",
+      "parent": "/app/$campaignId",
+      "children": [
+        "/app/$campaignId/sessions/$sessionId"
+      ]
     },
-    "/demo/start/server-funcs": {
-      "filePath": "demo/start.server-funcs.tsx"
+    "/app/$campaignId/": {
+      "filePath": "app/$campaignId/index.tsx",
+      "parent": "/app/$campaignId"
+    },
+    "/app/$campaignId/sessions/$sessionId": {
+      "filePath": "app/$campaignId/sessions.$sessionId.tsx",
+      "parent": "/app/$campaignId/sessions"
     }
   }
 }

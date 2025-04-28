@@ -5,12 +5,26 @@ import { routerWithQueryClient } from '@tanstack/react-router-with-query'
 import { routeTree } from './routeTree.gen'
 
 import './styles.css'
+import { ConvexQueryClient } from '@convex-dev/react-query'
 import { QueryClient } from '@tanstack/react-query'
-import { convexQueryClient } from './integrations/convex/provider-with-clerk'
+
+const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL
+if (!CONVEX_URL) {
+  console.error('missing envar CONVEX_URL')
+}
+export const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryKeyHashFn: convexQueryClient.hashFn(),
+      queryFn: convexQueryClient.queryFn(),
+    },
+  },
+})
+convexQueryClient.connect(queryClient)
 
 // Create a new router instance
 export const createRouter = () => {
-  const queryClient = new QueryClient()
   const router = routerWithQueryClient(
     createTanstackRouter({
       routeTree,

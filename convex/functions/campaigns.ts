@@ -75,8 +75,9 @@ export const listCampaigns = query({
         q.eq('userId', user.tokenIdentifier),
       )
       .collect()
+
     return await Promise.all(
       campaignMembers.map(async (member) => db.get(member.campaignId)),
-    )
+    ).then((campaigns) => campaigns.filter((campaign) => !!campaign))
   },
 })

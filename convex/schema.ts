@@ -19,11 +19,12 @@ export default defineSchema({
 
   sessions: defineTable({
     campaignId: v.id('campaigns'),
+    name: v.optional(v.string()),
     sessionNumber: v.number(),
     date: isoDate(),
     summary: v.string(),
-    notes: v.string(),
-  }),
+    notes: v.optional(v.string()),
+  }).index('by_campaign', ['campaignId']),
   attendees: defineTable({
     sessionId: v.id('sessions'),
     userId: userId(),

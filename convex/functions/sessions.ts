@@ -1,0 +1,90 @@
+import { mutation, query } from '../_generated/server'
+import { v } from 'convex/values'
+
+export const createSession = mutation({
+  args: {
+    campaignId: v.id('campaigns'),
+    name: v.optional(v.string()),
+    sessionNumber: v.number(),
+    date: v.string(),
+    summary: v.string(),
+    notes: v.optional(v.string()),
+  },
+  handler: async (
+    { db, auth },
+    { campaignId, name, sessionNumber, date, summary, notes },
+  ) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    const campaign = await db.get(campaignId)
+    if (!campaign) throw new Error('Campaign not found')
+    if (campaign.ownerId !== user.tokenIdentifier)
+      throw new Error(
+        'User not authorized to create a session for this campaign',
+      )
+
+    return await db.insert('sessions', {
+      campaignId,
+      name,
+      sessionNumber,
+      date,
+      summary,
+      notes,
+    })
+  },
+})
+
+export const updateSession = mutation({
+  args: {
+    sessionId: v.id('sessions'),
+    updates: v.object({
+      sessionNumber: v.optional(v.number()),
+      date: v.optional(v.string()),
+      summary: v.optional(v.string()),
+      notes: v.optional(v.string()),
+    }),
+  },
+  handler: async ({ db, auth }, { sessionId, updates }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    const session = await db.get(sessionId)
+    if (!session) throw new Error('Session not found')
+
+    const campaign = await db.get(session.campaignId)
+    if (!campaign) throw new Error('Campaign not found')
+    if (campaign.ownerId !== user.tokenIdentifier)
+      throw new Error('User not authorized to update this session')
+
+    return await db.patch(sessionId, {
+      ...updates,
+    })
+  },
+})
+
+export const readSession = query({
+  args: {
+    sessionId: v.id('sessions'),
+  },
+  handler: async ({ db }, { sessionId }) => {
+    const session = await db.get(sessionId)
+    if (!session) throw new Error('Session not found')
+
+    return session
+  },
+})
+
+export const listSessions = query({
+  args: {
+    campaignId: v.id('campaigns'),
+  },
+  handler: async ({ db }, { campaignId }) => {
+    const sessions = await db
+      .query('sessions')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .collect()
+
+    return sessions
+  },
+})

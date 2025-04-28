@@ -5,16 +5,19 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
-import type { ConvexQueryClient } from '@convex-dev/react-query'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { HeroUIProviderWithNav } from '@/integrations/heroui/provider-with-nav'
-import { ConvexProviderWithClerk } from '@/integrations/convex/provider-with-clerk'
 import { DEFAULT_THEME_MODE } from '@/constants'
+import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start'
+import { ConvexProviderWithClerk } from 'convex/react-clerk'
 
 import appCss from '../styles.css?url'
+import { convexQueryClient } from '@/router'
+import { authStateFn } from '@/integrations/clerk/auth'
+import { BaseLayout } from '@/components/layouts'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -54,18 +57,31 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
 
+  beforeLoad: async (ctx) => {
+    const { userId, token } = await authStateFn()
+    if (token) {
+      ctx.context.convexClient.serverHttpClient?.setAuth(token)
+    }
+    return { userId }
+  },
+
   component: () => (
-    <ClerkProvider>
-      <ConvexProviderWithClerk>
-        <RootDocument>
+    <RootDocument>
+      <ClerkProvider>
+        <ConvexProviderWithClerk
+          client={convexQueryClient.convexClient}
+          useAuth={useAuth}
+        >
           <HeroUIProviderWithNav>
-            <Outlet />
+            <BaseLayout>
+              <Outlet />
+            </BaseLayout>
             <TanStackRouterDevtools />
             <ReactQueryDevtools buttonPosition="bottom-right" />
           </HeroUIProviderWithNav>
-        </RootDocument>
-      </ConvexProviderWithClerk>
-    </ClerkProvider>
+        </ConvexProviderWithClerk>
+      </ClerkProvider>
+    </RootDocument>
   ),
 })
 
