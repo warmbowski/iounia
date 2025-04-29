@@ -1,28 +1,54 @@
 import { useRef, useState } from 'react'
-import { Button, Input } from '@heroui/react'
+import { Button } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import type { ChangeEvent, FormEvent } from 'react'
+import { api } from 'convex/_generated/api'
+import { useConvexMutation } from '@convex-dev/react-query'
+import { useMutation } from '@tanstack/react-query'
+import type { Id } from 'convex/_generated/dataModel'
 
 interface FileUploadFormProps {
+  sessionId: Id<'sessions'>
   onClose: () => void
 }
 
-export function FileUploadForm({ onClose }: FileUploadFormProps) {
-  const [files, setFiles] = useState<FileList | null>(null)
+export function CreateRecordingForm({
+  sessionId,
+  onClose,
+}: FileUploadFormProps) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const generateUploadUrl = useMutation({
+    mutationFn: useConvexMutation(api.functions.recordings.generateUploadUrl),
+  })
+  const createRecording = useMutation({
+    mutationFn: useConvexMutation(api.functions.recordings.createRecording),
+  })
+  const fileInput = useRef<HTMLInputElement>(null!)
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (files) {
-      // Handle file upload logic here
-      console.log('Uploading files:', files)
-      onClose()
-    }
+
+    // Step 1: Get a short-lived upload URL
+    const postUrl = await generateUploadUrl.mutateAsync({})
+    // Step 2: POST the file to the URL
+    const result = await fetch(postUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': selectedFile!.type },
+      body: selectedFile,
+    })
+    const { storageId } = await result.json()
+    // Step 3: Save the newly allocated storage id to the database
+    await createRecording.mutate({ storageId, sessionId })
+
+    setSelectedFile(null)
+    fileInput.current.value = ''
+    onClose()
   }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(e.target.files)
+      setSelectedFile(e.target.files[0])
     }
   }
 
@@ -43,7 +69,7 @@ export function FileUploadForm({ onClose }: FileUploadFormProps) {
           Supported formats: MP3, WAV, AIFF, ACC, OGG, FLAC
         </p>
         <input
-          ref={fileInputRef}
+          ref={fileInput}
           type="file"
           multiple
           className="hidden"
@@ -52,11 +78,11 @@ export function FileUploadForm({ onClose }: FileUploadFormProps) {
         />
       </div>
 
-      {files && (
+      {selectedFile && (
         <div className="mt-4">
           <p className="text-small font-medium mb-2">Selected files:</p>
           <ul className="text-small text-default-500">
-            {Array.from(files).map((file, index) => (
+            {Array.from([selectedFile]).map((file, index) => (
               <li key={index} className="flex items-center gap-2">
                 <Icon icon="lucide:file" />
                 {file.name}
@@ -70,7 +96,7 @@ export function FileUploadForm({ onClose }: FileUploadFormProps) {
         type="submit"
         color="primary"
         className="mt-4"
-        isDisabled={!files}
+        isDisabled={!selectedFile}
         startContent={<Icon icon="lucide:upload" />}
       >
         Upload Files

@@ -5,15 +5,10 @@ export const createSession = mutation({
   args: {
     campaignId: v.id('campaigns'),
     name: v.optional(v.string()),
-    sessionNumber: v.number(),
     date: v.string(),
-    summary: v.string(),
     notes: v.optional(v.string()),
   },
-  handler: async (
-    { db, auth },
-    { campaignId, name, sessionNumber, date, summary, notes },
-  ) => {
+  handler: async ({ db, auth }, { campaignId, name, date, notes }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
@@ -27,9 +22,9 @@ export const createSession = mutation({
     return await db.insert('sessions', {
       campaignId,
       name,
-      sessionNumber,
+      sessionNumber: 0,
       date,
-      summary,
+      summary: '',
       notes,
     })
   },

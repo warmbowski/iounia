@@ -1,4 +1,4 @@
-import { FileUploadForm } from '@/components/file-upload-form'
+import { CreateRecordingForm } from '@/components/create-recording-form'
 import { convexQuery } from '@convex-dev/react-query'
 import {
   Button,
@@ -46,7 +46,14 @@ function RouteComponent() {
 
   return (
     <div className="p-8">
-      <div className="mb-8">{JSON.stringify(data)}</div>
+      <div>
+        <h1 className="text-2xl font-bold">{data.name}</h1>
+        {Object.entries(data).map(([key, value]) => (
+          <div key={key} className="mb-2">
+            <strong>{key}:</strong> {JSON.stringify(value)}
+          </div>
+        ))}
+      </div>
 
       <Button
         color="primary"
@@ -64,7 +71,7 @@ function RouteComponent() {
                 Upload Audio
               </DrawerHeader>
               <DrawerBody>
-                <FileUploadForm onClose={onClose} />
+                <CreateRecordingForm sessionId={sessionId} onClose={onClose} />
               </DrawerBody>
               <DrawerFooter>
                 <Button color="danger" variant="light" onPress={onClose}>

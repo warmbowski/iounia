@@ -15,6 +15,7 @@ import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Id } from 'convex/_generated/dataModel'
+import { CreateSessionForm } from '@/components/create-session-form'
 
 export const Route = createFileRoute('/app/$campaignId/sessions')({
   loader: async ({ context, params }) => {
@@ -34,14 +35,11 @@ function Sessions() {
       campaignId: campaignId,
     }),
   )
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure()
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-  }
-
   const handleCardClick = (sessionId: Id<'sessions'>) => {
+    console.log('navigate to:', campaignId, sessionId)
     navigate({
       to: '/app/$campaignId/sessions/$sessionId',
       params: { campaignId, sessionId },
@@ -65,10 +63,10 @@ function Sessions() {
               {session.sessionNumber} - {session.name}
             </CardHeader>
             <CardBody>
+              <p>{session.notes}</p>
               <p className="text-sm text-gray-500">
                 {new Date(session.date).toLocaleDateString()}
               </p>
-              <p>{session.summary}</p>
             </CardBody>
           </Card>
         ))}
@@ -82,11 +80,7 @@ function Sessions() {
                 Create Campaign
               </DrawerHeader>
               <DrawerBody>
-                <form onSubmit={handleSubmit} className="space-y-4 p-6">
-                  <Button type="submit" color="primary">
-                    Add Session
-                  </Button>
-                </form>
+                <CreateSessionForm campaignId={campaignId} onClose={onClose} />
               </DrawerBody>
               <DrawerFooter>
                 <Button color="danger" variant="light" onPress={onClose}>

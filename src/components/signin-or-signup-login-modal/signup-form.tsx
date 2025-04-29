@@ -222,8 +222,3 @@ export default function SignUpForm() {
     </>
   )
 }
-
-// `
-// Generate a transcript for this file. Always use the format mm:ss for the time. Group similar text together rather than timestamping every line. Try to deduce each speakers name. Respond with the transcript in the form of this JSON schema:
-// {"type": "array","items": {"type": "object","properties": {"timestamp": {"type": "string"},"speaker": {"type": "string"},"character": {"type": "string"},"text": {"type": "string"}},"required": ["timestamp","speaker","text"]}}
-// `

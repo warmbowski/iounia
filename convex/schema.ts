@@ -33,11 +33,10 @@ export default defineSchema({
 
   recordings: defineTable({
     sessionId: v.id('sessions'),
-    recordingIndex: v.number(),
+    recordingIndex: v.optional(v.number()),
     fileUrl: v.string(),
     fileType: v.string(),
-    fileSize: v.number(),
-    uploadedAt: isoDate(),
+    // fileSize: v.number(),
     uploadedBy: userId(),
   }),
 
