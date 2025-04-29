@@ -12,6 +12,8 @@ export default function SignUpForm() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [code, setCode] = useState('')
   const [pendingVerification, setPendingVerification] = useState(false)
   const [pending, setPending] = useState(false)
@@ -42,7 +44,6 @@ export default function SignUpForm() {
       }
       console.error(JSON.stringify(err, null, 2))
     } finally {
-      // Set pending to false after the sign-in attempt is complete
       setPending(false)
     }
   }
@@ -57,9 +58,10 @@ export default function SignUpForm() {
       return
     }
 
-    // Start the sign-in process using the email and password provided
     try {
       await signUp.create({
+        firstName,
+        lastName,
         emailAddress: email,
         password,
       })
@@ -71,9 +73,7 @@ export default function SignUpForm() {
       if (isClerkAPIResponseError(err)) {
         setErrors(err.errors)
       }
-      console.error(JSON.stringify(err, null, 2))
     } finally {
-      // Set pending to false after the sign-in attempt is complete
       setPending(false)
     }
   }
@@ -130,6 +130,26 @@ export default function SignUpForm() {
       </div>
 
       <form onSubmit={handleSignIn} className="flex flex-col gap-4">
+        <div className="flex gap-4">
+          <Input
+            label="First Name"
+            placeholder="Enter your first name"
+            type="text"
+            value={firstName}
+            onValueChange={setFirstName}
+            isRequired
+            aria-label="First Name"
+          />
+          <Input
+            label="Last Name"
+            placeholder="Enter your last name"
+            type="text"
+            value={lastName}
+            onValueChange={setLastName}
+            isRequired
+            aria-label="Last Name"
+          />
+        </div>
         <Input
           label="Email"
           placeholder="Enter your email"
@@ -202,3 +222,8 @@ export default function SignUpForm() {
     </>
   )
 }
+
+// `
+// Generate a transcript for this file. Always use the format mm:ss for the time. Group similar text together rather than timestamping every line. Try to deduce each speakers name. Respond with the transcript in the form of this JSON schema:
+// {"type": "array","items": {"type": "object","properties": {"timestamp": {"type": "string"},"speaker": {"type": "string"},"character": {"type": "string"},"text": {"type": "string"}},"required": ["timestamp","speaker","text"]}}
+// `
