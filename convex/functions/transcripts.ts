@@ -12,18 +12,8 @@ import {
   Type,
 } from '@google/genai'
 import { v } from 'convex/values'
+import { SYSTEM_PROMPT_TRANSCRIPTION } from '../system-prompts'
 
-const TRANSCRIBE_PROMPT = `
-Generate audio diarization for this recording of a table-top role playing game session.
-Try to guess the name of the person talking and add it to the speaker property, or use "speaker A", "speaker B", etc.
-The only possible values for speakerType are "GM", "Player", "PC", "NPC", or undefined if one of these is not determined.
-The characterName property should be used if the speaker is pretending to be player character (PC) or a non-player character (NPC).
-The GM is the one who narrates the story and describes the situation the characters are in.
-The GM also plays as non-player characters (NPCs) in the story.
-The Players are the ones who play the game and act as player characters (PC) in the story.
-Always use the format mm:ss for the timestamps.
-
-`
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 })
@@ -88,7 +78,7 @@ export const transcribeRecording = internalAction({
         },
         contents: createUserContent([
           createPartFromUri(upload.uri, upload.mimeType),
-          TRANSCRIBE_PROMPT,
+          SYSTEM_PROMPT_TRANSCRIPTION,
         ]),
       })
 
