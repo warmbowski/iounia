@@ -40,7 +40,26 @@ Northstar ideas: The app can also generate new content based on the campaign and
   - [x] Maybe process audio files into transcriptions, summaries, and embeddings after audio is uploaded
     - [ ] Maybe trigger with interaction, chron job, or webhook, whatever is best to reduce GenAI costs
 
-`----`
+## Refinement list
+
+- [ ] Figure out a better way to check if user is logged in, current implementation is adds latency to all route loads
+- [ ] add Refine vscode copilot help to include lib specific instructions and best practices for:
+  - [ ] Convex
+  - [ ] Clerk
+  - [ ] Tanstack Query
+  - [ ] Tanstack Router
+  - [ ] HeroUI
+  - [ ] Tailwind CSS
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+---
+
 Welcome to your new TanStack app!
 
 # Getting Started
