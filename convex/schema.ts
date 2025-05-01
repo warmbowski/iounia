@@ -1,3 +1,4 @@
+import { time } from 'console'
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 
@@ -12,6 +13,7 @@ export default defineSchema({
     ownerId: userId(),
     invitations: v.array(v.string()),
   }),
+
   members: defineTable({
     campaignId: v.id('campaigns'),
     userId: userId(),
@@ -25,6 +27,7 @@ export default defineSchema({
     summary: v.string(),
     notes: v.optional(v.string()),
   }).index('by_campaign', ['campaignId']),
+
   attendees: defineTable({
     sessionId: v.id('sessions'),
     userId: userId(),
@@ -33,18 +36,22 @@ export default defineSchema({
 
   recordings: defineTable({
     sessionId: v.id('sessions'),
+    storageId: v.id('_storage'),
     recordingIndex: v.optional(v.number()),
     fileUrl: v.string(),
     fileType: v.string(),
-    // fileSize: v.number(),
+    tokenCount: v.optional(v.number()),
     uploadedBy: userId(),
-  }),
+  }).index('by_session', ['sessionId']),
 
   transcripts: defineTable({
-    sessionId: v.id('sessions'), // References the sessions table id
-    recordingId: v.id('recordings'), // References the recordings table id
-    chunkIndex: v.number(), // Index of the chunk for ordering
-    text: v.string(), // Text content of the transcript chunk
-    embeddings: v.array(v.number()), // Embeddings for vector search
-  }),
+    recordingId: v.id('recordings'),
+    sessionId: v.id('sessions'),
+    text: v.string(),
+    timestamp: v.string(),
+    speaker: v.string(),
+    speakerType: v.optional(v.string()), // e.g., "Player", "GM", "PC", "NPC"
+    characterName: v.optional(v.string()),
+    embeddings: v.array(v.number()),
+  }).index('by_recording', ['recordingId']),
 })

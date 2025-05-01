@@ -1,3 +1,4 @@
+import { AudioPlayerCard } from '@/components/audio-player-card'
 import { CreateRecordingForm } from '@/components/create-recording-form'
 import { convexQuery } from '@convex-dev/react-query'
 import {
@@ -15,18 +16,26 @@ import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 
-export const Route = createFileRoute('/app/$campaignId/sessions/$sessionId')({
+export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
   parseParams: (params) => {
     const { sessionId } = params
+
     if (typeof sessionId !== 'string') {
       throw new Error('Invalid sessionId')
     }
-    return { sessionId: sessionId as Id<'sessions'> }
+    return {
+      sessionId: sessionId as Id<'sessions'>,
+    }
   },
+
   loader: async ({ context, params }) => {
     await context.queryClient.prefetchQuery(
       convexQuery(api.functions.sessions.readSession, {
-        campaignId: params.campaignId,
+        sessionId: params.sessionId,
+      }),
+    )
+    await context.queryClient.prefetchQuery(
+      convexQuery(api.functions.recordings.listRecordings, {
         sessionId: params.sessionId,
       }),
     )
@@ -35,20 +44,29 @@ export const Route = createFileRoute('/app/$campaignId/sessions/$sessionId')({
 })
 
 function RouteComponent() {
-  const { campaignId, sessionId } = Route.useParams()
-  const { data } = useSuspenseQuery(
+  const { sessionId } = Route.useParams()
+  const { data: session } = useSuspenseQuery(
     convexQuery(api.functions.sessions.readSession, {
-      campaignId: campaignId,
       sessionId: sessionId,
     }),
   )
+  const { data: recs } = useSuspenseQuery(
+    convexQuery(api.functions.recordings.listRecordings, {
+      sessionId,
+    }),
+  )
+  // const { data: trans } = useQuery(
+  //   convexQuery(api.functions.transcripts.listTranscripts, {
+  //     recordingId: recs[0]?._id,
+  //   }),
+  // )
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   return (
     <div className="p-8">
       <div>
-        <h1 className="text-2xl font-bold">{data.name}</h1>
-        {Object.entries(data).map(([key, value]) => (
+        <h1 className="text-2xl font-bold">{session.name}</h1>
+        {Object.entries(session).map(([key, value]) => (
           <div key={key} className="mb-2">
             <strong>{key}:</strong> {JSON.stringify(value)}
           </div>
@@ -62,6 +80,19 @@ function RouteComponent() {
       >
         Upload Audio
       </Button>
+
+      <h2 className="text-2xl font-bold">Recordings</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        {(recs || []).map((rec) => (
+          <AudioPlayerCard
+            key={rec._id}
+            title={session?.date || 'unknown'}
+            artist={session?.name || 'unknown'}
+            duration={5 * 60}
+            audioSrc={rec.fileUrl}
+          />
+        ))}
+      </div>
 
       <Drawer isOpen={isOpen} onOpenChange={onOpenChange} placement="right">
         <DrawerContent>

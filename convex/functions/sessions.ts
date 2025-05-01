@@ -62,7 +62,10 @@ export const readSession = query({
   args: {
     sessionId: v.id('sessions'),
   },
-  handler: async ({ db }, { sessionId }) => {
+  handler: async ({ db, auth }, { sessionId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
     const session = await db.get(sessionId)
     if (!session) throw new Error('Session not found')
 
@@ -74,7 +77,10 @@ export const listSessions = query({
   args: {
     campaignId: v.id('campaigns'),
   },
-  handler: async ({ db }, { campaignId }) => {
+  handler: async ({ db, auth }, { campaignId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
     const sessions = await db
       .query('sessions')
       .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))

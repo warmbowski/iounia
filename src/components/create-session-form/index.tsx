@@ -1,11 +1,6 @@
 import { useConvexMutation } from '@convex-dev/react-query'
-import {
-  Button,
-  DatePicker,
-  Input,
-  Textarea,
-  type DateValue,
-} from '@heroui/react'
+import { Button, DatePicker, Input, Textarea } from '@heroui/react'
+// import { getLocalTimeZone, parseDate } from '@internationalized/date'
 import { useMutation } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
@@ -21,7 +16,7 @@ export function CreateSessionForm({
   onClose,
 }: CreateSessionFormProps) {
   const [name, setName] = useState('')
-  const [date, setDate] = useState<DateValue | null>(null)
+  const [date, setDate] = useState<any | null>(null)
   const [notes, setNotes] = useState('')
   const createSession = useMutation({
     mutationFn: useConvexMutation(api.functions.sessions.createSession),
@@ -32,7 +27,7 @@ export function CreateSessionForm({
     if (!date) {
       return
     }
-    const isoDate = date.toString() || ''
+    const isoDate = date ? date.toString() : ''
     await createSession.mutate({
       campaignId,
       name,
@@ -40,6 +35,9 @@ export function CreateSessionForm({
       notes,
     })
 
+    setName('')
+    setDate(null)
+    setNotes('')
     onClose()
   }
 
@@ -72,7 +70,7 @@ export function CreateSessionForm({
       />
 
       <Button type="submit" color="primary">
-        Create Campaign
+        Add Session
       </Button>
     </form>
   )

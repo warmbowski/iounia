@@ -12,14 +12,15 @@ export const generateUploadUrl = mutation({
 
 export const createRecording = mutation({
   args: { storageId: v.id('_storage'), sessionId: v.id('sessions') },
-  handler: async ({ db, auth }, args) => {
+  handler: async ({ db, auth, storage }, args) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
     await db.insert('recordings', {
       sessionId: args.sessionId,
+      storageId: args.storageId,
       recordingIndex: 0,
-      fileUrl: args.storageId,
+      fileUrl: (await storage.getUrl(args.storageId)) || '',
       fileType: 'audio',
       uploadedBy: user.tokenIdentifier,
     })
@@ -28,10 +29,13 @@ export const createRecording = mutation({
 
 export const readRecording = query({
   args: { sessionId: v.id('sessions') },
-  handler: async ({ db }, { sessionId }) => {
+  handler: async ({ db, auth }, { sessionId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
     return await db
       .query('recordings')
-      .filter((q) => q.eq(q.field('sessionId'), sessionId))
+      .withIndex('by_session', (q) => q.eq('sessionId', sessionId))
       .collect()
   },
 })
@@ -54,10 +58,13 @@ export const deleteRecording = mutation({
 
 export const listRecordings = query({
   args: { sessionId: v.id('sessions') },
-  handler: async ({ db }, { sessionId }) => {
+  handler: async ({ db, auth }, { sessionId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
     return await db
       .query('recordings')
-      .filter((q) => q.eq(q.field('sessionId'), sessionId))
+      .withIndex('by_session', (q) => q.eq('sessionId', sessionId))
       .collect()
   },
 })
@@ -67,6 +74,7 @@ export const updateRecording = mutation({
     recordingId: v.id('recordings'),
     updates: v.object({
       recordingIndex: v.optional(v.number()),
+      tokenCount: v.optional(v.number()),
       fileUrl: v.optional(v.string()),
       fileType: v.optional(v.string()),
     }),

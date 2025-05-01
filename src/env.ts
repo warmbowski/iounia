@@ -10,6 +10,7 @@ export const env = createEnv({
     CLERK_SIGN_UP_URL: z.string().default('/?sign-up'),
     CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.string().default('/app'),
     CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.string().default('/app'),
+    GEMINI_API_KEY: z.string(),
   },
 
   /**

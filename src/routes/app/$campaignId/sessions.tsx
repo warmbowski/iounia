@@ -41,7 +41,7 @@ function Sessions() {
   const handleCardClick = (sessionId: Id<'sessions'>) => {
     console.log('navigate to:', campaignId, sessionId)
     navigate({
-      to: '/app/$campaignId/sessions/$sessionId',
+      to: '/app/$campaignId/session/$sessionId',
       params: { campaignId, sessionId },
     })
   }
@@ -77,7 +77,7 @@ function Sessions() {
           {(onClose) => (
             <>
               <DrawerHeader className="flex flex-col gap-1">
-                Create Campaign
+                Add Session
               </DrawerHeader>
               <DrawerBody>
                 <CreateSessionForm campaignId={campaignId} onClose={onClose} />

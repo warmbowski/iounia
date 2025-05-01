@@ -17,14 +17,13 @@ export function CreateRecordingForm({
   onClose,
 }: FileUploadFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const generateUploadUrl = useMutation({
     mutationFn: useConvexMutation(api.functions.recordings.generateUploadUrl),
   })
   const createRecording = useMutation({
     mutationFn: useConvexMutation(api.functions.recordings.createRecording),
   })
-  const fileInput = useRef<HTMLInputElement>(null!)
+  const fileInputRef = useRef<HTMLInputElement>(null!)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -42,7 +41,7 @@ export function CreateRecordingForm({
     await createRecording.mutate({ storageId, sessionId })
 
     setSelectedFile(null)
-    fileInput.current.value = ''
+    fileInputRef.current.value = ''
     onClose()
   }
 
@@ -69,7 +68,7 @@ export function CreateRecordingForm({
           Supported formats: MP3, WAV, AIFF, ACC, OGG, FLAC
         </p>
         <input
-          ref={fileInput}
+          ref={fileInputRef}
           type="file"
           multiple
           className="hidden"

@@ -56,7 +56,10 @@ export const readCampaign = query({
   args: {
     campaignId: v.id('campaigns'),
   },
-  handler: async ({ db }, { campaignId }) => {
+  handler: async ({ db, auth }, { campaignId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
 

@@ -35,7 +35,7 @@ function RouteComponent() {
   const { data } = useSuspenseQuery(
     convexQuery(api.functions.campaigns.listCampaigns, {}),
   )
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure()
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const navigate = useNavigate()
 
   const handleCardClick = (campaignId: Id<'campaigns'>) => {
