@@ -1,3 +1,46 @@
+# IounAI - TTRPG Campaign and Sessoin Management
+
+An app that uses Generative AI to help TTRPG players and GMs manage their campaigns and record progress across sessions via audio transcription. All campaign and session info can be summariezed and stored. An interactive chat can be used to ask questions about the campaign and get answers based on the stored information. The app can be used by players and GMs alike to enhance their TTRPG experience.
+
+Northstar ideas: The app can also generate new content based on the campaign and session info, such as off session chat interactions with NPCs that can be recorded and reviewed by GM and committed to canon if approved. The app will integrate with micro-publishing to create book form stories across sessions to allow printing or publishing.
+
+## Setup list
+
+- [x] Create a new TanStack Start app (Tamstack Router, Tanstack Query)
+  - [x] Plan and set up basic static and dynamic routes
+- [x] Set up HeroUI as a component library (great accessibility)
+  - [x] Set up Tailwind CSS for styling, as required by HeroUI
+- [x] Add auth and user managment via Clerk
+- [x] Add Convex for data storage and management
+  - [x] Integrate Convex with Tanstack Query for caching
+  - [x] Integrate Convex and Clerk for auth in data storage
+
+## Feature list
+
+- [x] Set up basic static and dynamic routes
+  - [x] Home page - public landing page
+  - [x] Campaigns/campaign details
+  - [x] Sessions/session details
+  - [ ] Recordings and transcriptions
+- [x] Sign in and sign up flow
+  - [x] Figure out custom form integration with Clerk
+  - [x] Don't use prebuilt Clerk components
+  - [ ] User profile page
+- [x] Secure routes that require auth
+- [x] Set up Convex schema for data tables
+  - [x] campaigns, sessions, recordings, transcriptions tables
+  - [x] Set up Convex functions for crud for all tables
+  - [x] Figure out Convex file storage for audio files
+  - [x] Figure out best practice for data loading and securing data enpoints
+- [x] Install Google GenAI SDK
+  - [x] Set up Google GenAI API key and auth
+  - [x] Set up Convex actions for calling GenAI apis
+  - [x] Integrate GenAI into app for recording transcription and save to Convex in chunks by diarization
+  - [x] Figure out how to add text embeddings to transcription chunks
+  - [x] Maybe process audio files into transcriptions, summaries, and embeddings after audio is uploaded
+    - [ ] Maybe trigger with interaction, chron job, or webhook, whatever is best to reduce GenAI costs
+
+`----`
 Welcome to your new TanStack app!
 
 # Getting Started
