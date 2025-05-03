@@ -24,7 +24,12 @@ export default defineSchema({
     name: v.optional(v.string()),
     sessionNumber: v.number(),
     date: isoDate(),
-    summary: v.string(),
+    summary: v.array(
+      v.object({
+        icon: v.string(),
+        text: v.string(),
+      }),
+    ),
     notes: v.optional(v.string()),
   }).index('by_campaign', ['campaignId']),
 
@@ -40,6 +45,7 @@ export default defineSchema({
     recordingIndex: v.optional(v.number()),
     fileUrl: v.string(),
     fileType: v.string(),
+    durationSec: v.optional(v.number()),
     tokenCount: v.optional(v.number()),
     uploadedBy: userId(),
   }).index('by_session', ['sessionId']),
@@ -53,5 +59,7 @@ export default defineSchema({
     speakerType: v.optional(v.string()), // e.g., "Player", "GM", "PC", "NPC"
     characterName: v.optional(v.string()),
     embeddings: v.array(v.number()),
-  }).index('by_recording', ['recordingId']),
+  })
+    .index('by_recording', ['recordingId'])
+    .index('by_session', ['sessionId']),
 })

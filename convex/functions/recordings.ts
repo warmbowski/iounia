@@ -1,3 +1,4 @@
+import { internal } from '../_generated/api'
 import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
 
@@ -11,19 +12,35 @@ export const generateUploadUrl = mutation({
 })
 
 export const createRecording = mutation({
-  args: { storageId: v.id('_storage'), sessionId: v.id('sessions') },
-  handler: async ({ db, auth, storage }, args) => {
+  args: {
+    storageId: v.id('_storage'),
+    sessionId: v.id('sessions'),
+    durationSec: v.optional(v.number()),
+  },
+  handler: async ({ db, auth, storage, scheduler }, args) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
-    await db.insert('recordings', {
+    const recordingId = await db.insert('recordings', {
       sessionId: args.sessionId,
       storageId: args.storageId,
       recordingIndex: 0,
       fileUrl: (await storage.getUrl(args.storageId)) || '',
       fileType: 'audio',
+      durationSec: args.durationSec,
       uploadedBy: user.tokenIdentifier,
     })
+
+    await scheduler.runAfter(
+      5000,
+      internal.functions.transcripts.transcribeRecording,
+      {
+        storageId: args.storageId,
+        recordingId: recordingId,
+      },
+    )
+
+    return recordingId
   },
 })
 

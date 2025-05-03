@@ -24,7 +24,7 @@ export const createSession = mutation({
       name,
       sessionNumber: 0,
       date,
-      summary: '',
+      summary: [],
       notes,
     })
   },
@@ -36,7 +36,12 @@ export const updateSession = mutation({
     updates: v.object({
       sessionNumber: v.optional(v.number()),
       date: v.optional(v.string()),
-      summary: v.optional(v.string()),
+      summary: v.array(
+        v.object({
+          icon: v.string(),
+          text: v.string(),
+        }),
+      ),
       notes: v.optional(v.string()),
     }),
   },

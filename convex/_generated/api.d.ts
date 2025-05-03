@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as constants from "../constants.js";
 import type * as functions_campaigns from "../functions/campaigns.js";
 import type * as functions_recordings from "../functions/recordings.js";
 import type * as functions_sessions from "../functions/sessions.js";
@@ -27,6 +28,7 @@ import type * as functions_transcripts from "../functions/transcripts.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  constants: typeof constants;
   "functions/campaigns": typeof functions_campaigns;
   "functions/recordings": typeof functions_recordings;
   "functions/sessions": typeof functions_sessions;

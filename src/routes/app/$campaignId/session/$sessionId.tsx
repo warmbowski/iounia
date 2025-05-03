@@ -15,6 +15,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
+import type { BulletItem } from 'convex/functions/transcripts'
+import { useAction } from 'convex/react'
 
 export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
   parseParams: (params) => {
@@ -45,6 +47,9 @@ export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
 
 function RouteComponent() {
   const { sessionId } = Route.useParams()
+  const generateSummary = useAction(
+    api.functions.transcripts.generateSessionSummary,
+  )
   const { data: session } = useSuspenseQuery(
     convexQuery(api.functions.sessions.readSession, {
       sessionId: sessionId,
@@ -66,11 +71,37 @@ function RouteComponent() {
     <div className="p-8">
       <div>
         <h1 className="text-2xl font-bold">{session.name}</h1>
-        {Object.entries(session).map(([key, value]) => (
-          <div key={key} className="mb-2">
-            <strong>{key}:</strong> {JSON.stringify(value)}
-          </div>
-        ))}
+        {Object.entries(session).map(([key, value]) => {
+          if (key === 'summary') {
+            return (
+              <div key={key} className="mb-2">
+                <strong>{key}:</strong>{' '}
+                {Array.isArray(value) && value.length === 0 ? (
+                  <Button
+                    onPress={() => generateSummary({ sessionId })}
+                    size="sm"
+                  >
+                    generate
+                  </Button>
+                ) : (
+                  <>
+                    {(value as unknown as BulletItem[]).map((item, index) => (
+                      <div key={index}>
+                        <Icon icon={`lucide:${item.icon}`} />
+                        {item.text}
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )
+          }
+          return (
+            <div key={key} className="mb-2">
+              <strong>{key}:</strong> {JSON.stringify(value)}
+            </div>
+          )
+        })}
       </div>
 
       <Button

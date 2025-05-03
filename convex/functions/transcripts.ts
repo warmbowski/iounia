@@ -1,30 +1,139 @@
 import {
+  action,
   internalAction,
   internalMutation,
-  internalQuery,
   query,
 } from '../_generated/server'
-import { internal } from '../_generated/api'
+import { api, internal } from '../_generated/api'
 import {
   GoogleGenAI,
   createUserContent,
   createPartFromUri,
   Type,
 } from '@google/genai'
-import { v } from 'convex/values'
-import { SYSTEM_PROMPT_TRANSCRIPTION } from '../system-prompts'
+import { GenericId, v } from 'convex/values'
+import {
+  SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
+  SYSTEM_PROMPT_TRANSCRIPTION,
+} from '../constants'
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 })
 
-interface TranscriptionItem {
+export interface TranscriptionItem {
   text: string
   timestamp: string
   speaker: string
   speakerType?: 'GM' | 'Player' | 'PC' | 'NPC'
   characterName?: string
 }
+
+export interface BulletItem {
+  icon: string
+  text: string
+}
+
+/** public functions */
+
+export const generateSessionSummary = action({
+  args: {
+    sessionId: v.id('sessions'),
+  },
+  handler: async ({ runQuery, runMutation, auth }, { sessionId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    const transcriptChunks = await runQuery(
+      api.functions.transcripts.listTranscriptChunks,
+      { sessionId },
+    )
+
+    const prompt = transcriptChunks.map((t) => t.text).join('\n')
+
+    try {
+      const aiResult = await ai.models.generateContent({
+        model: 'gemini-2.0-flash-lite',
+        config: {
+          temperature: 0.7,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                icon: { type: Type.STRING },
+                text: { type: Type.STRING },
+              },
+              required: ['icon', 'text'],
+            },
+          },
+          systemInstruction: SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
+        },
+        contents: prompt,
+      })
+
+      if (!aiResult.text) {
+        throw new Error('Summary generation failed')
+      }
+
+      const parsedSummary: BulletItem[] = JSON.parse(aiResult.text)
+
+      await runMutation(api.functions.sessions.updateSession, {
+        sessionId,
+        updates: {
+          summary: parsedSummary,
+        },
+      })
+      return parsedSummary
+    } catch (error) {
+      console.error('Error during summary generation:', error)
+      throw new Error('Summary generation failed')
+    }
+  },
+})
+
+export const listTranscriptChunks = query({
+  args: {
+    recordingId: v.optional(v.id('recordings')),
+    sessionId: v.optional(v.id('sessions')),
+  },
+  handler: async ({ db, auth }, { recordingId, sessionId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    if (!recordingId && !sessionId) {
+      throw new Error('Either recordingId or sessionId must be provided')
+    }
+    if (recordingId && sessionId) {
+      throw new Error('Only one of recordingId or sessionId can be provided')
+    }
+
+    if (sessionId) {
+      const session = await db.get(sessionId)
+      if (!session) throw new Error('Session not found')
+
+      return await db
+        .query('transcripts')
+        .withIndex('by_session', (q) => q.eq('sessionId', sessionId))
+        .collect()
+    }
+
+    if (recordingId) {
+      const recording = await db.get(recordingId)
+      if (!recording) throw new Error('Recording not found')
+
+      return await db
+        .query('transcripts')
+        .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
+        .collect()
+    }
+
+    return [] // Fallback in case of unexpected conditions
+  },
+})
+
+/** internal functions */
 
 export const transcribeRecording = internalAction({
   args: {
@@ -35,8 +144,8 @@ export const transcribeRecording = internalAction({
     { storage, auth, runAction, runMutation },
     { storageId, recordingId },
   ) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    // const user = await auth.getUserIdentity()
+    // if (!user) throw new Error('User not authenticated')
 
     try {
       const audioFile = await storage.get(storageId)
@@ -126,8 +235,8 @@ export const generateTextEmbedding = internalAction({
     texts: v.array(v.string()),
   },
   handler: async ({ auth }, { texts }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    // const user = await auth.getUserIdentity()
+    // if (!user) throw new Error('User not authenticated')
 
     const { embeddings } = await ai.models.embedContent({
       model: 'text-embedding-004',
@@ -167,8 +276,8 @@ export const createTranscriptChunk = internalMutation({
       embeddings,
     },
   ) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    // const user = await auth.getUserIdentity()
+    // if (!user) throw new Error('User not authenticated')
 
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')
@@ -183,20 +292,5 @@ export const createTranscriptChunk = internalMutation({
       characterName,
       embeddings,
     })
-  },
-})
-
-export const listTranscripts = query({
-  args: {
-    recordingId: v.id('recordings'),
-  },
-  handler: async ({ db, auth }, { recordingId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-
-    return await db
-      .query('transcripts')
-      .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
-      .collect()
   },
 })

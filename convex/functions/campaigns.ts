@@ -11,7 +11,7 @@ export const createCampaign = mutation({
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
-    const campaign = await db.insert('campaigns', {
+    const campaignId = await db.insert('campaigns', {
       name,
       description,
       gameSystem,
@@ -19,11 +19,11 @@ export const createCampaign = mutation({
       invitations: [],
     })
     await db.insert('members', {
-      campaignId: campaign,
+      campaignId: campaignId,
       userId: user.tokenIdentifier,
     })
 
-    return campaign
+    return campaignId
   },
 })
 

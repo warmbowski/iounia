@@ -17,6 +17,8 @@ export function CreateRecordingForm({
   onClose,
 }: FileUploadFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [audioDuration, setAudioDuration] = useState<number>()
+  const audioRef = useRef<HTMLAudioElement>(null!)
   const generateUploadUrl = useMutation({
     mutationFn: useConvexMutation(api.functions.recordings.generateUploadUrl),
   })
@@ -38,7 +40,11 @@ export function CreateRecordingForm({
     })
     const { storageId } = await result.json()
     // Step 3: Save the newly allocated storage id to the database
-    await createRecording.mutate({ storageId, sessionId })
+    await createRecording.mutate({
+      storageId,
+      sessionId,
+      durationSec: audioDuration,
+    })
 
     setSelectedFile(null)
     fileInputRef.current.value = ''
@@ -49,6 +55,11 @@ export function CreateRecordingForm({
     if (e.target.files) {
       setSelectedFile(e.target.files[0])
     }
+  }
+
+  const onLoadedMetadata = () => {
+    const duration = audioRef.current.duration
+    setAudioDuration(duration)
   }
 
   return (
@@ -82,9 +93,20 @@ export function CreateRecordingForm({
           <p className="text-small font-medium mb-2">Selected files:</p>
           <ul className="text-small text-default-500">
             {Array.from([selectedFile]).map((file, index) => (
-              <li key={index} className="flex items-center gap-2">
-                <Icon icon="lucide:file" />
-                {file.name}
+              <li key={index}>
+                <p className="flex items-center gap-2">
+                  <Icon icon="lucide:file" />
+                  {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+                <div>
+                  <audio
+                    controls
+                    ref={audioRef}
+                    onLoadedMetadata={onLoadedMetadata}
+                  >
+                    <source src={URL.createObjectURL(file)} />
+                  </audio>
+                </div>
               </li>
             ))}
           </ul>
