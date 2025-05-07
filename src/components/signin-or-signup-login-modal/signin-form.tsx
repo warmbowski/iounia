@@ -100,7 +100,7 @@ export default function SignInForm() {
 
       <div className="relative my-4">
         <Divider className="my-4" />
-        <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-content1">
+        <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-content">
           OR
         </p>
       </div>

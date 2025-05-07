@@ -27,7 +27,7 @@ export const CampaignLayout = ({ children, campaign }: CampaignLayoutProps) => {
   const { location } = useRouterState()
 
   return (
-    <div className="flex h-screen bg-content1">
+    <div className="flex h-screen bg-content">
       <aside className="w-64 flex flex-col justify-between border-r border-divider">
         <nav className="flex-1 p-4">
           <ul className="space-y-2">

@@ -6,8 +6,8 @@ import {
 } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { ConvexQueryClient } from '@convex-dev/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { HeroUIProviderWithNav } from '@/integrations/heroui/provider-with-nav'
 import { DEFAULT_THEME_MODE } from '@/constants'
@@ -76,8 +76,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             <BaseLayout>
               <Outlet />
             </BaseLayout>
-            <TanStackRouterDevtools />
-            <ReactQueryDevtools buttonPosition="bottom-right" />
+            {/* <TanStackRouterDevtools />
+            <ReactQueryDevtools buttonPosition="bottom-right" /> */}
           </HeroUIProviderWithNav>
         </ConvexProviderWithClerk>
       </ClerkProvider>

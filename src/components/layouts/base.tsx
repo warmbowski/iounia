@@ -10,16 +10,19 @@ export function BaseLayout({ children }: BaseLayoutProps) {
   const { isLoading, location } = useRouterState()
 
   return (
-    <div className="flex flex-col h-screen bg-content1">
+    <div className="flex flex-col h-screen bg-content">
       <TopNav forceSignIn={location?.search?.forceSignIn} />
-      {isLoading && (
-        <Progress
-          isIndeterminate
-          aria-label="Loading page..."
-          className="fixed w-100vw"
-          size="sm"
-        />
-      )}
+      <div>
+        {isLoading && (
+          <Progress
+            color="secondary"
+            isIndeterminate
+            aria-label="Loading page..."
+            className="fixed w-100vw"
+            size="sm"
+          />
+        )}
+      </div>
       <div className="flex-1 overflow-auto">{children}</div>
     </div>
   )
