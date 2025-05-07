@@ -18,6 +18,7 @@ import type * as functions_campaigns from "../functions/campaigns.js";
 import type * as functions_recordings from "../functions/recordings.js";
 import type * as functions_sessions from "../functions/sessions.js";
 import type * as functions_transcripts from "../functions/transcripts.js";
+import type * as utililties from "../utililties.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   "functions/recordings": typeof functions_recordings;
   "functions/sessions": typeof functions_sessions;
   "functions/transcripts": typeof functions_transcripts;
+  utililties: typeof utililties;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -60,6 +60,6 @@ export default defineSchema({
     characterName: v.optional(v.string()),
     embeddings: v.array(v.number()),
   })
-    .index('by_recording', ['recordingId'])
-    .index('by_session', ['sessionId']),
+    .index('by_recording', ['recordingId', 'timestamp'])
+    .index('by_session', ['sessionId', 'timestamp']),
 })

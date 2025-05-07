@@ -15,7 +15,7 @@ export const createRecording = mutation({
   args: {
     storageId: v.id('_storage'),
     sessionId: v.id('sessions'),
-    durationSec: v.optional(v.number()),
+    durationSec: v.number(),
   },
   handler: async ({ db, auth, storage, scheduler }, args) => {
     const user = await auth.getUserIdentity()
@@ -32,11 +32,12 @@ export const createRecording = mutation({
     })
 
     await scheduler.runAfter(
-      5000,
+      1000,
       internal.functions.transcripts.transcribeRecording,
       {
         storageId: args.storageId,
         recordingId: recordingId,
+        durationSec: args.durationSec,
       },
     )
 

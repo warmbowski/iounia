@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
@@ -60,11 +60,12 @@ function RouteComponent() {
       sessionId,
     }),
   )
-  // const { data: trans } = useQuery(
-  //   convexQuery(api.functions.transcripts.listTranscripts, {
-  //     recordingId: recs[0]?._id,
-  //   }),
-  // )
+  const { data: trans } = useQuery(
+    convexQuery(api.functions.transcripts.listTranscriptParts, {
+      recordingId: recs[0]?._id,
+    }),
+  )
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   return (
@@ -112,16 +113,27 @@ function RouteComponent() {
         Upload Audio
       </Button>
 
-      <h2 className="text-2xl font-bold">Recordings</h2>
+      <h2 className="text-2xl font-bold">Session Recordings</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         {(recs || []).map((rec) => (
           <AudioPlayerCard
             key={rec._id}
             title={session?.date || 'unknown'}
             artist={session?.name || 'unknown'}
-            duration={5 * 60}
-            audioSrc={rec.fileUrl}
+            duration={rec.durationSec || 0}
+            audioSrc={''} // TODO: serving audio files is killing bandwidth limits
           />
+        ))}
+      </div>
+      <h2 className="text-2xl font-bold">Transcripts</h2>
+      <div className="grid grid-cols-1 gap-2 mt-6">
+        {(trans || []).map((item) => (
+          <p>
+            <strong>
+              {item.timestamp} {item.speaker}
+            </strong>
+            - {item.text}
+          </p>
         ))}
       </div>
 

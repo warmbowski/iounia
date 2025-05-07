@@ -1,13 +1,20 @@
+export const AUDIO_CHUNK_DURATION_SEC = 15 * 60 // 15 minutes
+
 /** system prompts */
-export const SYSTEM_PROMPT_TRANSCRIPTION = `
-Generate audio diarization for this recording of a table-top role playing game session.
+
+export const SYSTEM_PROMPT_TRANSCRIPTION = (
+  startTimestamp: string,
+  endTimestamp: string,
+) => `
+Generate audio diarization for this recording of a table-top role playing game session using 
+the format hh:mm:ss for the timestamps.
+Transcribe the audio from ${startTimestamp} to ${endTimestamp}.
 Try to guess the name of the person talking and add it to the speaker property, or use "speaker A", "speaker B", etc.
 The only possible values for speakerType are "GM", "Player", "PC", "NPC", or undefined if one of these is not determined.
 The characterName property should be used if the speaker is pretending to be player character (PC) or a non-player character (NPC).
 The GM is the one who narrates the story and describes the situation the characters are in.
 The GM also plays as non-player characters (NPCs) in the story.
-The Players are the ones who play the game and act as player characters (PC) in the story.
-Always use the format mm:ss for the timestamps.`
+The Players are the ones who play the game and act as player characters (PC) in the story.`
 
 export const SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION = `
 Generate a bullet-point summary of the following table-top role playing game session transcript.

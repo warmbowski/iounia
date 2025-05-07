@@ -18,6 +18,7 @@ export function CreateRecordingForm({
 }: FileUploadFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [audioDuration, setAudioDuration] = useState<number>()
+  const [uploading, setUploading] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null!)
   const generateUploadUrl = useMutation({
     mutationFn: useConvexMutation(api.functions.recordings.generateUploadUrl),
@@ -29,26 +30,31 @@ export function CreateRecordingForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setUploading(true)
+    if (!selectedFile) return
+    if (!audioDuration) return
 
-    // Step 1: Get a short-lived upload URL
-    const postUrl = await generateUploadUrl.mutateAsync({})
-    // Step 2: POST the file to the URL
-    const result = await fetch(postUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': selectedFile!.type },
-      body: selectedFile,
-    })
-    const { storageId } = await result.json()
-    // Step 3: Save the newly allocated storage id to the database
-    await createRecording.mutate({
-      storageId,
-      sessionId,
-      durationSec: audioDuration,
-    })
-
-    setSelectedFile(null)
-    fileInputRef.current.value = ''
-    onClose()
+    try {
+      const postUrl = await generateUploadUrl.mutateAsync({})
+      const result = await fetch(postUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': selectedFile!.type },
+        body: selectedFile,
+      })
+      const { storageId } = await result.json()
+      await createRecording.mutate({
+        storageId,
+        sessionId,
+        durationSec: audioDuration,
+      })
+      setSelectedFile(null)
+      fileInputRef.current.value = ''
+      onClose()
+    } catch (error) {
+      console.error('Error uploading file:', error)
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +63,7 @@ export function CreateRecordingForm({
     }
   }
 
-  const onLoadedMetadata = () => {
+  const handleLoadedMetadata = () => {
     const duration = audioRef.current.duration
     setAudioDuration(duration)
   }
@@ -102,7 +108,7 @@ export function CreateRecordingForm({
                   <audio
                     controls
                     ref={audioRef}
-                    onLoadedMetadata={onLoadedMetadata}
+                    onLoadedMetadata={handleLoadedMetadata}
                   >
                     <source src={URL.createObjectURL(file)} />
                   </audio>
@@ -118,9 +124,10 @@ export function CreateRecordingForm({
         color="primary"
         className="mt-4"
         isDisabled={!selectedFile}
+        isLoading={uploading}
         startContent={<Icon icon="lucide:upload" />}
       >
-        Upload Files
+        Upload File
       </Button>
     </form>
   )
