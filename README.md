@@ -42,8 +42,18 @@ Northstar ideas: The app can also generate new content based on the campaign and
 
 ## Refinement list
 
+- [ ] Revise layouts to remove left nav and add breadcrumbs
+  - [ ] Use Tanstack Router breadcrumbs
+  - [ ] Use HeroUI breadcrumbs
+- [ ] Use file storage service other than Convex.
+  - [ ] Convex bandwidth limits are too low for loading audio files in UI
+  - [ ] Maybe use Firestore Storage or UploadThing
+- [ ] Remove clerk url from user ids, and use raw clerk user id in members and attendee tables
+- [ ] Refactor all AI calls to use Vercel AI SDK.
+  - [ ] Replace Gemini transcription with dedicated transcription model like Assembly AI
+    - [x] Problems with Gemini timestamps is the biggest obstacle
 - [ ] Figure out a better way to check if user is logged in, current implementation is adds latency to all route loads
-- [ ] add Refine vscode copilot help to include lib specific instructions and best practices for:
+- [ ] Refine vscode copilot to include lib specific custom instructions and best practices for:
   - [ ] Convex
   - [ ] Clerk
   - [ ] Tanstack Query

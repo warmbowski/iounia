@@ -31,3 +31,10 @@ Generate a response to the following question based on the provided table-top ro
 The response should be relevant to the context of the game and provide useful information or insights.
 The response should be concise and clear, addressing the question directly.
 Please ensure that the response is appropriate for the audience and maintains the tone of the game session.`
+
+export const GENERATE_CAMPAIGN_IMAGE_PROMPT = `
+Generate an image of an old fashioned hand drawn map reminiscent of the fifteenth century. 
+Integrate stock dungeons and dragons type of locations and monsters. Make sure the image is
+in the style of a hand drawn map, with a parchment background and a vintage look.
+The map should include various terrains such as mountains, forests, rivers, and towns.
+`
