@@ -1,3 +1,4 @@
+import { CampaignCard } from '@/components/campaign-card'
 import { convexQuery } from '@convex-dev/react-query'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
@@ -23,12 +24,17 @@ function RouteComponent() {
   )
   return (
     <div>
-      <h1 className="text-2xl font-bold">{data.name}</h1>
-      {Object.entries(data).map(([key, value]) => (
-        <div key={key} className="mb-2">
-          <strong>{key}:</strong> {JSON.stringify(value)}
+      <div className="flex gap-4">
+        <div className="w-sm">
+          <CampaignCard campaign={data} />
         </div>
-      ))}
+        <div className="basis-auto">
+          <h2 className="text-2xl font-bold">Campaign Details</h2>
+          <p>{data.description}</p>
+          <h3 className="text-xl font-semibold mt-4">Main Characters</h3>
+          <h3 className="text-xl font-semibold mt-4">Latest Happenings</h3>
+        </div>
+      </div>
     </div>
   )
 }

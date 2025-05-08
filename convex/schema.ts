@@ -9,15 +9,18 @@ export default defineSchema({
   campaigns: defineTable({
     name: v.string(),
     description: v.string(),
-    gameSystem: v.string(),
+    gameSystem: v.optional(v.string()), // TODO: deprecated - remove data from db then remove this
+    tags: v.optional(v.array(v.string())),
     ownerId: userId(),
-    invitations: v.array(v.string()),
+    invitations: v.optional(v.array(v.string())),
   }),
 
   members: defineTable({
     campaignId: v.id('campaigns'),
     userId: userId(),
-  }).index('by_campaign_member', ['userId']),
+  })
+    .index('by_campaign_member', ['userId'])
+    .index('by_campaign', ['campaignId']),
 
   sessions: defineTable({
     campaignId: v.id('campaigns'),
@@ -37,7 +40,9 @@ export default defineSchema({
     sessionId: v.id('sessions'),
     userId: userId(),
     role: v.optional(v.string()), // e.g., "DM", "Player"
-  }).index('by_session_attendee', ['userId']),
+  })
+    .index('by_session_attendee', ['userId'])
+    .index('by_session', ['sessionId']),
 
   recordings: defineTable({
     sessionId: v.id('sessions'),

@@ -1,9 +1,6 @@
 import {
   Button,
   Drawer,
-  Card,
-  CardHeader,
-  CardBody,
   useDisclosure,
   DrawerContent,
   DrawerHeader,
@@ -16,6 +13,7 @@ import { convexQuery } from '@convex-dev/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import type { Id } from 'convex/_generated/dataModel'
 import { CreateCampaignForm } from '@/components/create-campaign-form'
+import { CampaignCard } from '@/components/campaign-card'
 
 export const Route = createFileRoute('/app/')({
   beforeLoad: async ({ context }) => {
@@ -51,21 +49,13 @@ function RouteComponent() {
         Create Campaign
       </Button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
         {data.map((campaign) => (
-          <Card
+          <CampaignCard
             key={campaign._id}
-            isPressable
-            onPress={() => handleCardClick(campaign._id)}
-          >
-            <CardHeader>{campaign.name}</CardHeader>
-            <CardBody>
-              <p>{campaign.description}</p>
-              <p className="text-sm text-gray-500">
-                Game System: {campaign.gameSystem}
-              </p>
-            </CardBody>
-          </Card>
+            campaign={campaign}
+            onPress={handleCardClick}
+          />
         ))}
       </div>
 

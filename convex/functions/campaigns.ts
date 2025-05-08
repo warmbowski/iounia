@@ -5,18 +5,19 @@ export const createCampaign = mutation({
   args: {
     name: v.string(),
     description: v.string(),
-    gameSystem: v.string(),
+    tags: v.optional(v.array(v.string())),
+    invitations: v.optional(v.array(v.string())),
   },
-  handler: async ({ db, auth }, { name, description, gameSystem }) => {
+  handler: async ({ db, auth }, { name, tags, description, invitations }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
     const campaignId = await db.insert('campaigns', {
       name,
       description,
-      gameSystem,
+      tags: tags || [],
       ownerId: user.tokenIdentifier,
-      invitations: [],
+      invitations: invitations || [],
     })
     await db.insert('members', {
       campaignId: campaignId,
@@ -63,7 +64,15 @@ export const readCampaign = query({
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
 
-    return campaign
+    const campaignMembers = await db
+      .query('members')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .collect()
+
+    return {
+      ...campaign,
+      members: campaignMembers.map((member) => member.userId),
+    }
   },
 })
 
@@ -72,7 +81,7 @@ export const listCampaigns = query({
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
-    const campaignMembers = await db
+    const myMemberships = await db
       .query('members')
       .withIndex('by_campaign_member', (q) =>
         q.eq('userId', user.tokenIdentifier),
@@ -80,7 +89,20 @@ export const listCampaigns = query({
       .collect()
 
     return await Promise.all(
-      campaignMembers.map(async (member) => db.get(member.campaignId)),
+      myMemberships.map(async (me) => {
+        const campaign = await db.get(me.campaignId)
+        if (!campaign) return null
+
+        const campaignMembers = await db
+          .query('members')
+          .withIndex('by_campaign', (q) => q.eq('campaignId', campaign._id))
+          .collect()
+
+        return {
+          ...campaign,
+          members: campaignMembers.map((member) => member.userId),
+        }
+      }),
     ).then((campaigns) => campaigns.filter((campaign) => !!campaign))
   },
 })

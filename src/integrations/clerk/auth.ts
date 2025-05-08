@@ -22,14 +22,47 @@ export const authStateFn = createServerFn({ method: 'GET' }).handler(
       console.log('Unauthenticated user')
     }
 
-    // Instantiate the Backend SDK
     const clerkClient = createClerkClient({
       secretKey: process.env.CLERK_SECRET_KEY,
     })
 
-    // Get the user's full `Backend User` object
     const user = userId ? await clerkClient.users.getUser(userId) : null
 
     return { user, token }
   },
 )
+
+export const getMemberListFn = createServerFn({ method: 'GET' })
+  .validator((userIds: string[]) => {
+    const ids = userIds.map((id) => {
+      if (id.includes('|')) {
+        return id.split('|')[1]
+      }
+      return id
+    })
+    return ids
+  })
+  .handler(async (ctx) => {
+    const request = getWebRequest()
+    if (!request) throw new Error('No request found')
+    const { userId } = await getAuth(request)
+
+    if (!userId) {
+      console.log('Unauthenticated user')
+    }
+
+    const clerkClient = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    })
+    const userIds = ctx.data
+    const userList = await clerkClient.users.getUserList({ userId: userIds })
+
+    return userId
+      ? userList.data.map((user) => ({
+          userId: user.id,
+          emailAddress: user.primaryEmailAddress?.emailAddress,
+          fullName: user.fullName || undefined,
+          imageUrl: user.imageUrl,
+        }))
+      : null
+  })
