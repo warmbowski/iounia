@@ -21,7 +21,7 @@ Northstar ideas: The app can also generate new content based on the campaign and
   - [x] Home page - public landing page
   - [x] Campaigns/campaign details
   - [x] Sessions/session details
-  - [ ] Recordings and transcriptions
+  - [x] Recordings and transcriptions
 - [x] Sign in and sign up flow
   - [x] Figure out custom form integration with Clerk
   - [x] Don't use prebuilt Clerk components
@@ -38,7 +38,8 @@ Northstar ideas: The app can also generate new content based on the campaign and
   - [x] Integrate GenAI into app for recording transcription and save to Convex in chunks by diarization
   - [x] Figure out how to add text embeddings to transcription chunks
   - [x] Maybe process audio files into transcriptions, summaries, and embeddings after audio is uploaded
-    - [ ] Maybe trigger with interaction, chron job, or webhook, whatever is best to reduce GenAI costs
+    - [x] Maybe trigger with interaction, chron job, or webhook, whatever is best to reduce GenAI costs
+  - [ ] Set up invite system for users to join campaigns
 
 ## Refinement list
 
@@ -60,6 +61,10 @@ Northstar ideas: The app can also generate new content based on the campaign and
   - [ ] Tanstack Router
   - [ ] HeroUI
   - [ ] Tailwind CSS
+
+## Links for future investigation
+
+- Backblaze Media Storage/Streaming: https://www.backblaze.com/blog/roll-camera-streaming-media-from-backblaze-b2/
 
 <br />
 <br />

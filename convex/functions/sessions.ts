@@ -42,6 +42,7 @@ export const updateSession = mutation({
           text: v.string(),
         }),
       ),
+      shortSummary: v.optional(v.string()),
       notes: v.optional(v.string()),
     }),
   },

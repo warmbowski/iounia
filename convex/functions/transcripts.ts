@@ -2,25 +2,21 @@ import {
   action,
   internalAction,
   internalMutation,
+  internalQuery,
   mutation,
   query,
 } from '../_generated/server'
 import { api, internal } from '../_generated/api'
-import {
-  GoogleGenAI,
-  createUserContent,
-  createPartFromUri,
-  Type,
-} from '@google/genai'
+import z from 'zod'
+import { generateObject, embedMany } from 'ai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { v } from 'convex/values'
 import {
-  AUDIO_CHUNK_DURATION_SEC,
+  SYSTEM_PROMPT_SHORT_SUMMARIZATION,
   SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
-  SYSTEM_PROMPT_TRANSCRIPTION,
 } from '../constants'
-import { formatTimestamp } from '../utililties'
 
-const ai = new GoogleGenAI({
+const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 })
 
@@ -55,40 +51,47 @@ export const generateSessionSummary = action({
     const prompt = transcriptParts.map((t) => t.text).join('\n')
 
     try {
-      const aiResult = await ai.models.generateContent({
-        model: 'gemini-2.0-flash-lite',
-        config: {
-          temperature: 0.7,
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                icon: { type: Type.STRING },
-                text: { type: Type.STRING },
-              },
-              required: ['icon', 'text'],
-            },
-          },
-          systemInstruction: SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
-        },
-        contents: prompt,
+      const summary = await generateObject<BulletItem[]>({
+        model: google('gemini-2.5-flash-preview-04-17'),
+        temperature: 0.7,
+        system: SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
+        prompt,
+        schema: z.array(
+          z.object({
+            icon: z.string(),
+            text: z.string(),
+          }),
+        ),
       })
 
-      if (!aiResult.text) {
+      if (!summary.object) {
         throw new Error('Summary generation failed')
       }
+      const bulletItems = summary.object
 
-      const parsedSummary: BulletItem[] = JSON.parse(aiResult.text)
+      const shortSummary = await generateObject<{ text: string }>({
+        model: google('gemini-2.5-flash-preview-04-17'),
+        temperature: 0.7,
+        system: SYSTEM_PROMPT_SHORT_SUMMARIZATION,
+        prompt: bulletItems.map((item) => item.text).join('\n'),
+        schema: z.object({
+          text: z.string(),
+        }),
+      })
+      if (!shortSummary.object) {
+        throw new Error('Short summary generation failed')
+      }
+      const shortSummaryText = shortSummary.object.text
 
       await runMutation(api.functions.sessions.updateSession, {
         sessionId,
         updates: {
-          summary: parsedSummary,
+          summary: bulletItems,
+          shortSummary: shortSummaryText,
         },
       })
-      return parsedSummary
+
+      return { action: 'generateSessionSummary', status: 'success' }
     } catch (error) {
       console.error('Error during summary generation:', error)
       throw new Error('Summary generation failed')
@@ -138,179 +141,66 @@ export const listTranscriptParts = query({
   },
 })
 
-/** internal functions */
-
-export const transcribeRecordingChunk = internalAction({
+export const deleteTranscriptPart = mutation({
   args: {
-    recordingId: v.id('recordings'),
-    uploadUri: v.string(),
-    uploadMimeType: v.string(),
-    startTimestamp: v.string(),
-    endTimestamp: v.string(),
+    transcriptId: v.id('transcripts'),
   },
-  handler: async (
-    {},
-    { uploadUri, uploadMimeType, startTimestamp, endTimestamp },
-  ) => {
-    try {
-      const aiResult = await ai.models.generateContent({
-        model: 'gemini-2.0-flash-lite',
-        config: {
-          temperature: 0.7,
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                text: { type: Type.STRING },
-                timestamp: { type: Type.STRING },
-                speaker: { type: Type.STRING },
-                speakerType: {
-                  type: Type.STRING,
-                  enum: ['GM', 'PC', 'NPC', 'Player'],
-                },
-                characterName: { type: Type.STRING },
-              },
-              required: ['timestamp', 'speaker', 'text'],
-            },
-          },
-        },
-        contents: createUserContent([
-          createPartFromUri(uploadUri, uploadMimeType),
-          SYSTEM_PROMPT_TRANSCRIPTION(startTimestamp, endTimestamp),
-        ]),
-      })
+  handler: async ({ db, auth }, { transcriptId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
 
-      if (!aiResult.text) {
-        throw new Error('Empty transcription response from LLM')
-      }
+    const transcript = await db.get(transcriptId)
+    if (!transcript) throw new Error('Transcript not found')
 
-      console.log(
-        'Transcription usage:',
-        startTimestamp,
-        endTimestamp,
-        aiResult.usageMetadata,
-      )
-      const parsedItems: TranscriptionItem[] = JSON.parse(aiResult.text)
-
-      return parsedItems
-    } catch (error) {
-      console.error(
-        `Error during chunk transcription (${startTimestamp}, ${endTimestamp}):`,
-        error,
-      )
-      throw new Error(
-        `Chunk Transcription failed for chunk ${startTimestamp}, ${endTimestamp}`,
-      )
-    }
+    return await db.delete(transcriptId)
   },
 })
 
-export const transcribeRecording = internalAction({
+export const deleteAllTranscriptParts = mutation({
   args: {
-    storageId: v.id('_storage'),
     recordingId: v.id('recordings'),
-    durationSec: v.number(),
   },
-  handler: async (
-    { storage, scheduler, runAction, runMutation },
-    { storageId, recordingId, durationSec },
-  ) => {
-    let uploadedFileName: string | undefined = undefined
-    const numberOfChunks = Math.ceil(durationSec / AUDIO_CHUNK_DURATION_SEC)
+  handler: async ({ db, auth }, { recordingId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
 
-    try {
-      const audioFile = await storage.get(storageId)
-      if (!audioFile) {
-        throw new Error('Audio file not found')
-      }
+    const recording = await db.get(recordingId)
+    if (!recording) throw new Error('Recording not found')
 
-      const upload = await ai.files.upload({
-        file: audioFile,
-        config: { mimeType: 'audio/mp3' },
-      })
-
-      if (!upload || !upload.uri || !upload.mimeType) {
-        throw new Error('File upload failed')
-      }
-
-      uploadedFileName = upload.name
-
-      const processingResults = []
-
-      for (let i = 0; i < numberOfChunks; i++) {
-        const startTimestampSec = i * AUDIO_CHUNK_DURATION_SEC
-        const endTimestampSec =
-          (i + 1) * AUDIO_CHUNK_DURATION_SEC > durationSec
-            ? durationSec
-            : (i + 1) * AUDIO_CHUNK_DURATION_SEC
-        processingResults.push(
-          await runAction(
-            internal.functions.transcripts.transcribeRecordingChunk,
-            {
-              recordingId,
-              uploadUri: upload.uri,
-              uploadMimeType: upload.mimeType,
-              startTimestamp: formatTimestamp(startTimestampSec),
-              endTimestamp: formatTimestamp(endTimestampSec),
-            },
-          ),
+    return await db
+      .query('transcripts')
+      .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
+      .collect()
+      .then((transcripts) => {
+        return Promise.all(
+          transcripts.map((transcript) => db.delete(transcript._id)),
         )
-      }
-
-      const transcriptParts = await Promise.all(processingResults)
-      const transcript = transcriptParts.flatMap((item) => item)
-
-      await Promise.all(
-        transcript.flatMap(async (item) => {
-          return await runMutation(
-            internal.functions.transcripts.createTranscriptPart,
-            {
-              recordingId,
-              text: item.text,
-              timestamp: item.timestamp,
-              speaker: item.speaker,
-              speakerType: item.speakerType,
-              characterName: item.characterName,
-              embeddings: [],
-            },
-          )
-        }),
-      )
-
-      await scheduler.runAfter(
-        1000,
-        internal.functions.transcripts.updateTextEmbeddings,
-        {
-          recordingId,
-        },
-      )
-
-      return {
-        message: 'Transcription completed successfully!',
-      }
-    } catch (error) {
-      console.error('Error during transcription:', error)
-      throw new Error('Transcription failed')
-    } finally {
-      await ai.files.delete({ name: uploadedFileName || '' })
-    }
+      })
   },
 })
+
+/** internal functions */
 
 export const generateTextEmbeddings = internalAction({
   args: {
     texts: v.array(v.string()),
   },
   handler: async ({}, { texts }) => {
-    const { embeddings } = await ai.models.embedContent({
-      model: 'text-embedding-004',
-      contents: texts,
-      config: {
-        // autoTruncate: true,
-      },
-    })
+    const batchedTexts = []
+    // SDK embedMany only accepts 100 texts at a time
+    for (let i = 0; i < texts.length; i += 100) {
+      batchedTexts.push(texts.slice(i, i + 100))
+    }
+
+    const batchedResults = await Promise.all(
+      batchedTexts.map(async (textsBatch) => {
+        return await embedMany({
+          model: google.textEmbeddingModel('text-embedding-004'),
+          values: textsBatch,
+        })
+      }),
+    )
+    const embeddings = batchedResults.flatMap((result) => result.embeddings)
 
     if (!embeddings) {
       throw new Error('Embedding generation failed')
@@ -326,7 +216,7 @@ export const updateTextEmbeddings = internalAction({
   },
   handler: async ({ runQuery, runAction, runMutation }, { recordingId }) => {
     const transcriptParts = await runQuery(
-      api.functions.transcripts.listTranscriptParts,
+      internal.functions.transcripts.listTranscriptPartsByRecordingId,
       { recordingId },
     )
 
@@ -348,7 +238,7 @@ export const updateTextEmbeddings = internalAction({
           {
             transcriptId: item._id,
             updates: {
-              embeddings: embeddings[idx].values || [],
+              embeddings: embeddings[idx] || [],
             },
           },
         )
@@ -361,7 +251,8 @@ export const createTranscriptPart = internalMutation({
   args: {
     recordingId: v.id('recordings'),
     text: v.string(),
-    timestamp: v.string(),
+    start: v.number(),
+    end: v.optional(v.number()),
     speaker: v.string(),
     speakerType: v.optional(v.string()),
     characterName: v.optional(v.string()),
@@ -369,15 +260,7 @@ export const createTranscriptPart = internalMutation({
   },
   handler: async (
     { db },
-    {
-      recordingId,
-      text,
-      timestamp,
-      speaker,
-      speakerType,
-      characterName,
-      embeddings,
-    },
+    { recordingId, text, start, end, speaker, embeddings },
   ) => {
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')
@@ -386,10 +269,9 @@ export const createTranscriptPart = internalMutation({
       recordingId,
       sessionId: recording.sessionId,
       text,
-      timestamp,
+      start,
+      end,
       speaker,
-      speakerType,
-      characterName,
       embeddings,
     })
   },
@@ -400,17 +282,13 @@ export const updateTranscriptPart = internalMutation({
     transcriptId: v.id('transcripts'),
     updates: v.object({
       text: v.optional(v.string()),
-      timestamp: v.optional(v.string()),
+      start: v.optional(v.number()),
+      end: v.optional(v.number()),
       speaker: v.optional(v.string()),
-      speakerType: v.optional(v.string()),
-      characterName: v.optional(v.string()),
       embeddings: v.optional(v.array(v.number())),
     }),
   },
-  handler: async ({ db, auth }, { transcriptId, updates }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-
+  handler: async ({ db }, { transcriptId, updates }) => {
     const transcript = await db.get(transcriptId)
     if (!transcript) throw new Error('Transcript not found')
 
@@ -420,39 +298,15 @@ export const updateTranscriptPart = internalMutation({
   },
 })
 
-export const deleteTranscriptPart = mutation({
-  args: {
-    transcriptId: v.id('transcripts'),
-  },
-  handler: async ({ db, auth }, { transcriptId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-
-    const transcript = await db.get(transcriptId)
-    if (!transcript) throw new Error('Transcript not found')
-
-    return await db.delete(transcriptId)
-  },
-})
-export const deleteAllTranscripts = mutation({
+export const listTranscriptPartsByRecordingId = internalQuery({
   args: {
     recordingId: v.id('recordings'),
   },
-  handler: async ({ db, auth }, { recordingId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-
-    const recording = await db.get(recordingId)
-    if (!recording) throw new Error('Recording not found')
-
+  handler: async ({ db }, { recordingId }) => {
     return await db
       .query('transcripts')
       .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
+      .order('asc')
       .collect()
-      .then((transcripts) => {
-        return Promise.all(
-          transcripts.map((transcript) => db.delete(transcript._id)),
-        )
-      })
   },
 })

@@ -33,6 +33,7 @@ export default defineSchema({
         text: v.string(),
       }),
     ),
+    shortSummary: v.optional(v.string()),
     notes: v.optional(v.string()),
   }).index('by_campaign', ['campaignId']),
 
@@ -47,22 +48,25 @@ export default defineSchema({
   recordings: defineTable({
     sessionId: v.id('sessions'),
     storageId: v.id('_storage'),
+    processingJobId: v.optional(v.string()),
     recordingIndex: v.optional(v.number()),
     fileUrl: v.string(),
     fileType: v.string(),
     durationSec: v.optional(v.number()),
     tokenCount: v.optional(v.number()),
     uploadedBy: userId(),
-  }).index('by_session', ['sessionId']),
+  })
+    .index('by_session', ['sessionId'])
+    .index('by_processing_job', ['processingJobId']),
 
   transcripts: defineTable({
     recordingId: v.id('recordings'),
     sessionId: v.id('sessions'),
     text: v.string(),
-    timestamp: v.string(),
+    timestamp: v.optional(v.string()),
+    start: v.number(),
+    end: v.optional(v.number()),
     speaker: v.string(),
-    speakerType: v.optional(v.string()), // e.g., "Player", "GM", "PC", "NPC"
-    characterName: v.optional(v.string()),
     embeddings: v.array(v.number()),
   })
     .index('by_recording', ['recordingId', 'timestamp'])

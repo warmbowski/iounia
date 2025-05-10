@@ -26,6 +26,11 @@ The icon property should be a string representing an icon name from the Lucide i
 The icon should be relevant to the content of the bullet point when possible, or use the "feather" icon as a fallback.
 `
 
+export const SYSTEM_PROMPT_SHORT_SUMMARIZATION = `
+Generate a short summary paragraph of no more than 2 sentences for the following table-top role playing game summary.
+Return JSON structured data that is an array of objects with the following properties: text.
+`
+
 export const SYSTEM_PROMPT_GENERAL_QUERY = `
 Generate a response to the following question based on the provided table-top role playing game session transcript.
 The response should be relevant to the context of the game and provide useful information or insights.

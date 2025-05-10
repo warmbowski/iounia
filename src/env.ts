@@ -11,6 +11,8 @@ export const env = createEnv({
     CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.string().default('/app'),
     CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.string().default('/app'),
     GEMINI_API_KEY: z.string(),
+    ASSEMBLYAI_API_KEY: z.string(),
+    ASSEMBLYAI_WEBHOOK_SECRET: z.string(),
   },
 
   /**
@@ -21,7 +23,7 @@ export const env = createEnv({
 
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
-    VITE_CONVEX_URL: z.url(),
+    VITE_CONVEX_URL: z.string().url(),
     VITE_CLERK_PUBLISHABLE_KEY: z.string(),
   },
 

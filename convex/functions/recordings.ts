@@ -1,5 +1,5 @@
 import { internal } from '../_generated/api'
-import { mutation, query } from '../_generated/server'
+import { mutation, query, internalQuery } from '../_generated/server'
 import { v } from 'convex/values'
 
 export const generateUploadUrl = mutation({
@@ -33,7 +33,7 @@ export const createRecording = mutation({
 
     await scheduler.runAfter(
       1000,
-      internal.functions.transcripts.transcribeRecording,
+      internal.functions.assemblyai.submitRecordingForTranscription,
       {
         storageId: args.storageId,
         recordingId: recordingId,
@@ -110,5 +110,20 @@ export const updateRecording = mutation({
     return await db.patch(recordingId, {
       ...updates,
     })
+  },
+})
+
+// internal functions
+export const readRecordingByJobId = internalQuery({
+  args: { jobId: v.string() },
+  handler: async ({ db }, { jobId }) => {
+    const recording = await db
+      .query('recordings')
+      .withIndex('by_processing_job', (q) => q.eq('processingJobId', jobId))
+      .first()
+
+    if (!recording) throw new Error('Recording not found')
+
+    return recording
   },
 })
