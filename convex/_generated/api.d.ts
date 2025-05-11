@@ -18,6 +18,7 @@ import type * as functions_assemblyai from "../functions/assemblyai.js";
 import type * as functions_campaigns from "../functions/campaigns.js";
 import type * as functions_recordings from "../functions/recordings.js";
 import type * as functions_sessions from "../functions/sessions.js";
+import type * as functions_storage from "../functions/storage.js";
 import type * as functions_transcripts from "../functions/transcripts.js";
 import type * as http from "../http.js";
 import type * as utililties from "../utililties.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   "functions/campaigns": typeof functions_campaigns;
   "functions/recordings": typeof functions_recordings;
   "functions/sessions": typeof functions_sessions;
+  "functions/storage": typeof functions_storage;
   "functions/transcripts": typeof functions_transcripts;
   http: typeof http;
   utililties: typeof utililties;

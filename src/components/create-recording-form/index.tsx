@@ -21,7 +21,7 @@ export function CreateRecordingForm({
   const [uploading, setUploading] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null!)
   const generateUploadUrl = useMutation({
-    mutationFn: useConvexMutation(api.functions.recordings.generateUploadUrl),
+    mutationFn: useConvexMutation(api.functions.storage.generateUploadUrl),
   })
   const createRecording = useMutation({
     mutationFn: useConvexMutation(api.functions.recordings.createRecording),

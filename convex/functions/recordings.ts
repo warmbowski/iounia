@@ -2,15 +2,6 @@ import { internal } from '../_generated/api'
 import { mutation, query, internalQuery } from '../_generated/server'
 import { v } from 'convex/values'
 
-export const generateUploadUrl = mutation({
-  handler: async ({ storage, auth }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-
-    return await storage.generateUploadUrl()
-  },
-})
-
 export const createRecording = mutation({
   args: {
     storageId: v.id('_storage'),
