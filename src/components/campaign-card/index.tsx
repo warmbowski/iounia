@@ -35,7 +35,7 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
 
   return (
     <Card
-      className="w-full"
+      className="min-w-[200px] max-w-[400px] bg-content2 text-content-foreground2 border-2"
       onPress={onPress ? () => onPress(campaign._id) : undefined}
       isPressable={!!onPress}
     >
@@ -71,9 +71,9 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
         </div>
       </CardBody>
       <CardFooter className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <Icon icon="lucide:calendar" className="text-default-500" />
-          <span className="text-sm text-default-500">
+        <div className="flex items-center gap-3 text-primary-700">
+          <Icon icon="lucide:calendar" />
+          <span className="text-sm">
             Started {formatDate(campaign._creationTime)}
           </span>
         </div>

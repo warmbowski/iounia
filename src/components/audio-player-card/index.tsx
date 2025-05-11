@@ -24,6 +24,7 @@ export function AudioPlayerCard({
 }: AudioPlayerCardProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
+  const [realDuration, setRealDuration] = useState(duration)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const intervalRef = useRef<number | null>(null)
 
@@ -81,6 +82,14 @@ export function AudioPlayerCard({
 
     // Set up event listeners
     const audio = audioRef.current
+    audio.preload = 'metadata'
+
+    const handleMetadata = (e: Event) => {
+      const target = e.target as HTMLAudioElement
+      const duration = target.duration
+      setRealDuration(duration)
+    }
+    audio.addEventListener('loadedmetadata', handleMetadata)
 
     const handleEnded = () => {
       setIsPlaying(false)
@@ -89,13 +98,13 @@ export function AudioPlayerCard({
         clearInterval(intervalRef.current)
       }
     }
-
     audio.addEventListener('ended', handleEnded)
 
     // Clean up
     return () => {
       if (audioRef.current) {
         audioRef.current.pause()
+        audioRef.current.removeEventListener('loadedmetadata', handleMetadata)
         audioRef.current.removeEventListener('ended', handleEnded)
       }
 
@@ -128,14 +137,14 @@ export function AudioPlayerCard({
             size="sm"
             color="primary"
             step={1}
-            maxValue={duration}
+            maxValue={realDuration}
             minValue={0}
             value={[currentTime]}
             className="flex-1"
             onChange={handleSliderChange}
           />
           <span className="text-small text-default-500 w-10">
-            {formatTime(duration)}
+            {formatTime(realDuration)}
           </span>
         </div>
         <Spacer y={2} />

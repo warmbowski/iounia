@@ -134,7 +134,7 @@ function RouteComponent() {
               key={index}
               className="flex items-start leading-none gap-2 mt-4"
             >
-              <Icon icon={iconName} />
+              <Icon icon={iconName} color="hsl(var(--heroui-secondary-700))" />
               {item.text}
             </div>
           )
