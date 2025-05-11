@@ -26,10 +26,10 @@ export const Route = createFileRoute('/app/')({
       convexQuery(api.functions.campaigns.listCampaigns, {}),
     )
   },
-  component: RouteComponent,
+  component: Campaigns,
 })
 
-function RouteComponent() {
+function Campaigns() {
   const { data } = useSuspenseQuery(
     convexQuery(api.functions.campaigns.listCampaigns, {}),
   )

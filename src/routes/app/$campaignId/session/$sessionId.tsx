@@ -1,5 +1,5 @@
-import { AudioPlayerCard } from '@/components/audio-player-card'
 import { CreateRecordingForm } from '@/components/create-recording-form'
+import { SessionCard } from '@/components/session-card'
 import { convexQuery } from '@convex-dev/react-query'
 import {
   Button,
@@ -10,13 +10,13 @@ import {
   DrawerHeader,
   useDisclosure,
 } from '@heroui/react'
-import { Icon } from '@iconify/react/dist/iconify.js'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { Icon, loadIcons } from '@iconify/react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
-import type { BulletItem } from 'convex/functions/transcripts'
 import { useAction } from 'convex/react'
+import { useEffect, useState } from 'react'
 
 export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
   parseParams: (params) => {
@@ -47,6 +47,7 @@ export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
 
 function RouteComponent() {
   const { sessionId } = Route.useParams()
+  const [invalidIcons, setInvalidIcons] = useState<string[]>([])
   const generateSummary = useAction(
     api.functions.transcripts.generateSessionSummary,
   )
@@ -55,86 +56,89 @@ function RouteComponent() {
       sessionId: sessionId,
     }),
   )
-  const { data: recs } = useSuspenseQuery(
+  const { data: recordings } = useSuspenseQuery(
     convexQuery(api.functions.recordings.listRecordings, {
-      sessionId,
+      sessionId: sessionId,
     }),
   )
-  const { data: trans } = useQuery(
-    convexQuery(api.functions.transcripts.listTranscriptParts, {
-      recordingId: recs[0]?._id,
-    }),
-  )
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
+  useEffect(() => {
+    const unload = loadIcons(
+      session.summary.map((item) => `lucide:${item.icon}`),
+      (loaded, missing) => {
+        setInvalidIcons(missing.map((icon) => icon.name))
+        console.log(loaded, missing)
+      },
+    )
+    return () => {
+      unload()
+    }
+  }, [session.summary])
+
   return (
-    <div className="p-8">
-      <div>
-        <h1 className="text-2xl font-bold">{session.name}</h1>
-        {Object.entries(session).map(([key, value]) => {
-          if (key === 'summary') {
-            return (
-              <div key={key} className="mb-2">
-                <strong>{key}:</strong>{' '}
-                {Array.isArray(value) && value.length === 0 ? (
-                  <Button
-                    onPress={() => generateSummary({ sessionId })}
-                    size="sm"
+    <div>
+      <div className="flex gap-4">
+        <div className="w-200">
+          <SessionCard session={session} />
+        </div>
+        <div className="basis-auto">
+          <h2 className="text-2xl font-bold">Session Notes</h2>
+          <p>{session.notes}</p>
+          <h3 className="text-xl font-semibold mt-4">What Happened</h3>
+          <p>{session.shortSummary}</p>
+          <h3 className="text-xl font-semibold mt-4">Recordings</h3>
+          <div className="flex flex-col gap-2">
+            {recordings.map((recording, index) => {
+              return (
+                <div key={recording._id} className="flex gap-2 items-center">
+                  <Icon icon="lucide:mic" />
+                  <a
+                    href={recording.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
                   >
-                    generate
-                  </Button>
-                ) : (
-                  <>
-                    {(value as unknown as BulletItem[]).map((item, index) => (
-                      <div key={index}>
-                        <Icon icon={`lucide:${item.icon}`} />
-                        {item.text}
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            )
-          }
+                    Recording {index + 1}
+                  </a>
+                  <span className="text-sm text-gray-500">
+                    {new Date(recording._creationTime).toLocaleDateString()}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+          <Button
+            className="mt-4"
+            color="primary"
+            startContent={<Icon icon="lucide:upload" />}
+            onPress={onOpen}
+          >
+            Upload New Audio
+          </Button>
+        </div>
+      </div>
+      <div>
+        <h2 className="text-2xl w-full font-bold mt-4 flex justify-between">
+          Summary
+          <Button onPress={() => generateSummary({ sessionId })} size="sm">
+            generate
+          </Button>
+        </h2>
+        {session.summary.map((item, index) => {
+          const iconName = invalidIcons.includes(item.icon)
+            ? 'lucide:circle-small'
+            : `lucide:${item.icon}`
           return (
-            <div key={key} className="mb-2">
-              <strong>{key}:</strong> {JSON.stringify(value)}
+            <div
+              key={index}
+              className="flex items-start leading-none gap-2 mt-4"
+            >
+              <Icon icon={iconName} />
+              {item.text}
             </div>
           )
         })}
-      </div>
-
-      <Button
-        color="primary"
-        startContent={<Icon icon="lucide:upload" />}
-        onPress={onOpen}
-      >
-        Upload Audio
-      </Button>
-
-      <h2 className="text-2xl font-bold">Session Recordings</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        {(recs || []).map((rec) => (
-          <AudioPlayerCard
-            key={rec._id}
-            title={session?.date || 'unknown'}
-            artist={session?.name || 'unknown'}
-            duration={rec.durationSec || 0}
-            audioSrc={''} // TODO: serving audio files is killing bandwidth limits
-          />
-        ))}
-      </div>
-      <h2 className="text-2xl font-bold">Transcripts</h2>
-      <div className="grid grid-cols-1 gap-2 mt-6">
-        {(trans || []).map((item) => (
-          <p>
-            <strong>
-              {item.timestamp} {item.speaker}
-            </strong>
-            - {item.text}
-          </p>
-        ))}
       </div>
 
       <Drawer isOpen={isOpen} onOpenChange={onOpenChange} placement="right">

@@ -37,7 +37,7 @@ export function SignInOrSignUpLoginModal({
       }
     >
       <ModalContent>
-        {(onClose) => (
+        {() => (
           <>
             <ModalHeader className="flex flex-col gap-1">
               {isLogin ? 'Welcome Back' : 'Create an Account'}

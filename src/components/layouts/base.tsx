@@ -10,7 +10,10 @@ export function BaseLayout({ children }: BaseLayoutProps) {
   const { isLoading, location } = useRouterState()
 
   return (
-    <div className="flex flex-col h-screen bg-content">
+    <section
+      data-layout="base"
+      className="flex flex-col h-screen w-screen bg-content"
+    >
       <TopNav forceSignIn={location?.search?.forceSignIn} />
       <div>
         {isLoading && (
@@ -24,6 +27,6 @@ export function BaseLayout({ children }: BaseLayoutProps) {
         )}
       </div>
       <div className="flex-1 overflow-auto">{children}</div>
-    </div>
+    </section>
   )
 }

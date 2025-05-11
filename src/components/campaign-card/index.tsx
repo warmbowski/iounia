@@ -1,4 +1,5 @@
-import { getMemberListFn } from '@/integrations/clerk/auth'
+import { getUsersListByIdsFn } from '@/integrations/clerk/auth'
+import { formatDate } from '@/utils'
 import {
   Card,
   CardBody,
@@ -11,14 +12,6 @@ import { Icon } from '@iconify/react'
 import { useQuery } from '@tanstack/react-query'
 import type { Doc, Id } from 'convex/_generated/dataModel'
 
-const formatDate = (date: string | number) => {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
 interface CampaignCardProps {
   campaign: Doc<'campaigns'> & {
     members: Array<string>
@@ -30,7 +23,7 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
   const { data: members } = useQuery({
     queryKey: ['members', campaign._id],
     queryFn: () =>
-      getMemberListFn({
+      getUsersListByIdsFn({
         data: campaign.members,
       }),
     initialData: [],

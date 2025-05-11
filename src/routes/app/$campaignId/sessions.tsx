@@ -1,9 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Button,
-  Card,
-  CardBody,
-  CardHeader,
   Drawer,
   DrawerBody,
   DrawerContent,
@@ -16,6 +13,7 @@ import { api } from 'convex/_generated/api'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Id } from 'convex/_generated/dataModel'
 import { CreateSessionForm } from '@/components/create-session-form'
+import { SessionCard } from '@/components/session-card'
 
 export const Route = createFileRoute('/app/$campaignId/sessions')({
   loader: async ({ context, params }) => {
@@ -39,7 +37,6 @@ function Sessions() {
   const navigate = useNavigate()
 
   const handleCardClick = (sessionId: Id<'sessions'>) => {
-    console.log('navigate to:', campaignId, sessionId)
     navigate({
       to: '/app/$campaignId/session/$sessionId',
       params: { campaignId, sessionId },
@@ -52,23 +49,13 @@ function Sessions() {
         Add Session
       </Button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
         {data.map((session) => (
-          <Card
+          <SessionCard
             key={session._id}
-            isPressable
+            session={session}
             onPress={() => handleCardClick(session._id)}
-          >
-            <CardHeader>
-              {session.sessionNumber} - {session.name}
-            </CardHeader>
-            <CardBody>
-              <p>{session.notes}</p>
-              <p className="text-sm text-gray-500">
-                {new Date(session.date).toLocaleDateString()}
-              </p>
-            </CardBody>
-          </Card>
+          />
         ))}
       </div>
 

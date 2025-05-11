@@ -75,7 +75,15 @@ export const readSession = query({
     const session = await db.get(sessionId)
     if (!session) throw new Error('Session not found')
 
-    return session
+    const sessionAttendees = await db
+      .query('attendees')
+      .withIndex('by_session', (q) => q.eq('sessionId', session._id))
+      .collect()
+
+    return {
+      ...session,
+      attendees: sessionAttendees.map((attendee) => attendee.userId),
+    }
   },
 })
 
@@ -92,6 +100,18 @@ export const listSessions = query({
       .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
       .collect()
 
-    return sessions
+    return Promise.all(
+      sessions.map(async (session) => {
+        const sessionAttendees = await db
+          .query('attendees')
+          .withIndex('by_session', (q) => q.eq('sessionId', session._id))
+          .collect()
+
+        return {
+          ...session,
+          attendees: sessionAttendees.map((attendee) => attendee.userId),
+        }
+      }),
+    )
   },
 })
