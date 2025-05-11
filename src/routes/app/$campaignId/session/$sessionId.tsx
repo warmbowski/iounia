@@ -20,13 +20,17 @@ import { useEffect, useState } from 'react'
 
 export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
   parseParams: (params) => {
-    const { sessionId } = params
+    const { sessionId, campaignId } = params
 
     if (typeof sessionId !== 'string') {
       throw new Error('Invalid sessionId')
     }
+    if (typeof campaignId !== 'string') {
+      throw new Error('Invalid campaignId')
+    }
     return {
       sessionId: sessionId as Id<'sessions'>,
+      campaignId: campaignId as Id<'campaigns'>,
     }
   },
 
@@ -77,7 +81,7 @@ function RouteComponent() {
   }, [session.summary])
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex gap-4">
         <div className="w-200">
           <SessionCard session={session} />

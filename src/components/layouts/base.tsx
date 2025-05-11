@@ -26,7 +26,9 @@ export function BaseLayout({ children }: BaseLayoutProps) {
           />
         )}
       </div>
-      <div className="flex-1 overflow-auto">{children}</div>
+      <div id="base-layout-scrollable-area" className="flex-1 overflow-auto">
+        {children}
+      </div>
     </section>
   )
 }

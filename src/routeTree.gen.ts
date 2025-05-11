@@ -14,9 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as AppIndexImport } from './routes/app/index'
 import { Route as SsoCallbackImport } from './routes/sso.callback'
-import { Route as AppCampaignIdRouteImport } from './routes/app/$campaignId/route'
 import { Route as AppCampaignIdIndexImport } from './routes/app/$campaignId/index'
-import { Route as AppCampaignIdSessionsImport } from './routes/app/$campaignId/sessions'
 import { Route as AppCampaignIdSessionSessionIdImport } from './routes/app/$campaignId/session/$sessionId'
 import { Route as AppCampaignIdSessionSessionIdRecordingsImport } from './routes/app/$campaignId/session/$sessionId.recordings'
 
@@ -40,29 +38,17 @@ const SsoCallbackRoute = SsoCallbackImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AppCampaignIdRouteRoute = AppCampaignIdRouteImport.update({
-  id: '/app/$campaignId',
-  path: '/app/$campaignId',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AppCampaignIdIndexRoute = AppCampaignIdIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppCampaignIdRouteRoute,
-} as any)
-
-const AppCampaignIdSessionsRoute = AppCampaignIdSessionsImport.update({
-  id: '/sessions',
-  path: '/sessions',
-  getParentRoute: () => AppCampaignIdRouteRoute,
+  id: '/app/$campaignId/',
+  path: '/app/$campaignId/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const AppCampaignIdSessionSessionIdRoute =
   AppCampaignIdSessionSessionIdImport.update({
-    id: '/session/$sessionId',
-    path: '/session/$sessionId',
-    getParentRoute: () => AppCampaignIdRouteRoute,
+    id: '/app/$campaignId/session/$sessionId',
+    path: '/app/$campaignId/session/$sessionId',
+    getParentRoute: () => rootRoute,
   } as any)
 
 const AppCampaignIdSessionSessionIdRecordingsRoute =
@@ -83,13 +69,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/app/$campaignId': {
-      id: '/app/$campaignId'
-      path: '/app/$campaignId'
-      fullPath: '/app/$campaignId'
-      preLoaderRoute: typeof AppCampaignIdRouteImport
-      parentRoute: typeof rootRoute
-    }
     '/sso/callback': {
       id: '/sso/callback'
       path: '/sso/callback'
@@ -104,26 +83,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexImport
       parentRoute: typeof rootRoute
     }
-    '/app/$campaignId/sessions': {
-      id: '/app/$campaignId/sessions'
-      path: '/sessions'
-      fullPath: '/app/$campaignId/sessions'
-      preLoaderRoute: typeof AppCampaignIdSessionsImport
-      parentRoute: typeof AppCampaignIdRouteImport
-    }
     '/app/$campaignId/': {
       id: '/app/$campaignId/'
-      path: '/'
-      fullPath: '/app/$campaignId/'
+      path: '/app/$campaignId'
+      fullPath: '/app/$campaignId'
       preLoaderRoute: typeof AppCampaignIdIndexImport
-      parentRoute: typeof AppCampaignIdRouteImport
+      parentRoute: typeof rootRoute
     }
     '/app/$campaignId/session/$sessionId': {
       id: '/app/$campaignId/session/$sessionId'
-      path: '/session/$sessionId'
+      path: '/app/$campaignId/session/$sessionId'
       fullPath: '/app/$campaignId/session/$sessionId'
       preLoaderRoute: typeof AppCampaignIdSessionSessionIdImport
-      parentRoute: typeof AppCampaignIdRouteImport
+      parentRoute: typeof rootRoute
     }
     '/app/$campaignId/session/$sessionId/recordings': {
       id: '/app/$campaignId/session/$sessionId/recordings'
@@ -152,29 +124,11 @@ const AppCampaignIdSessionSessionIdRouteWithChildren =
     AppCampaignIdSessionSessionIdRouteChildren,
   )
 
-interface AppCampaignIdRouteRouteChildren {
-  AppCampaignIdSessionsRoute: typeof AppCampaignIdSessionsRoute
-  AppCampaignIdIndexRoute: typeof AppCampaignIdIndexRoute
-  AppCampaignIdSessionSessionIdRoute: typeof AppCampaignIdSessionSessionIdRouteWithChildren
-}
-
-const AppCampaignIdRouteRouteChildren: AppCampaignIdRouteRouteChildren = {
-  AppCampaignIdSessionsRoute: AppCampaignIdSessionsRoute,
-  AppCampaignIdIndexRoute: AppCampaignIdIndexRoute,
-  AppCampaignIdSessionSessionIdRoute:
-    AppCampaignIdSessionSessionIdRouteWithChildren,
-}
-
-const AppCampaignIdRouteRouteWithChildren =
-  AppCampaignIdRouteRoute._addFileChildren(AppCampaignIdRouteRouteChildren)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app/$campaignId': typeof AppCampaignIdRouteRouteWithChildren
   '/sso/callback': typeof SsoCallbackRoute
   '/app': typeof AppIndexRoute
-  '/app/$campaignId/sessions': typeof AppCampaignIdSessionsRoute
-  '/app/$campaignId/': typeof AppCampaignIdIndexRoute
+  '/app/$campaignId': typeof AppCampaignIdIndexRoute
   '/app/$campaignId/session/$sessionId': typeof AppCampaignIdSessionSessionIdRouteWithChildren
   '/app/$campaignId/session/$sessionId/recordings': typeof AppCampaignIdSessionSessionIdRecordingsRoute
 }
@@ -183,7 +137,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sso/callback': typeof SsoCallbackRoute
   '/app': typeof AppIndexRoute
-  '/app/$campaignId/sessions': typeof AppCampaignIdSessionsRoute
   '/app/$campaignId': typeof AppCampaignIdIndexRoute
   '/app/$campaignId/session/$sessionId': typeof AppCampaignIdSessionSessionIdRouteWithChildren
   '/app/$campaignId/session/$sessionId/recordings': typeof AppCampaignIdSessionSessionIdRecordingsRoute
@@ -192,10 +145,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/app/$campaignId': typeof AppCampaignIdRouteRouteWithChildren
   '/sso/callback': typeof SsoCallbackRoute
   '/app/': typeof AppIndexRoute
-  '/app/$campaignId/sessions': typeof AppCampaignIdSessionsRoute
   '/app/$campaignId/': typeof AppCampaignIdIndexRoute
   '/app/$campaignId/session/$sessionId': typeof AppCampaignIdSessionSessionIdRouteWithChildren
   '/app/$campaignId/session/$sessionId/recordings': typeof AppCampaignIdSessionSessionIdRecordingsRoute
@@ -205,11 +156,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app/$campaignId'
     | '/sso/callback'
     | '/app'
-    | '/app/$campaignId/sessions'
-    | '/app/$campaignId/'
+    | '/app/$campaignId'
     | '/app/$campaignId/session/$sessionId'
     | '/app/$campaignId/session/$sessionId/recordings'
   fileRoutesByTo: FileRoutesByTo
@@ -217,17 +166,14 @@ export interface FileRouteTypes {
     | '/'
     | '/sso/callback'
     | '/app'
-    | '/app/$campaignId/sessions'
     | '/app/$campaignId'
     | '/app/$campaignId/session/$sessionId'
     | '/app/$campaignId/session/$sessionId/recordings'
   id:
     | '__root__'
     | '/'
-    | '/app/$campaignId'
     | '/sso/callback'
     | '/app/'
-    | '/app/$campaignId/sessions'
     | '/app/$campaignId/'
     | '/app/$campaignId/session/$sessionId'
     | '/app/$campaignId/session/$sessionId/recordings'
@@ -236,16 +182,19 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppCampaignIdRouteRoute: typeof AppCampaignIdRouteRouteWithChildren
   SsoCallbackRoute: typeof SsoCallbackRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppCampaignIdIndexRoute: typeof AppCampaignIdIndexRoute
+  AppCampaignIdSessionSessionIdRoute: typeof AppCampaignIdSessionSessionIdRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppCampaignIdRouteRoute: AppCampaignIdRouteRouteWithChildren,
   SsoCallbackRoute: SsoCallbackRoute,
   AppIndexRoute: AppIndexRoute,
+  AppCampaignIdIndexRoute: AppCampaignIdIndexRoute,
+  AppCampaignIdSessionSessionIdRoute:
+    AppCampaignIdSessionSessionIdRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -259,21 +208,14 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/app/$campaignId",
         "/sso/callback",
-        "/app/"
+        "/app/",
+        "/app/$campaignId/",
+        "/app/$campaignId/session/$sessionId"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/app/$campaignId": {
-      "filePath": "app/$campaignId/route.tsx",
-      "children": [
-        "/app/$campaignId/sessions",
-        "/app/$campaignId/",
-        "/app/$campaignId/session/$sessionId"
-      ]
     },
     "/sso/callback": {
       "filePath": "sso.callback.tsx"
@@ -281,17 +223,11 @@ export const routeTree = rootRoute
     "/app/": {
       "filePath": "app/index.tsx"
     },
-    "/app/$campaignId/sessions": {
-      "filePath": "app/$campaignId/sessions.tsx",
-      "parent": "/app/$campaignId"
-    },
     "/app/$campaignId/": {
-      "filePath": "app/$campaignId/index.tsx",
-      "parent": "/app/$campaignId"
+      "filePath": "app/$campaignId/index.tsx"
     },
     "/app/$campaignId/session/$sessionId": {
       "filePath": "app/$campaignId/session/$sessionId.tsx",
-      "parent": "/app/$campaignId",
       "children": [
         "/app/$campaignId/session/$sessionId/recordings"
       ]
