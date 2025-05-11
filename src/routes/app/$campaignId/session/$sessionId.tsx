@@ -101,7 +101,7 @@ function RouteComponent() {
                     href={recording.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
+                    className="text-secondary-500 hover:underline"
                   >
                     Recording {index + 1}
                   </a>
@@ -138,7 +138,7 @@ function RouteComponent() {
               key={index}
               className="flex items-start leading-none gap-2 mt-4"
             >
-              <Icon icon={iconName} color="hsl(var(--heroui-secondary-700))" />
+              <Icon icon={iconName} className="text-secondary-500" />
               {item.text}
             </div>
           )
