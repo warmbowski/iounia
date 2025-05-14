@@ -19,7 +19,7 @@ export const authStateFn = createServerFn({ method: 'GET' }).handler(
       // throw redirect({
       //   to: '/',
       // })
-      console.log('Unauthenticated user')
+      console.error('Unauthenticated user')
     }
 
     const clerkClient = createClerkClient({
@@ -48,7 +48,7 @@ export const getUsersListByIdsFn = createServerFn({ method: 'GET' })
 
     const { userId } = await getAuth(request)
     if (!userId) {
-      console.log('Unauthenticated user')
+      console.error('Unauthenticated user')
     }
 
     const clerkClient = createClerkClient({
