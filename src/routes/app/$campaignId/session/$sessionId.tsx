@@ -70,9 +70,8 @@ function RouteComponent() {
   useEffect(() => {
     const unload = loadIcons(
       session.summary.map((item) => `lucide:${item.icon}`),
-      (loaded, missing) => {
+      (_loaded, missing) => {
         setInvalidIcons(missing.map((icon) => icon.name))
-        console.log(loaded, missing)
       },
     )
     return () => {
@@ -96,7 +95,7 @@ function RouteComponent() {
             {recordings.map((recording, index) => {
               return (
                 <div key={recording._id} className="flex gap-2 items-center">
-                  <Icon icon="lucide:mic" />
+                  <Icon icon="lucide:mic" className="text-secondary-500" />
                   <a
                     href={recording.fileUrl}
                     target="_blank"
