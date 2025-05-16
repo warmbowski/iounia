@@ -49,7 +49,7 @@ function Campaigns() {
         Create Campaign
       </Button>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8 mt-6">
         {data.map((campaign) => (
           <CampaignCard
             key={campaign._id}

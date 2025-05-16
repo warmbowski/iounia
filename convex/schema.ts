@@ -50,9 +50,9 @@ export default defineSchema({
     storageId: v.string(),
     processingJobId: v.optional(v.string()),
     recordingIndex: v.optional(v.number()),
-    fileName: v.optional(v.string()),
-    fileUrl: v.optional(v.string()),
-    fileType: v.optional(v.string()),
+    fileUrl: v.string(),
+    fileName: v.string(),
+    fileType: v.string(),
     durationSec: v.optional(v.number()),
     tokenCount: v.optional(v.number()),
     uploadedBy: userId(),
@@ -64,12 +64,11 @@ export default defineSchema({
     recordingId: v.id('recordings'),
     sessionId: v.id('sessions'),
     text: v.string(),
-    timestamp: v.optional(v.string()),
     start: v.number(),
-    end: v.optional(v.number()),
+    end: v.number(),
     speaker: v.string(),
     embeddings: v.array(v.number()),
   })
-    .index('by_recording', ['recordingId', 'timestamp'])
-    .index('by_session', ['sessionId', 'timestamp']),
+    .index('by_recording', ['recordingId', 'start'])
+    .index('by_session', ['sessionId', 'start']),
 })

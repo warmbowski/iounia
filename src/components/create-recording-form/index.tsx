@@ -38,6 +38,8 @@ export function CreateRecordingForm({
       await createRecording.mutate({
         storageId: key,
         sessionId,
+        fileName: selectedFile.name,
+        fileType: selectedFile.type,
         durationSec: audioDuration,
       })
 

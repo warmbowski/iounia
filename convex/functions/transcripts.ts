@@ -182,6 +182,21 @@ export const deleteAllTranscriptParts = mutation({
   },
 })
 
+export const hasTranscript = action({
+  args: {
+    sessionId: v.id('sessions'),
+  },
+  handler: async ({ runQuery }, { sessionId }): Promise<boolean> => {
+    const parts = await runQuery(
+      api.functions.transcripts.listTranscriptParts,
+      {
+        sessionId,
+      },
+    )
+    return parts.length > 0
+  },
+})
+
 /** internal functions */
 
 export const generateTextEmbeddings = internalAction({
@@ -218,7 +233,7 @@ export const updateTextEmbeddings = internalAction({
     recordingId: v.id('recordings'),
   },
   handler: async ({ runQuery, runAction, runMutation }, { recordingId }) => {
-    const transcriptParts = await runQuery(
+    const transcriptParts: any[] = await runQuery(
       internal.functions.transcripts.listTranscriptPartsByRecordingId,
       { recordingId },
     )
@@ -255,7 +270,7 @@ export const createTranscriptPart = internalMutation({
     recordingId: v.id('recordings'),
     text: v.string(),
     start: v.number(),
-    end: v.optional(v.number()),
+    end: v.number(),
     speaker: v.string(),
     speakerType: v.optional(v.string()),
     characterName: v.optional(v.string()),

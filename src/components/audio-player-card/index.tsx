@@ -1,3 +1,4 @@
+import { formatTime } from '@/utils'
 import {
   Card,
   CardBody,
@@ -14,6 +15,7 @@ interface AudioPlayerCardProps {
   artist: string
   duration: number
   audioSrc: string
+  onTimeUpdate?: (time: number) => void
 }
 
 export function AudioPlayerCard({
@@ -21,19 +23,13 @@ export function AudioPlayerCard({
   artist,
   duration,
   audioSrc,
+  onTimeUpdate,
 }: AudioPlayerCardProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [realDuration, setRealDuration] = useState(duration)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const intervalRef = useRef<number | null>(null)
-
-  // Format time in MM:SS
-  const formatTime = (time: number): string => {
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
-  }
 
   const startTimer = () => {
     if (intervalRef.current !== null) {
@@ -114,6 +110,12 @@ export function AudioPlayerCard({
     }
   }, [audioSrc])
 
+  useEffect(() => {
+    if (onTimeUpdate) {
+      onTimeUpdate(currentTime)
+    }
+  }, [currentTime, onTimeUpdate])
+
   return (
     <Card className="w-full">
       <CardBody className="pb-2">
@@ -129,7 +131,7 @@ export function AudioPlayerCard({
       </CardBody>
       <CardFooter className="flex flex-col pt-0">
         <div className="flex items-center w-full gap-2">
-          <span className="text-small text-default-500 w-10 text-right">
+          <span className="text-small text-default-500 w-15 text-right">
             {formatTime(currentTime)}
           </span>
           <Slider
@@ -143,7 +145,7 @@ export function AudioPlayerCard({
             className="flex-1"
             onChange={handleSliderChange}
           />
-          <span className="text-small text-default-500 w-10">
+          <span className="text-small text-default-500 w-15">
             {formatTime(realDuration)}
           </span>
         </div>

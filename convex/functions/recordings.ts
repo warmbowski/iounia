@@ -12,6 +12,8 @@ export const createRecording = mutation({
   args: {
     storageId: v.string(),
     sessionId: v.id('sessions'),
+    fileName: v.string(),
+    fileType: v.string(),
     durationSec: v.number(),
   },
   handler: async ({ db, auth, scheduler }, args) => {
@@ -25,7 +27,8 @@ export const createRecording = mutation({
       storageId: args.storageId,
       recordingIndex: 0,
       fileUrl,
-      fileType: 'audio/mpeg',
+      fileName: args.fileName,
+      fileType: args.fileType,
       durationSec: args.durationSec,
       uploadedBy: user.tokenIdentifier,
     })
@@ -44,15 +47,15 @@ export const createRecording = mutation({
 })
 
 export const readRecording = query({
-  args: { sessionId: v.id('sessions') },
-  handler: async ({ db, auth }, { sessionId }) => {
+  args: { recordingId: v.id('recordings') },
+  handler: async ({ db, auth }, { recordingId }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
-    return await db
-      .query('recordings')
-      .withIndex('by_session', (q) => q.eq('sessionId', sessionId))
-      .collect()
+    const recording = await db.get(recordingId)
+    if (!recording) throw new Error('Recording not found')
+
+    return recording
   },
 })
 
