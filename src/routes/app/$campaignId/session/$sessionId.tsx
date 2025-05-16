@@ -94,10 +94,10 @@ function RouteComponent() {
     <div className="p-6">
       <div className="grid grid-cols-[350px_minmax(350px,_auto)] gap-8">
         <SessionCard session={session} />
-        <div className="">
-          <h2 className="text-xl font-semibold mt-4">What Happened</h2>
+        <div>
+          <h2 className="text-xl font-semibold">What Happened</h2>
           <p>{session.shortSummary || <i>No short summary available</i>}</p>
-          <h3 className="text-2xl font-bold">Session Notes</h3>
+          <h3 className="text-2xl font-bold mt-4">Session Notes</h3>
           <p>{session.notes || <i>No notes available</i>}</p>
           <h3 className="text-xl font-semibold mt-4">Recordings</h3>
           <div className="flex flex-col gap-2">

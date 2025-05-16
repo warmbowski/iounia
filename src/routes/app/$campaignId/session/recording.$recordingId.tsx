@@ -61,8 +61,8 @@ function RouteComponent() {
   )
 
   return rec ? (
-    <div className="w-full h-full">
-      <div className="fixed top-30px end-0 min-w-sm z-50 p-4 shadow-md">
+    <div className="w-full h-full p-6">
+      <div className="fixed top-30px end-0 min-w-sm z-50 shadow-md">
         <AudioPlayerCard
           key={rec._id}
           title={rec.fileName}
@@ -79,7 +79,7 @@ function RouteComponent() {
       <div className="mt-4">
         <h2 className="text-xl font-bold">Transcript</h2>
         {transcript ? (
-          <div className="pl-4 pr-100">
+          <div className="pr-100">
             {transcript.map((part) => {
               const isAtTime =
                 currentTime >= part.start / 1000 &&
@@ -88,19 +88,19 @@ function RouteComponent() {
                 <p
                   data-status={isAtTime}
                   key={part._id}
-                  className="mt-2 data-[status=true]:text-warning-500"
+                  className="mt-2 data-[status=true]:text-warning-500 grid grid-cols-[auto_1fr] gap-2"
                 >
                   <Button
+                    className="font-mono bold text-sm focus:outline-solid"
                     size="sm"
                     variant="light"
                     color="secondary"
-                    className="font-mono bold text-sm focus:outline-solid"
                     onPress={() => setSeekTime(part.start / 1000)}
                     aria-label={`Jump to ${formatTime(part.start / 1000)}`}
                   >
-                    {formatTime(part.start / 1000)} Speaker {part.speaker}:
-                  </Button>{' '}
-                  {part.text}
+                    {formatTime(part.start / 1000)} Speaker{part.speaker}:
+                  </Button>
+                  <span className="basis-auto">{part.text}</span>
                 </p>
               )
             })}

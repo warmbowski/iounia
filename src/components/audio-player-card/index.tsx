@@ -134,7 +134,10 @@ export function AudioPlayerCard({
       <CardBody className="pb-2">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-md bg-primary-100 flex items-center justify-center">
-            <Icon icon="lucide:music" className="text-primary-500 text-2xl" />
+            <Icon
+              icon="lucide:book-open"
+              className="text-primary-500 text-2xl"
+            />
           </div>
           <div className="flex-1">
             <h3 className="font-medium text-lg">{title}</h3>
