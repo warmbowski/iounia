@@ -1,23 +1,31 @@
 import { internal } from '../_generated/api'
-import { mutation, query, internalQuery } from '../_generated/server'
+import {
+  mutation,
+  query,
+  internalQuery,
+  internalMutation,
+} from '../_generated/server'
 import { v } from 'convex/values'
+import { r2 } from './cloudflareR2'
 
 export const createRecording = mutation({
   args: {
-    storageId: v.id('_storage'),
+    storageId: v.string(),
     sessionId: v.id('sessions'),
     durationSec: v.number(),
   },
-  handler: async ({ db, auth, storage, scheduler }, args) => {
+  handler: async ({ db, auth, scheduler }, args) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+
+    const fileUrl = await r2.getUrl(args.storageId)
 
     const recordingId = await db.insert('recordings', {
       sessionId: args.sessionId,
       storageId: args.storageId,
       recordingIndex: 0,
-      fileUrl: (await storage.getUrl(args.storageId)) || '',
-      fileType: 'audio',
+      fileUrl,
+      fileType: 'audio/mpeg',
       durationSec: args.durationSec,
       uploadedBy: user.tokenIdentifier,
     })
@@ -28,7 +36,6 @@ export const createRecording = mutation({
       {
         storageId: args.storageId,
         recordingId: recordingId,
-        durationSec: args.durationSec,
       },
     )
 
@@ -82,6 +89,7 @@ export const updateRecording = mutation({
   args: {
     recordingId: v.id('recordings'),
     updates: v.object({
+      processingJobId: v.optional(v.string()),
       recordingIndex: v.optional(v.number()),
       tokenCount: v.optional(v.number()),
       fileUrl: v.optional(v.string()),
@@ -116,5 +124,22 @@ export const readRecordingByJobId = internalQuery({
     if (!recording) throw new Error('Recording not found')
 
     return recording
+  },
+})
+
+export const updateRecordingJobId = internalMutation({
+  args: {
+    recordingId: v.id('recordings'),
+    updates: v.object({
+      processingJobId: v.string(),
+    }),
+  },
+  handler: async ({ db }, { recordingId, updates }) => {
+    const recording = await db.get(recordingId)
+    if (!recording) throw new Error('Recording not found')
+
+    return await db.patch(recordingId, {
+      ...updates,
+    })
   },
 })

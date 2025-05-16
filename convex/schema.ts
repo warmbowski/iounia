@@ -47,11 +47,12 @@ export default defineSchema({
 
   recordings: defineTable({
     sessionId: v.id('sessions'),
-    storageId: v.id('_storage'),
+    storageId: v.string(),
     processingJobId: v.optional(v.string()),
     recordingIndex: v.optional(v.number()),
-    fileUrl: v.string(),
-    fileType: v.string(),
+    fileName: v.optional(v.string()),
+    fileUrl: v.optional(v.string()),
+    fileType: v.optional(v.string()),
     durationSec: v.optional(v.number()),
     tokenCount: v.optional(v.number()),
     uploadedBy: userId(),

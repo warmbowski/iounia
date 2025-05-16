@@ -17,6 +17,7 @@
     "@clerk/backend": "^1.30.0",
     "@clerk/tanstack-react-start": "^0.13.7",
     "@convex-dev/eslint-plugin": "0.0.1-alpha.4",
+    "@convex-dev/r2": "^0.5.1",
     "@convex-dev/react-query": "0.0.0-alpha.8",
     "@heroui/react": "2.7.6-beta.2",
     "@heroui/use-theme": "^2.1.6",

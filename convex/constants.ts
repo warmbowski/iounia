@@ -1,4 +1,10 @@
+import { ensureEnvironmentVariable } from './utililties'
+
 export const AUDIO_CHUNK_DURATION_SEC = 15 * 60 // 15 minutes
+export const WEBHOOK_URL = `${'https://perfect-ermine-248.convex.site'}/webhooks/assemblyai`
+export const WEBHOOK_AUTH_HEADER_NAME = 'x-assemblyai-256'
+export const WEBHOOK_AUTH_HEADER_VALUE =
+  ensureEnvironmentVariable('WEBHOOK_SECRET')
 
 /** system prompts */
 

@@ -1,6 +1,10 @@
 import { httpRouter } from 'convex/server'
 import { httpAction } from './_generated/server'
 import { internal } from './_generated/api'
+import {
+  WEBHOOK_AUTH_HEADER_NAME,
+  WEBHOOK_AUTH_HEADER_VALUE,
+} from './constants'
 
 const http = httpRouter()
 
@@ -8,10 +12,10 @@ http.route({
   path: '/webhooks/assemblyai',
   method: 'POST',
   handler: httpAction(async ({ runQuery, runAction }, request) => {
-    const signature = request.headers.get('x-assemblyai-256')!
+    const signature = request.headers.get(WEBHOOK_AUTH_HEADER_NAME)!
     const bodyString = await request.text()
 
-    if (signature !== process.env.ASSEMBLYAI_WEBHOOK_SECRET) {
+    if (signature !== WEBHOOK_AUTH_HEADER_VALUE) {
       return new Response('Unauthorized', { status: 401 })
     }
 

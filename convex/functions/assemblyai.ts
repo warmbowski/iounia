@@ -1,45 +1,73 @@
-'use node'
-import { AssemblyAI } from 'assemblyai'
-
+import { TranscribeParams, Transcript } from 'assemblyai'
 import { internalAction } from '../_generated/server'
 import { v } from 'convex/values'
-import { internal } from '../_generated/api'
+import { api, internal } from '../_generated/api'
+import {
+  WEBHOOK_AUTH_HEADER_NAME,
+  WEBHOOK_AUTH_HEADER_VALUE,
+  WEBHOOK_URL,
+} from '../constants'
+import { r2 } from './cloudflareR2'
+import { ensureEnvironmentVariable } from '../utililties'
 
-const assemblyai = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-})
+const TRANSCRIPTION_URL = 'https://api.assemblyai.com/v2/transcript'
+const SPEECH_MODEL = 'universal'
+const ASSEMBLYAI_API_KEY = ensureEnvironmentVariable('ASSEMBLYAI_API_KEY')
 
 export const submitRecordingForTranscription = internalAction({
   args: {
-    storageId: v.id('_storage'),
+    storageId: v.string(),
     recordingId: v.id('recordings'),
-    durationSec: v.number(),
   },
-  handler: async ({ storage }, { storageId }) => {
+  handler: async ({ runMutation }, { storageId, recordingId }) => {
     try {
-      const audioFile = await storage.get(storageId)
-      if (!audioFile) {
-        throw new Error('Audio file not found')
+      const fileUrl = await r2.getUrl(storageId)
+      if (!fileUrl) {
+        console.error('File URL not found for storageId:', storageId)
+        throw new Error('File URL not found')
       }
-      const arrayBuffer = await new Response(audioFile).arrayBuffer()
-      if (!arrayBuffer) {
-        throw new Error('Failed to read audio file')
-      }
-      const uint8Array = new Uint8Array(arrayBuffer)
 
-      const response = await assemblyai.transcripts.submit({
-        speech_model: 'universal',
-        audio: uint8Array,
+      const body: TranscribeParams = {
+        speech_model: SPEECH_MODEL,
+        audio_url: fileUrl,
         speaker_labels: true,
-        webhook_url: 'http://example.com/webhooks/assemblyai',
-        webhook_auth_header_name: 'x-assemblyai-256',
-        webhook_auth_header_value: process.env.ASSEMBLYAI_WEBHOOK_SECRET,
+        webhook_url: WEBHOOK_URL,
+        webhook_auth_header_name: WEBHOOK_AUTH_HEADER_NAME,
+        webhook_auth_header_value: WEBHOOK_AUTH_HEADER_VALUE,
+      }
+
+      const response = await fetch(TRANSCRIPTION_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: ASSEMBLYAI_API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
       })
 
-      if (!response) {
-        console.error('Transcription error:', response)
+      if (!response.ok) {
+        console.error('Transcription submission error:', response)
+        throw new Error('Transcription submission error')
+      }
+
+      const transcript = await response.json()
+      if (!transcript) {
+        console.error('Transcription error:', transcript)
         throw new Error('Transcription error')
       }
+
+      const jobId = transcript.id
+      if (!jobId) {
+        console.error('Job ID not found in transcription response:', transcript)
+        throw new Error('Job ID not found')
+      }
+
+      await runMutation(internal.functions.recordings.updateRecordingJobId, {
+        recordingId: recordingId,
+        updates: {
+          processingJobId: jobId,
+        },
+      })
 
       return {
         message: 'Audio submitted successfully for processing!',
@@ -58,16 +86,29 @@ export const processRecordingTranscript = internalAction({
   },
   handler: async ({ scheduler, runMutation }, { jobId, recordingId }) => {
     try {
-      const response = await assemblyai.transcripts.get(jobId)
-      if (!response.utterances) {
-        throw new Error('Transcript not found')
+      const response = await fetch(TRANSCRIPTION_URL + '/' + jobId, {
+        method: 'GET',
+        headers: {
+          Authorization: ASSEMBLYAI_API_KEY,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        console.error('Transcription retrieval error:', response)
+        throw new Error('Transcription retrieval error')
       }
-      if (response.status !== 'completed') {
+      const transcript: Transcript = await response.json()
+      if (!transcript) {
+        console.error('Transcription error:', transcript)
+        throw new Error('Transcription error')
+      }
+
+      if (transcript.status !== 'completed') {
         throw new Error('Transcript is not ready yet')
       }
 
       await Promise.all(
-        response.utterances.map(async (item) => {
+        (transcript.utterances || []).map(async (item) => {
           return await runMutation(
             internal.functions.transcripts.createTranscriptPart,
             {

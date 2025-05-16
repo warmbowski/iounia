@@ -6,6 +6,7 @@ import { api } from 'convex/_generated/api'
 import { useConvexMutation } from '@convex-dev/react-query'
 import { useMutation } from '@tanstack/react-query'
 import type { Id } from 'convex/_generated/dataModel'
+import { useUploadFile } from '@convex-dev/r2/react'
 
 interface FileUploadFormProps {
   sessionId: Id<'sessions'>
@@ -20,13 +21,11 @@ export function CreateRecordingForm({
   const [audioDuration, setAudioDuration] = useState<number>()
   const [uploading, setUploading] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null!)
-  const generateUploadUrl = useMutation({
-    mutationFn: useConvexMutation(api.functions.storage.generateUploadUrl),
-  })
+  const fileInputRef = useRef<HTMLInputElement>(null!)
+  const uploadFile = useUploadFile(api.functions.cloudflareR2)
   const createRecording = useMutation({
     mutationFn: useConvexMutation(api.functions.recordings.createRecording),
   })
-  const fileInputRef = useRef<HTMLInputElement>(null!)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -35,18 +34,13 @@ export function CreateRecordingForm({
     if (!audioDuration) return
 
     try {
-      const postUrl = await generateUploadUrl.mutateAsync({})
-      const result = await fetch(postUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': selectedFile!.type },
-        body: selectedFile,
-      })
-      const { storageId } = await result.json()
+      const key = await uploadFile(selectedFile)
       await createRecording.mutate({
-        storageId,
+        storageId: key,
         sessionId,
         durationSec: audioDuration,
       })
+
       setSelectedFile(null)
       fileInputRef.current.value = ''
       onClose()

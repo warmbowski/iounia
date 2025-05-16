@@ -15,9 +15,12 @@ import {
   SYSTEM_PROMPT_SHORT_SUMMARIZATION,
   SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
 } from '../constants'
+import { ensureEnvironmentVariable } from '../utililties'
+
+const GEMINI_API_KEY = ensureEnvironmentVariable('GEMINI_API_KEY')
 
 const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: GEMINI_API_KEY,
 })
 
 export interface TranscriptionItem {
