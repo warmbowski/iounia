@@ -16,6 +16,8 @@ interface AudioPlayerCardProps {
   duration: number
   audioSrc: string
   onTimeUpdate?: (time: number) => void
+  seekTo?: number | null
+  onSeeked?: () => void
 }
 
 export function AudioPlayerCard({
@@ -24,6 +26,8 @@ export function AudioPlayerCard({
   duration,
   audioSrc,
   onTimeUpdate,
+  seekTo,
+  onSeeked,
 }: AudioPlayerCardProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -115,6 +119,15 @@ export function AudioPlayerCard({
       onTimeUpdate(currentTime)
     }
   }, [currentTime, onTimeUpdate])
+
+  useEffect(() => {
+    if (seekTo != null && audioRef.current) {
+      audioRef.current.currentTime = seekTo
+      setCurrentTime(seekTo)
+      if (onSeeked) onSeeked()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seekTo])
 
   return (
     <Card className="w-full">

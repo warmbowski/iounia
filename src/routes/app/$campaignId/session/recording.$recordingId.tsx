@@ -1,6 +1,7 @@
 import { AudioPlayerCard } from '@/components/audio-player-card'
 import { formatDate, formatTime } from '@/utils'
 import { convexQuery } from '@convex-dev/react-query'
+import { Button } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
@@ -42,6 +43,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { recordingId } = Route.useParams()
   const [currentTime, setCurrentTime] = useState(0)
+  const [seekTime, setSeekTime] = useState<number | null>(null)
   const { data: rec } = useQuery(
     convexQuery(api.functions.recordings.readRecording, {
       recordingId,
@@ -70,6 +72,8 @@ function RouteComponent() {
           onTimeUpdate={(time) => {
             setCurrentTime(time)
           }}
+          seekTo={seekTime}
+          onSeeked={() => setSeekTime(null)}
         />
       </div>
       <div className="mt-4">
@@ -86,11 +90,16 @@ function RouteComponent() {
                   key={part._id}
                   className="mt-2 data-[status=true]:text-warning-500"
                 >
-                  <strong>
-                    <span className="font-mono text-secondary-500">
-                      {formatTime(part.start / 1000)} Speaker {part.speaker}:
-                    </span>
-                  </strong>{' '}
+                  <Button
+                    size="sm"
+                    variant="light"
+                    color="secondary"
+                    className="font-mono bold text-sm focus:outline-solid"
+                    onPress={() => setSeekTime(part.start / 1000)}
+                    aria-label={`Jump to ${formatTime(part.start / 1000)}`}
+                  >
+                    {formatTime(part.start / 1000)} Speaker {part.speaker}:
+                  </Button>{' '}
                   {part.text}
                 </p>
               )
