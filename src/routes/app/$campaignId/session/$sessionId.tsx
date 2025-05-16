@@ -95,9 +95,9 @@ function RouteComponent() {
       <div className="grid grid-cols-[350px_minmax(350px,_auto)] gap-8">
         <SessionCard session={session} />
         <div>
-          <h2 className="text-xl font-semibold">What Happened</h2>
+          <h2 className="text-2xl font-bold">What Happened</h2>
           <p>{session.shortSummary || <i>No short summary available</i>}</p>
-          <h3 className="text-2xl font-bold mt-4">Session Notes</h3>
+          <h3 className="text-xl font-semibold mt-4">Session Notes</h3>
           <p>{session.notes || <i>No notes available</i>}</p>
           <h3 className="text-xl font-semibold mt-4">Recordings</h3>
           <div className="flex flex-col gap-2">
@@ -135,7 +135,7 @@ function RouteComponent() {
         </div>
       </div>
       <div>
-        <h2 className="text-2xl w-full font-bold mt-8 flex justify-start gap-2">
+        <h1 className="text-2xl font-bold w-full mt-8 flex justify-start gap-2">
           <span>Summary</span>
           {hasTranscript && (
             <Button
@@ -147,7 +147,7 @@ function RouteComponent() {
               <Icon icon="lucide:refresh-cw" className="text-secondary-500" />
             </Button>
           )}
-        </h2>
+        </h1>
         {session.summary.length > 0 ? (
           session.summary.map((item, index) => {
             const iconName = invalidIcons.includes(item.icon)

@@ -11,6 +11,7 @@ import {
   DrawerHeader,
   useDisclosure,
 } from '@heroui/react'
+import { Icon } from '@iconify/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
@@ -65,22 +66,28 @@ function RouteComponent() {
     <div className="p-6">
       <div className="grid grid-cols-[350px_minmax(350px,_auto)] gap-8">
         <CampaignCard campaign={campaign} />
-        <div className="basis-auto">
+        <div>
           <h2 className="text-2xl font-bold">Campaign Details</h2>
-          <p>{campaign.description}</p>
+          <p>{campaign.description || <i>No description available</i>}</p>
           <h3 className="text-xl font-semibold mt-4">Main Characters</h3>
+          <p>
+            <i>No main characters available</i>
+          </p>
           <h3 className="text-xl font-semibold mt-4">Latest Happenings</h3>
+          <p>
+            <i>No latest happenings available</i>
+          </p>
         </div>
       </div>
 
-      <div className="flex justify-between gap-2 mt-8">
-        <h2 className="text-2xl font-bold mt-6">Sessions</h2>
-        <Button color="primary" onPress={onOpen}>
-          Add Session
+      <h1 className="text-2xl font-bold w-full mt-8 flex justify-start gap-2">
+        <span>Sessions</span>
+        <Button isIconOnly variant="light" onPress={onOpen}>
+          <Icon icon="lucide:plus" className="text-secondary-500" />
         </Button>
-      </div>
+      </h1>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8 mt-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
         {sessions.map((session) => (
           <SessionCard
             key={session._id}
