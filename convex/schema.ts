@@ -1,4 +1,5 @@
-import { time } from 'console'
+import { StreamIdValidator } from '@convex-dev/persistent-text-streaming'
+import { embed } from 'ai'
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 
@@ -6,6 +7,14 @@ const userId = v.string
 const isoDate = v.string
 
 export default defineSchema({
+  userMessages: defineTable({
+    prompt: v.string(),
+    campaignId: v.id('campaigns'),
+    responseStreamId: StreamIdValidator,
+  })
+    .index('by_stream', ['responseStreamId'])
+    .index('by_campaign', ['campaignId']),
+
   campaigns: defineTable({
     name: v.string(),
     description: v.string(),
@@ -63,12 +72,18 @@ export default defineSchema({
   transcripts: defineTable({
     recordingId: v.id('recordings'),
     sessionId: v.id('sessions'),
+    campaignId: v.id('campaigns'),
     text: v.string(),
     start: v.number(),
     end: v.number(),
     speaker: v.string(),
-    embeddings: v.array(v.number()),
+    embeddings: v.array(v.float64()),
   })
+    .vectorIndex('by_embedding', {
+      vectorField: 'embeddings',
+      dimensions: 768,
+      filterFields: ['text'],
+    })
     .index('by_recording', ['recordingId', 'start'])
     .index('by_session', ['sessionId', 'start']),
 })

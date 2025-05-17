@@ -1,45 +1,25 @@
 import { httpRouter } from 'convex/server'
-import { httpAction } from './_generated/server'
-import { internal } from './_generated/api'
-import {
-  WEBHOOK_AUTH_HEADER_NAME,
-  WEBHOOK_AUTH_HEADER_VALUE,
-} from './constants'
+import { receiveAssemblyAIWebhook } from './httpHandlers/webhooks.assemblyai'
+import { streamChat, streamChatOptions } from './httpHandlers/chatStream'
 
 const http = httpRouter()
 
 http.route({
   path: '/webhooks/assemblyai',
   method: 'POST',
-  handler: httpAction(async ({ runQuery, runAction }, request) => {
-    const signature = request.headers.get(WEBHOOK_AUTH_HEADER_NAME)!
-    const bodyString = await request.text()
+  handler: receiveAssemblyAIWebhook,
+})
 
-    if (signature !== WEBHOOK_AUTH_HEADER_VALUE) {
-      return new Response('Unauthorized', { status: 401 })
-    }
+http.route({
+  path: '/chat-stream',
+  method: 'POST',
+  handler: streamChat,
+})
 
-    const body = JSON.parse(bodyString)
-    const {
-      transcript_id,
-      status,
-    }: {
-      transcript_id: string
-      status: string
-    } = body
-
-    const recording = await runQuery(
-      internal.functions.recordings.readRecordingByJobId,
-      { jobId: transcript_id },
-    )
-
-    await runAction(internal.functions.assemblyai.processRecordingTranscript, {
-      jobId: transcript_id,
-      recordingId: recording._id,
-    })
-
-    return new Response(null, { status: 200 })
-  }),
+http.route({
+  path: '/chat-stream',
+  method: 'OPTIONS',
+  handler: streamChatOptions,
 })
 
 export default http

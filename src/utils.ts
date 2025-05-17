@@ -27,3 +27,19 @@ export function formatTime(seconds: number): string {
   const s = Math.floor(seconds % 60)
   return [h, m, s].map((v) => v.toString().padStart(2, '0')).join(':')
 }
+
+/**
+ * @description Returns the Convex site URL based on the environment variable
+ * @returns {string} - The Convex site URL
+ */
+export function getConvexSiteUrl() {
+  let convexSiteUrl
+  if (import.meta.env.VITE_CONVEX_URL.includes('.cloud')) {
+    convexSiteUrl = import.meta.env.VITE_CONVEX_URL.replace(/\.cloud$/, '.site')
+  } else {
+    const url = new URL(import.meta.env.VITE_CONVEX_URL)
+    url.port = String(Number(url.port) + 1)
+    convexSiteUrl = url.toString()
+  }
+  return convexSiteUrl
+}

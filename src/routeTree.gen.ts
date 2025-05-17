@@ -15,6 +15,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AppIndexImport } from './routes/app/index'
 import { Route as SsoCallbackImport } from './routes/sso.callback'
 import { Route as AppCampaignIdIndexImport } from './routes/app/$campaignId/index'
+import { Route as AppCampaignIdChatImport } from './routes/app/$campaignId/chat'
 import { Route as AppCampaignIdSessionSessionIdImport } from './routes/app/$campaignId/session/$sessionId'
 import { Route as AppCampaignIdSessionRecordingRecordingIdImport } from './routes/app/$campaignId/session/recording.$recordingId'
 
@@ -41,6 +42,12 @@ const SsoCallbackRoute = SsoCallbackImport.update({
 const AppCampaignIdIndexRoute = AppCampaignIdIndexImport.update({
   id: '/app/$campaignId/',
   path: '/app/$campaignId/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AppCampaignIdChatRoute = AppCampaignIdChatImport.update({
+  id: '/app/$campaignId/chat',
+  path: '/app/$campaignId/chat',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -83,6 +90,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexImport
       parentRoute: typeof rootRoute
     }
+    '/app/$campaignId/chat': {
+      id: '/app/$campaignId/chat'
+      path: '/app/$campaignId/chat'
+      fullPath: '/app/$campaignId/chat'
+      preLoaderRoute: typeof AppCampaignIdChatImport
+      parentRoute: typeof rootRoute
+    }
     '/app/$campaignId/': {
       id: '/app/$campaignId/'
       path: '/app/$campaignId'
@@ -113,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sso/callback': typeof SsoCallbackRoute
   '/app': typeof AppIndexRoute
+  '/app/$campaignId/chat': typeof AppCampaignIdChatRoute
   '/app/$campaignId': typeof AppCampaignIdIndexRoute
   '/app/$campaignId/session/$sessionId': typeof AppCampaignIdSessionSessionIdRoute
   '/app/$campaignId/session/recording/$recordingId': typeof AppCampaignIdSessionRecordingRecordingIdRoute
@@ -122,6 +137,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sso/callback': typeof SsoCallbackRoute
   '/app': typeof AppIndexRoute
+  '/app/$campaignId/chat': typeof AppCampaignIdChatRoute
   '/app/$campaignId': typeof AppCampaignIdIndexRoute
   '/app/$campaignId/session/$sessionId': typeof AppCampaignIdSessionSessionIdRoute
   '/app/$campaignId/session/recording/$recordingId': typeof AppCampaignIdSessionRecordingRecordingIdRoute
@@ -132,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/sso/callback': typeof SsoCallbackRoute
   '/app/': typeof AppIndexRoute
+  '/app/$campaignId/chat': typeof AppCampaignIdChatRoute
   '/app/$campaignId/': typeof AppCampaignIdIndexRoute
   '/app/$campaignId/session/$sessionId': typeof AppCampaignIdSessionSessionIdRoute
   '/app/$campaignId/session/recording/$recordingId': typeof AppCampaignIdSessionRecordingRecordingIdRoute
@@ -143,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sso/callback'
     | '/app'
+    | '/app/$campaignId/chat'
     | '/app/$campaignId'
     | '/app/$campaignId/session/$sessionId'
     | '/app/$campaignId/session/recording/$recordingId'
@@ -151,6 +169,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sso/callback'
     | '/app'
+    | '/app/$campaignId/chat'
     | '/app/$campaignId'
     | '/app/$campaignId/session/$sessionId'
     | '/app/$campaignId/session/recording/$recordingId'
@@ -159,6 +178,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sso/callback'
     | '/app/'
+    | '/app/$campaignId/chat'
     | '/app/$campaignId/'
     | '/app/$campaignId/session/$sessionId'
     | '/app/$campaignId/session/recording/$recordingId'
@@ -169,6 +189,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppCampaignIdChatRoute: typeof AppCampaignIdChatRoute
   AppCampaignIdIndexRoute: typeof AppCampaignIdIndexRoute
   AppCampaignIdSessionSessionIdRoute: typeof AppCampaignIdSessionSessionIdRoute
   AppCampaignIdSessionRecordingRecordingIdRoute: typeof AppCampaignIdSessionRecordingRecordingIdRoute
@@ -178,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SsoCallbackRoute: SsoCallbackRoute,
   AppIndexRoute: AppIndexRoute,
+  AppCampaignIdChatRoute: AppCampaignIdChatRoute,
   AppCampaignIdIndexRoute: AppCampaignIdIndexRoute,
   AppCampaignIdSessionSessionIdRoute: AppCampaignIdSessionSessionIdRoute,
   AppCampaignIdSessionRecordingRecordingIdRoute:
@@ -197,6 +219,7 @@ export const routeTree = rootRoute
         "/",
         "/sso/callback",
         "/app/",
+        "/app/$campaignId/chat",
         "/app/$campaignId/",
         "/app/$campaignId/session/$sessionId",
         "/app/$campaignId/session/recording/$recordingId"
@@ -210,6 +233,9 @@ export const routeTree = rootRoute
     },
     "/app/": {
       "filePath": "app/index.tsx"
+    },
+    "/app/$campaignId/chat": {
+      "filePath": "app/$campaignId/chat.tsx"
     },
     "/app/$campaignId/": {
       "filePath": "app/$campaignId/index.tsx"
