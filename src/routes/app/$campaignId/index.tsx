@@ -68,7 +68,9 @@ function RouteComponent() {
         <CampaignCard campaign={campaign} />
         <div>
           <h2 className="text-2xl font-bold">Campaign Details</h2>
-          <p>{campaign.description || <i>No description available</i>}</p>
+          <p className="text-balance">
+            {campaign.description || <i>No description available</i>}
+          </p>
           <h3 className="text-xl font-semibold mt-4">Main Characters</h3>
           <p>
             <i>No main characters available</i>

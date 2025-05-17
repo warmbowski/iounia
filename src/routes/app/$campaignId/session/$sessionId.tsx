@@ -96,9 +96,13 @@ function RouteComponent() {
         <SessionCard session={session} />
         <div>
           <h2 className="text-2xl font-bold">What Happened</h2>
-          <p>{session.shortSummary || <i>No short summary available</i>}</p>
+          <p className="text-balance">
+            {session.shortSummary || <i>No short summary available</i>}
+          </p>
           <h3 className="text-xl font-semibold mt-4">Session Notes</h3>
-          <p>{session.notes || <i>No notes available</i>}</p>
+          <p className="text-balance">
+            {session.notes || <i>No notes available</i>}
+          </p>
           <h3 className="text-xl font-semibold mt-4">Recordings</h3>
           <div className="flex flex-col gap-2">
             {recordings.length > 0 ? (
