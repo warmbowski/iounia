@@ -20,6 +20,9 @@ importers:
       '@convex-dev/eslint-plugin':
         specifier: 0.0.1-alpha.4
         version: 0.0.1-alpha.4(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3)
+      '@convex-dev/migrations':
+        specifier: ^0.2.7
+        version: 0.2.7(convex@1.23.0(@clerk/clerk-react@5.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
       '@convex-dev/persistent-text-streaming':
         specifier: ^0.2.2
         version: 0.2.2(convex@1.23.0(@clerk/clerk-react@5.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -524,6 +527,11 @@ packages:
 
   '@convex-dev/eslint-plugin@0.0.1-alpha.4':
     resolution: {integrity: sha512-no/F96kJOgqK3g5zVkJrXYhw+QhiqVv+l7u/ID17AisI+I/Dr43MLij780tE0UbXUIwTAe5cRa9VQ0AEZQiDYQ==}
+
+  '@convex-dev/migrations@0.2.7':
+    resolution: {integrity: sha512-tV/4fs8AbF9HK+2JY19YOAQn2wmNpRAXW6n0SvUEbw6YxUReAPg+RaG/D++dT8/cCihRfcWDHjdhJzQ6rSx/0A==}
+    peerDependencies:
+      convex: ~1.16.5 || >=1.17.0 <1.25.0
 
   '@convex-dev/persistent-text-streaming@0.2.2':
     resolution: {integrity: sha512-biiiZsE3aa4uTllItyUZk3043xXOxWi2+PXoOxBcr/pZFZlgBs3TOGO8PZQranaStblkZMAZeBEpwYzOth5jvA==}
@@ -7513,6 +7521,10 @@ snapshots:
       - eslint
       - supports-color
       - typescript
+
+  '@convex-dev/migrations@0.2.7(convex@1.23.0(@clerk/clerk-react@5.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))':
+    dependencies:
+      convex: 1.23.0(@clerk/clerk-react@5.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
   '@convex-dev/persistent-text-streaming@0.2.2(convex@1.23.0(@clerk/clerk-react@5.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:

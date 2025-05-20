@@ -144,6 +144,23 @@ export const listTranscriptParts = query({
   },
 })
 
+export const getTranscriptParts = internalQuery({
+  args: {
+    transcriptId: v.array(v.id('transcripts')),
+  },
+  handler: async ({ db }, { transcriptId }) => {
+    const transcripts = await Promise.all(
+      transcriptId.map(async (id) => {
+        const transcript = await db.get(id)
+        if (!transcript) throw new Error('Transcript not found')
+        return transcript
+      }),
+    )
+
+    return transcripts
+  },
+})
+
 export const deleteTranscriptPart = mutation({
   args: {
     transcriptId: v.id('transcripts'),
@@ -283,8 +300,16 @@ export const createTranscriptPart = internalMutation({
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')
 
+    const campaignId = await db
+      .query('sessions')
+      .withIndex('by_id', (q) => q.eq('_id', recording.sessionId))
+      .first()
+      .then((session) => session?.campaignId)
+    if (!campaignId) throw new Error('Campaign not found')
+
     return await db.insert('transcripts', {
       recordingId,
+      campaignId,
       sessionId: recording.sessionId,
       text,
       start,

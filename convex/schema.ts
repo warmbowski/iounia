@@ -79,11 +79,12 @@ export default defineSchema({
     speaker: v.string(),
     embeddings: v.array(v.float64()),
   })
-    .vectorIndex('by_embedding', {
+    .vectorIndex('by_campaign_embeddings', {
       vectorField: 'embeddings',
       dimensions: 768,
-      filterFields: ['text'],
+      filterFields: ['campaignId'],
     })
+    .index('by_campaign', ['campaignId'])
     .index('by_recording', ['recordingId', 'start'])
     .index('by_session', ['sessionId', 'start']),
 })

@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import type { Id } from 'convex/_generated/dataModel'
 
 export const Route = createFileRoute('/app/$campaignId/chat')({
+  ssr: false,
   parseParams: (params) => {
     const { campaignId } = params
     if (typeof campaignId !== 'string') {

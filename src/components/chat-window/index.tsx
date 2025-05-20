@@ -18,7 +18,9 @@ interface ChatWindowProps {
 export default function ChatWindow({ campaignId }: ChatWindowProps) {
   const [drivenIds, setDrivenIds] = useState<Set<string>>(new Set())
   const [isStreaming, setIsStreaming] = useState(false)
-  const messages = useQuery(api.functions.messages.listMessages)
+  const messages = useQuery(api.functions.messages.listMessages, {
+    campaignId,
+  })
   const [inputValue, setInputValue] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messageContainerRef = useRef<HTMLDivElement>(null)
@@ -122,9 +124,9 @@ export default function ChatWindow({ campaignId }: ChatWindowProps) {
             </button>
             <button
               type="button"
-              disabled={messages.length < 2 || isStreaming}
+              disabled={isStreaming}
               onClick={() => {
-                clearAllMessages()
+                clearAllMessages({ campaignId })
                 setInputValue('')
                 setIsStreaming(false)
                 focusInput()

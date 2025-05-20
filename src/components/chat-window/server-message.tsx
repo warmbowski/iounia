@@ -18,7 +18,9 @@ export function ServerMessage({
 }) {
   const { text, status } = useStream(
     api.functions.streaming.getStreamBody,
-    new URL(`${getConvexSiteUrl()}/chat-stream`),
+    new URL(
+      `${getConvexSiteUrl()}/chat-stream?campaignId=${message.campaignId}`,
+    ),
     isDriven,
     message.responseStreamId as StreamId,
   )

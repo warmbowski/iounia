@@ -18,7 +18,11 @@ const google = createGoogleGenerativeAI({
 export const streamChat = httpAction(async (ctx, request) => {
   const body = (await request.json()) as {
     streamId: string
-    campaignId: Id<'campaigns'>
+  }
+
+  const campaignId = new URL(request.url).searchParams.get('campaignId')
+  if (!campaignId || !body.streamId) {
+    return new Response('Bad Request', { status: 400 })
   }
 
   const response = await persistentTextStreaming.stream(
@@ -29,32 +33,51 @@ export const streamChat = httpAction(async (ctx, request) => {
       const history = await ctx.runQuery(
         internal.functions.messages.getHistory,
         {
-          campaignId: body.campaignId,
+          streamId: body.streamId,
         },
       )
+
+      const lastPrompt = history.filter((m) => m.role === 'user')[0].content
 
       const [embed] = await ctx.runAction(
         internal.functions.transcripts.generateTextEmbeddings,
         {
-          texts: [history.filter((m) => m.role === 'user')[0].content],
+          texts: [lastPrompt],
         },
       )
 
-      const results = await ctx.vectorSearch('transcripts', 'by_embedding', {
-        vector: embed,
-        limit: 10,
-        filter: (q) => q.eq('cuisine', 'French'),
-      })
+      const transcriptIds = await ctx.vectorSearch(
+        'transcripts',
+        'by_campaign_embeddings',
+        {
+          vector: embed || [],
+          limit: 10,
+          filter: (q) => q.eq('campaignId', campaignId),
+        },
+      )
+
+      const transcriptText = await ctx
+        .runQuery(internal.functions.transcripts.getTranscriptParts, {
+          transcriptId: transcriptIds.map((result) => result._id),
+        })
+        .then((transcriptParts) => transcriptParts.map((part) => part.text))
 
       const { textStream } = streamText({
         model: google('gemini-2.5-flash-preview-04-17'),
         messages: [
           {
             role: 'system',
-            content: `You are a helpful assistant that can answer questions and help with tasks.
-          Please provide your response in markdown format.
-          
-          You are continuing a conversation. The conversation so far is found in the following JSON-formatted value:`,
+            content: `The following messages contain context for an ongoing campaign which consists of a list of relevant messages from the
+            campaign's transcripts to inform your response:
+            ${transcriptText.join('\n')}`,
+          },
+          {
+            role: 'system',
+            content: `You are the game master for this campaign and you need to answer questions about the campaign
+            including events, characters, and locations. You are not a player in the campaign. Please anser the question based
+            the context data passed to you. The context data is a list of relevant messages from the campaign's transcripts.
+
+            You are continuing a conversation. The conversation so far is found in the following JSON-formatted value:`,
           },
           ...history,
         ],

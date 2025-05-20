@@ -1,19 +1,32 @@
 import { query, mutation, internalQuery } from '../_generated/server'
-import { StreamId } from '@convex-dev/persistent-text-streaming'
+import {
+  StreamId,
+  StreamIdValidator,
+} from '@convex-dev/persistent-text-streaming'
 import { v } from 'convex/values'
 import { persistentTextStreaming } from './streaming'
 
 export const listMessages = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.db.query('userMessages').collect()
+  args: {
+    campaignId: v.id('campaigns'),
+  },
+  handler: async (ctx, { campaignId }) => {
+    return await ctx.db
+      .query('userMessages')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .collect()
   },
 })
 
 export const clearMessages = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const chats = await ctx.db.query('userMessages').collect()
+  args: {
+    campaignId: v.id('campaigns'),
+  },
+  handler: async (ctx, { campaignId }) => {
+    const chats = await ctx.db
+      .query('userMessages')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .collect()
     await Promise.all(chats.map((chat) => ctx.db.delete(chat._id)))
   },
 })
@@ -36,13 +49,13 @@ export const sendMessage = mutation({
 
 export const getHistory = internalQuery({
   args: {
-    campaignId: v.id('campaigns'),
+    streamId: StreamIdValidator,
   },
-  handler: async (ctx, { campaignId }) => {
+  handler: async (ctx, { streamId }) => {
     // Grab all the user messages
     const allMessages = await ctx.db
       .query('userMessages')
-      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .withIndex('by_stream', (q) => q.eq('responseStreamId', streamId))
       .collect()
 
     // Lets join the user messages with the assistant messages
