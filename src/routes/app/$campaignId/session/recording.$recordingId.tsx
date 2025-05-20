@@ -62,7 +62,7 @@ function RouteComponent() {
 
   return rec ? (
     <div className="w-full h-full p-6">
-      <div className="fixed top-30px end-0 min-w-sm z-50 shadow-md">
+      <div className="fixed right-[10px] min-w-sm z-50 shadow-md">
         <AudioPlayerCard
           key={rec._id}
           title={rec.fileName}
@@ -100,7 +100,7 @@ function RouteComponent() {
                   >
                     {formatTime(part.start / 1000)} Speaker{part.speaker}:
                   </Button>
-                  <span className="basis-auto">{part.text}</span>
+                  <span className="basis-auto mt-[0.2em]">{part.text}</span>
                 </p>
               )
             })}

@@ -22,7 +22,6 @@ export const createSession = mutation({
     return await db.insert('sessions', {
       campaignId,
       name,
-      sessionNumber: 0,
       date,
       summary: [],
       notes,
@@ -36,6 +35,7 @@ export const updateSession = mutation({
     updates: v.object({
       sessionNumber: v.optional(v.number()),
       date: v.optional(v.string()),
+      summaryPrompt: v.optional(v.string()),
       summary: v.array(
         v.object({
           icon: v.string(),

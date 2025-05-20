@@ -10,9 +10,30 @@ import {
 import { r2 } from './cloudflareR2'
 import { ensureEnvironmentVariable } from '../utililties'
 
-const TRANSCRIPTION_URL = 'https://api.assemblyai.com/v2/transcript'
-const SPEECH_MODEL = 'universal'
 const ASSEMBLYAI_API_KEY = ensureEnvironmentVariable('ASSEMBLYAI_API_KEY')
+const TRANSCRIPTION_URL = 'https://api.assemblyai.com/v2/transcript'
+const SPEECH_MODEL = 'slam-1'
+const KEYTERMS_BASE_PROMPT: Array<string> = [
+  // 'Scallion Wince',
+  // 'Molymdenum Mossback',
+  // 'Moly',
+  // 'Mala del Testa',
+  // 'Lord Vos Fel',
+  // 'The Varistor',
+  // 'Inma',
+  // 'Inmaculada Abyección',
+  // 'Sanguine Pearl',
+  // 'Vase Stasis',
+  // 'Lolth',
+  // 'Mount Wewel',
+  // 'Haughlin',
+  // 'Aervik Narn',
+  // 'The Slaughter Club',
+  // 'Jeb',
+  // 'Geth',
+  // 'Lashashana',
+  // 'Amadabahara',
+]
 
 export const submitRecordingForTranscription = internalAction({
   args: {
@@ -34,6 +55,8 @@ export const submitRecordingForTranscription = internalAction({
         webhook_url: WEBHOOK_URL,
         webhook_auth_header_name: WEBHOOK_AUTH_HEADER_NAME,
         webhook_auth_header_value: WEBHOOK_AUTH_HEADER_VALUE,
+        keyterms_prompt: KEYTERMS_BASE_PROMPT,
+        entity_detection: true,
       }
 
       const response = await fetch(TRANSCRIPTION_URL, {

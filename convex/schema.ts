@@ -34,8 +34,9 @@ export default defineSchema({
   sessions: defineTable({
     campaignId: v.id('campaigns'),
     name: v.optional(v.string()),
-    sessionNumber: v.number(),
+    sessionNumber: v.optional(v.number()), // TODO: deprecate and remove this field. Use index sorted by date instead.
     date: isoDate(),
+    summaryPrompt: v.optional(v.string()),
     summary: v.array(
       v.object({
         icon: v.string(),

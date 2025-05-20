@@ -12,6 +12,11 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   useDisclosure,
 } from '@heroui/react'
 import { Icon, loadIcons } from '@iconify/react'
@@ -54,7 +59,6 @@ export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
 
 function RouteComponent() {
   const { sessionId } = Route.useParams()
-  const [invalidIcons, setInvalidIcons] = useState<string[]>([])
   const { mutate: generateSummary, isPending } = useMutation({
     mutationFn: useConvexAction(
       api.functions.transcripts.generateSessionSummary,
@@ -76,7 +80,18 @@ function RouteComponent() {
     }),
   )
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure()
+  const {
+    isOpen: drawerOpen,
+    onOpen: onDrawerOpen,
+    onOpenChange: onDrawerOpenChange,
+  } = useDisclosure()
+  const {
+    isOpen: modalOpen,
+    onOpen: onModalOpen,
+    onOpenChange: onModalOpenChange,
+  } = useDisclosure()
+  const [invalidIcons, setInvalidIcons] = useState<string[]>([])
+  const [promptInput, setPromptInput] = useState(session.summaryPrompt)
 
   useEffect(() => {
     const unload = loadIcons(
@@ -132,7 +147,7 @@ function RouteComponent() {
             className="mt-4"
             color="primary"
             startContent={<Icon icon="lucide:upload" />}
-            onPress={onOpen}
+            onPress={onDrawerOpen}
           >
             Upload New Audio
           </Button>
@@ -143,7 +158,7 @@ function RouteComponent() {
           <span>Summary</span>
           {hasTranscript && (
             <Button
-              onPress={() => generateSummary({ sessionId })}
+              onPress={onModalOpen}
               isIconOnly
               isLoading={isPending}
               variant="light"
@@ -160,9 +175,12 @@ function RouteComponent() {
             return (
               <div
                 key={index}
-                className="flex items-start leading-none gap-2 mt-4"
+                className="flex items-start leading-1.2 gap-2 mt-4"
               >
-                <Icon icon={iconName} className="text-secondary-500" />
+                <Icon
+                  icon={iconName}
+                  className="text-secondary-500 mt-[0.2em] min-w-[16px]"
+                />
                 {item.text}
               </div>
             )
@@ -172,7 +190,11 @@ function RouteComponent() {
         )}
       </div>
 
-      <Drawer isOpen={isOpen} onOpenChange={onOpenChange} placement="right">
+      <Drawer
+        isOpen={drawerOpen}
+        onOpenChange={onDrawerOpenChange}
+        placement="right"
+      >
         <DrawerContent>
           {(onClose) => (
             <>
@@ -191,6 +213,41 @@ function RouteComponent() {
           )}
         </DrawerContent>
       </Drawer>
+
+      <Modal isOpen={modalOpen} onOpenChange={onModalOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Summary Clarification Prompt
+              </ModalHeader>
+              <ModalBody>
+                <textarea
+                  value={promptInput}
+                  rows={5}
+                  onChange={(e) => setPromptInput(e.target.value)}
+                  className="w-full min-h-32 p-2 border border-gray-300 rounded"
+                  placeholder="Add any clarifications that the AI needs to make a more accurate summary..."
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    generateSummary({ sessionId, summaryPrompt: promptInput })
+                    onClose()
+                  }}
+                >
+                  Create Summary
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   )
 }

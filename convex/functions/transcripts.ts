@@ -41,8 +41,12 @@ export interface BulletItem {
 export const generateSessionSummary = action({
   args: {
     sessionId: v.id('sessions'),
+    summaryPrompt: v.optional(v.string()),
   },
-  handler: async ({ runQuery, runMutation, auth }, { sessionId }) => {
+  handler: async (
+    { runQuery, runMutation, auth },
+    { sessionId, summaryPrompt },
+  ) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
@@ -57,7 +61,9 @@ export const generateSessionSummary = action({
       const summary = await generateObject<BulletItem[]>({
         model: google('gemini-2.5-flash-preview-04-17'),
         temperature: 0.7,
-        system: SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
+        system:
+          SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION +
+          (summaryPrompt ? `\n\nClarifications: ${summaryPrompt}` : ''),
         prompt,
         schema: z.array(
           z.object({
@@ -89,6 +95,7 @@ export const generateSessionSummary = action({
       await runMutation(api.functions.sessions.updateSession, {
         sessionId,
         updates: {
+          summaryPrompt,
           summary: bulletItems,
           shortSummary: shortSummaryText,
         },

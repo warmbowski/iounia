@@ -38,7 +38,7 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
         </div>
         <div className="p-4">
           <h3 className="text-xl font-semibold mb-2">
-            Session {session.sessionNumber} - {session.name}
+            Session - {session.name}
           </h3>
         </div>
       </CardBody>
