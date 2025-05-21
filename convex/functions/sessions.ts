@@ -98,6 +98,7 @@ export const listSessions = query({
     const sessions = await db
       .query('sessions')
       .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .order('desc')
       .collect()
 
     return Promise.all(

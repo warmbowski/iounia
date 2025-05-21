@@ -21,7 +21,7 @@ export function TopNav({ forceSignIn }: TopNavProps) {
         <NavbarItem>
           <RouterLink to="/app" className="flex items-center gap-2">
             <Icon icon="mdi:orbit" className="text-2xl text-primary" />
-            <span className="font-semibold font-bold text-inherit">
+            <span className="font-bold text-xl">
               {import.meta.env.VITE_APP_TITLE}
             </span>
           </RouterLink>

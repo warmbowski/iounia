@@ -4,16 +4,21 @@ import { v } from 'convex/values'
 export const createCampaign = mutation({
   args: {
     name: v.string(),
+    startDate: v.optional(v.string()),
     description: v.string(),
     tags: v.optional(v.array(v.string())),
     invitations: v.optional(v.array(v.string())),
   },
-  handler: async ({ db, auth }, { name, tags, description, invitations }) => {
+  handler: async (
+    { db, auth },
+    { name, startDate, tags, description, invitations },
+  ) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
     const campaignId = await db.insert('campaigns', {
       name,
+      startDate,
       description,
       tags: tags || [],
       ownerId: user.tokenIdentifier,
@@ -33,7 +38,9 @@ export const updateCampaign = mutation({
     campaignId: v.id('campaigns'),
     updates: v.object({
       name: v.optional(v.string()),
+      startDate: v.optional(v.string()),
       description: v.optional(v.string()),
+      tags: v.optional(v.array(v.string())),
       gameSystem: v.optional(v.string()),
     }),
   },

@@ -17,6 +17,7 @@ export default defineSchema({
 
   campaigns: defineTable({
     name: v.string(),
+    startDate: v.optional(v.string()),
     description: v.string(),
     gameSystem: v.optional(v.string()), // TODO: deprecated - remove data from db then remove this
     tags: v.optional(v.array(v.string())),
@@ -45,7 +46,7 @@ export default defineSchema({
     ),
     shortSummary: v.optional(v.string()),
     notes: v.optional(v.string()),
-  }).index('by_campaign', ['campaignId']),
+  }).index('by_campaign', ['campaignId', 'date']),
 
   attendees: defineTable({
     sessionId: v.id('sessions'),
