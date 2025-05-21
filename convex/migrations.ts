@@ -34,4 +34,27 @@ export const addCampaignIdToTranscriptParts = migrations.define({
   },
 })
 
+/**
+ * Migration to convert session dates to ISO dates.
+ * CLI command: `pnpx convex run migrations:runner '{fn: "migrations:convertSessionDatesToIsoDates"}'
+ *
+ * This migration is deprecated because the `date` field has been converted to ISO format.
+ */
+export const convertSessionDatesToIsoDates = migrations.define({
+  table: 'sessions',
+  migrateOne: async (ctx, doc) => {
+    if (doc.date && !doc.date.includes('T')) {
+      const tz = 'T07:00:00.000Z'
+      const isoDate = doc.date + tz
+      console.info(
+        `Converting date of session ${doc._id} to ISO Date ${isoDate}`,
+      )
+      return {
+        ...doc,
+        date: isoDate,
+      }
+    }
+  },
+})
+
 export const runner = migrations.runner()

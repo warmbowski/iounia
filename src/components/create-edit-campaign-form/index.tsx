@@ -10,15 +10,15 @@ import { api } from 'convex/_generated/api'
 import type { Doc } from 'convex/_generated/dataModel'
 import { useState, type FormEvent } from 'react'
 
-interface CreateCampaignFormProps {
+interface CreateEditCampaignFormProps {
   campaign?: Doc<'campaigns'>
   onClose: () => void
 }
 
-export function CreateCampaignForm({
+export function CreateEditCampaignForm({
   campaign,
   onClose,
-}: CreateCampaignFormProps) {
+}: CreateEditCampaignFormProps) {
   const [name, setName] = useState(campaign?.name || '')
   const [date, setDate] = useState<DateValue | null>(
     campaign?.startDate ? parseAbsoluteToLocal(campaign.startDate) : null,
@@ -32,7 +32,7 @@ export function CreateCampaignForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const isoDate = date ? date?.toDate(getLocalTimeZone()).toISOString() : ''
+    const isoDate = date ? date.toDate(getLocalTimeZone()).toISOString() : ''
     await createCampaign.mutate({ name, description, tags, startDate: isoDate })
     setName('')
     setDate(null)

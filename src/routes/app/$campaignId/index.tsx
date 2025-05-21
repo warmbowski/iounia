@@ -1,5 +1,5 @@
 import { CampaignCard } from '@/components/campaign-card'
-import { CreateSessionForm } from '@/components/create-session-form'
+import { CreateEditSessionForm } from '@/components/create-edit-session-form'
 import { SessionCard } from '@/components/session-card'
 import { convexQuery } from '@convex-dev/react-query'
 import {
@@ -106,7 +106,10 @@ function RouteComponent() {
                 Add Session
               </DrawerHeader>
               <DrawerBody>
-                <CreateSessionForm campaignId={campaignId} onClose={onClose} />
+                <CreateEditSessionForm
+                  campaignId={campaignId}
+                  onClose={onClose}
+                />
               </DrawerBody>
               <DrawerFooter>
                 <Button color="danger" variant="light" onPress={onClose}>

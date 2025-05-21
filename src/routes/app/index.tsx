@@ -12,7 +12,7 @@ import { api } from 'convex/_generated/api'
 import { convexQuery } from '@convex-dev/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import type { Id } from 'convex/_generated/dataModel'
-import { CreateCampaignForm } from '@/components/create-campaign-form'
+import { CreateEditCampaignForm } from '@/components/create-edit-campaign-form'
 import { CampaignCard } from '@/components/campaign-card'
 
 export const Route = createFileRoute('/app/')({
@@ -67,7 +67,7 @@ function Campaigns() {
                 Create Campaign
               </DrawerHeader>
               <DrawerBody>
-                <CreateCampaignForm onClose={onClose} />
+                <CreateEditCampaignForm onClose={onClose} />
               </DrawerBody>
               <DrawerFooter>
                 <Button color="danger" variant="light" onPress={onClose}>

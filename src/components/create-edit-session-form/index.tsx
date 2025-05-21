@@ -10,17 +10,17 @@ import { api } from 'convex/_generated/api'
 import type { Doc, Id } from 'convex/_generated/dataModel'
 import { useState, type FormEvent } from 'react'
 
-interface CreateSessionFormProps {
+interface CreateEditSessionFormProps {
   campaignId: Id<'campaigns'>
   session?: Doc<'sessions'>
   onClose: () => void
 }
 
-export function CreateSessionForm({
+export function CreateEditSessionForm({
   campaignId,
   session,
   onClose,
-}: CreateSessionFormProps) {
+}: CreateEditSessionFormProps) {
   const [name, setName] = useState(session?.name || '')
   const [date, setDate] = useState<DateValue | null>(
     session?.date ? parseAbsoluteToLocal(session.date) : null,
@@ -34,7 +34,7 @@ export function CreateSessionForm({
     if (!date) {
       return
     }
-    const isoDate = date ? date?.toDate(getLocalTimeZone()).toISOString() : ''
+    const isoDate = date ? date.toDate(getLocalTimeZone()).toISOString() : ''
     await createSession.mutate({
       campaignId,
       name,
