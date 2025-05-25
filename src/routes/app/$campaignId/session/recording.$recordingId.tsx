@@ -6,7 +6,10 @@ import {
 import { formatDate } from '@/utils'
 import { convexQuery } from '@convex-dev/react-query'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  type LinkComponentProps,
+} from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 import { useState } from 'react'
@@ -15,21 +18,17 @@ export const Route = createFileRoute(
   '/app/$campaignId/session/recording/$recordingId',
 )({
   parseParams: (params) => {
-    const { campaignId, recordingId } = params
+    const { recordingId } = params
 
-    if (typeof campaignId !== 'string') {
-      throw new Error('Invalid campaignId')
-    }
     if (typeof recordingId !== 'string') {
       throw new Error('Invalid recordingId')
     }
     return {
-      campaignId: campaignId as Id<'campaigns'>,
       recordingId: recordingId as Id<'recordings'>,
     }
   },
   loader: async ({ context, params }) => {
-    await context.queryClient.prefetchQuery(
+    const recording = await context.queryClient.ensureQueryData(
       convexQuery(api.functions.recordings.readRecording, {
         recordingId: params.recordingId,
       }),
@@ -39,6 +38,13 @@ export const Route = createFileRoute(
         recordingId: params.recordingId,
       }),
     )
+    return {
+      crumb: {
+        title: recording.fileName || 'Recording',
+        to: '/app/$campaignId/session/recording/$recordingId',
+        params,
+      } as LinkComponentProps,
+    }
   },
   component: RouteComponent,
 })

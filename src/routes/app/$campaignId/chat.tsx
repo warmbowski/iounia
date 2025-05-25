@@ -1,16 +1,18 @@
 import ChatWindow from '@/components/chat-window'
-import { createFileRoute } from '@tanstack/react-router'
-import type { Id } from 'convex/_generated/dataModel'
+import {
+  createFileRoute,
+  type LinkComponentProps,
+} from '@tanstack/react-router'
 
 export const Route = createFileRoute('/app/$campaignId/chat')({
   ssr: false,
-  parseParams: (params) => {
-    const { campaignId } = params
-    if (typeof campaignId !== 'string') {
-      throw new Error('Invalid campaignId')
-    }
-    return { campaignId: campaignId as Id<'campaigns'> }
-  },
+  loader: ({ params }) => ({
+    crumb: {
+      title: 'Chat',
+      to: '/app/$campaignId/chat',
+      params,
+    } as LinkComponentProps,
+  }),
   component: RouteComponent,
 })
 

@@ -10,17 +10,12 @@ import {
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import { convexQuery } from '@convex-dev/react-query'
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import type { Id } from 'convex/_generated/dataModel'
 import { CreateEditCampaignForm } from '@/components/create-edit-campaign-form'
 import { CampaignCard } from '@/components/campaign-card'
 
 export const Route = createFileRoute('/app/')({
-  beforeLoad: async ({ context }) => {
-    if (!context.user) {
-      throw redirect({ to: '/', search: { forceSignIn: true } })
-    }
-  },
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
       convexQuery(api.functions.campaigns.listCampaigns, {}),

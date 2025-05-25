@@ -1,6 +1,7 @@
 import { Progress } from '@heroui/react'
 import { TopNav } from '../topnav'
 import { useRouterState } from '@tanstack/react-router'
+import { BreadcrumbsBar } from '../topnav/breadcrumbs'
 
 interface BaseLayoutProps {
   children: React.ReactNode
@@ -15,6 +16,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
       className="flex flex-col h-screen w-screen bg-content"
     >
       <TopNav forceSignIn={location?.search?.forceSignIn} />
+      <BreadcrumbsBar />
       <div>
         {isLoading && (
           <Progress

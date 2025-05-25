@@ -19,25 +19,9 @@ import { Icon, loadIcons } from '@iconify/react'
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
-import type { Id } from 'convex/_generated/dataModel'
 import { useEffect, useState } from 'react'
 
-export const Route = createFileRoute('/app/$campaignId/session/$sessionId')({
-  parseParams: (params) => {
-    const { sessionId, campaignId } = params
-
-    if (typeof sessionId !== 'string') {
-      throw new Error('Invalid sessionId')
-    }
-    if (typeof campaignId !== 'string') {
-      throw new Error('Invalid campaignId')
-    }
-    return {
-      sessionId: sessionId as Id<'sessions'>,
-      campaignId: campaignId as Id<'campaigns'>,
-    }
-  },
-
+export const Route = createFileRoute('/app/$campaignId/session/$sessionId/')({
   loader: async ({ context, params }) => {
     await context.queryClient.prefetchQuery(
       convexQuery(api.functions.sessions.readSession, {

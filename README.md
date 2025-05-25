@@ -44,9 +44,10 @@ Northstar ideas: The app can also generate new content based on the campaign and
 ## Refinement list
 
 - [x] Remove left nav
-- [ ] add breadcrumbs
-  - [ ] Use Tanstack Router breadcrumbs
-  - [ ] Use HeroUI breadcrumbs
+- [x] add breadcrumbs
+  - [x] create breadcrumbs in Tanstack Router loaderData
+  - [x] Use useMatch to compile breadcrumbs
+  - [x] Use HeroUI to display breadcrumbs
 - [x] Use file storage service other than Convex.
   - [x] Convex bandwidth limits are too low for loading audio files in UI
   - [x] Use Cloudflare R2 for file storage
