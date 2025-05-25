@@ -59,7 +59,7 @@ export const generateSessionSummary = action({
 
     try {
       const summary = await generateObject<BulletItem[]>({
-        model: google('gemini-2.5-flash-preview-04-17'),
+        model: google('gemini-2.5-flash-preview-05-20'),
         temperature: 0.7,
         system:
           SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION +
@@ -79,7 +79,7 @@ export const generateSessionSummary = action({
       const bulletItems = summary.object
 
       const shortSummary = await generateObject<{ text: string }>({
-        model: google('gemini-2.5-flash-preview-04-17'),
+        model: google('gemini-2.5-flash-preview-05-20'),
         temperature: 0.7,
         system: SYSTEM_PROMPT_SHORT_SUMMARIZATION,
         prompt: bulletItems.map((item) => item.text).join('\n'),
@@ -151,6 +151,45 @@ export const listTranscriptParts = query({
   },
 })
 
+export const hasTranscript = query({
+  args: {
+    sessionId: v.optional(v.id('sessions')),
+    recordingId: v.optional(v.id('recordings')),
+  },
+  handler: async ({ db, auth }, { sessionId, recordingId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    if (!recordingId && !sessionId) {
+      throw new Error('Either recordingId or sessionId must be provided')
+    }
+    if (recordingId && sessionId) {
+      throw new Error('Only one of recordingId or sessionId can be provided')
+    }
+
+    if (sessionId) {
+      const results = await db
+        .query('transcripts')
+        .withIndex('by_session', (q) => q.eq('sessionId', sessionId))
+        .paginate({ numItems: 1, cursor: null })
+
+      return results.page.length > 0
+    }
+
+    if (recordingId) {
+      const results = await db
+        .query('transcripts')
+        .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
+        .paginate({ numItems: 1, cursor: null })
+
+      return results.page.length > 0
+    }
+
+    return false
+  },
+})
+
+// internal functions
 export const getTranscriptParts = internalQuery({
   args: {
     transcriptId: v.array(v.id('transcripts')),
@@ -203,21 +242,6 @@ export const deleteAllTranscriptParts = mutation({
           transcripts.map((transcript) => db.delete(transcript._id)),
         )
       })
-  },
-})
-
-export const hasTranscript = action({
-  args: {
-    sessionId: v.id('sessions'),
-  },
-  handler: async ({ runQuery }, { sessionId }): Promise<boolean> => {
-    const parts = await runQuery(
-      api.functions.transcripts.listTranscriptParts,
-      {
-        sessionId,
-      },
-    )
-    return parts.length > 0
   },
 })
 

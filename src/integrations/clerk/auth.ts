@@ -15,7 +15,7 @@ export const authStateFn = createServerFn({ method: 'GET' }).handler(
       // throw redirect({
       //   to: '/',
       // })
-      console.error('Unauthenticated user')
+      console.error('Unauthenticated user from server function')
     }
 
     const clerkClient = createClerkClient({

@@ -1,10 +1,6 @@
 import { CreateRecordingForm } from '@/components/create-recording-form'
 import { SessionCard } from '@/components/session-card'
-import {
-  convexQuery,
-  convexAction,
-  useConvexAction,
-} from '@convex-dev/react-query'
+import { convexQuery, useConvexAction } from '@convex-dev/react-query'
 import {
   Button,
   Drawer,
@@ -64,11 +60,6 @@ function RouteComponent() {
       api.functions.transcripts.generateSessionSummary,
     ),
   })
-  const { data: hasTranscript } = useQuery(
-    convexAction(api.functions.transcripts.hasTranscript, {
-      sessionId: sessionId,
-    }),
-  )
   const { data: session } = useSuspenseQuery(
     convexQuery(api.functions.sessions.readSession, {
       sessionId: sessionId,
@@ -76,6 +67,11 @@ function RouteComponent() {
   )
   const { data: recordings } = useSuspenseQuery(
     convexQuery(api.functions.recordings.listRecordings, {
+      sessionId: sessionId,
+    }),
+  )
+  const { data: hasTranscript } = useQuery(
+    convexQuery(api.functions.transcripts.hasTranscript, {
       sessionId: sessionId,
     }),
   )

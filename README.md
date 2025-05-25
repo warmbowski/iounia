@@ -43,24 +43,24 @@ Northstar ideas: The app can also generate new content based on the campaign and
 
 ## Refinement list
 
-- [ ] Revise layouts to remove left nav and add breadcrumbs
+- [x] Remove left nav
+- [ ] add breadcrumbs
   - [ ] Use Tanstack Router breadcrumbs
   - [ ] Use HeroUI breadcrumbs
-- [ ] Use file storage service other than Convex.
-  - [ ] Convex bandwidth limits are too low for loading audio files in UI
-  - [ ] Maybe use Firestore Storage or UploadThing
+- [x] Use file storage service other than Convex.
+  - [x] Convex bandwidth limits are too low for loading audio files in UI
+  - [x] Use Cloudflare R2 for file storage
+    - [ ] Stream audio from R2 using Range requests
 - [ ] Remove clerk url from user ids, and use raw clerk user id in members and attendee tables
-- [ ] Refactor all AI calls to use Vercel AI SDK.
-  - [ ] Replace Gemini transcription with dedicated transcription model like Assembly AI
+- [x] Refactor all AI calls to use Vercel AI SDK.
+  - [x] Replace Gemini transcription with dedicated transcription model like Assembly AI
     - [x] Problems with Gemini timestamps is the biggest obstacle
 - [ ] Figure out a better way to check if user is logged in, current implementation is adds latency to all route loads
-- [ ] Refine vscode copilot to include lib specific custom instructions and best practices for:
-  - [ ] Convex
-  - [ ] Clerk
-  - [ ] Tanstack Query
-  - [ ] Tanstack Router
-  - [ ] HeroUI
-  - [ ] Tailwind CSS
+- [x] Refine vscode copilot to include lib specific custom instructions and best practices for:
+  - [x] Convex
+- [x] Add PoC caching mechanism for Convex query function data
+  - [x] Transcript data is large and doesn't change, so caching will reduce convex DB bandwidth costs
+  - [x] Use TanStack Query's PersistedQueryClient to cache transcripts in indexedDB
 
 ## Links for future investigation
 
