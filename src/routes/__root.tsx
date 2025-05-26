@@ -18,6 +18,7 @@ import appCss from '../styles.css?url'
 import { convexQueryClient } from '@/router'
 import { authStateFn } from '@/integrations/clerk/auth'
 import { BaseLayout } from '@/components/layouts'
+import { ToastProvider } from '@heroui/react'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -73,6 +74,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           useAuth={useAuth}
         >
           <HeroUIProviderWithNav>
+            <ToastProvider />
             <BaseLayout>
               <Outlet />
             </BaseLayout>

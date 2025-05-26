@@ -1,5 +1,6 @@
 import { convexQueryClient } from '@/router'
-import { QueryClient } from '@tanstack/react-query'
+import { addToast } from '@heroui/react'
+import { QueryCache, QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
   PersistQueryClientProvider,
@@ -15,6 +16,17 @@ const queryCacheLocalStore = createStore(
 )
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      if (query.state.data !== undefined) {
+        addToast({
+          title: 'Error',
+          description: `${error.message}`,
+          color: 'danger',
+        })
+      }
+    },
+  }),
   defaultOptions: {
     queries: {
       gcTime: 1000 * 60 * 60 * 24 * 21, // 21 days

@@ -7,7 +7,6 @@ export function BreadcrumbsBar() {
     .filter((match) => !!match.loaderData?.crumb)
     .map((match) => match.loaderData!.crumb)
 
-  console.log('TopNav matches:', crumbs)
   return (
     <Breadcrumbs className="bg-content px-4 py-2">
       {crumbs.map((crumb, index) => (

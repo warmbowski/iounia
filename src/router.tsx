@@ -6,7 +6,8 @@ import { routeTree } from './routeTree.gen'
 
 import './styles.css'
 import { ConvexQueryClient } from '@convex-dev/react-query'
-import { QueryClient } from '@tanstack/react-query'
+import { QueryCache, QueryClient } from '@tanstack/react-query'
+import { addToast } from '@heroui/react'
 
 const CONVEX_URL = import.meta.env.VITE_CONVEX_URL
 if (!CONVEX_URL) {
@@ -14,6 +15,17 @@ if (!CONVEX_URL) {
 }
 export const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      if (query.state.data !== undefined) {
+        addToast({
+          title: 'Error',
+          description: `${error.message}`,
+          color: 'danger',
+        })
+      }
+    },
+  }),
   defaultOptions: {
     queries: {
       queryKeyHashFn: convexQueryClient.hashFn(),
