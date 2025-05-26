@@ -26,6 +26,9 @@ export function RecordingTimeline({
     ...convexQuery(api.functions.transcripts.listTranscriptParts, {
       recordingId,
     }),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    retry: 1,
   })
 
   return (

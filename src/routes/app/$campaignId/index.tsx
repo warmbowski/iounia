@@ -70,7 +70,11 @@ function RouteComponent() {
           </p>
           <h3 className="text-xl font-semibold mt-4">Latest Happenings</h3>
           <p>
-            <i>No latest happenings available</i>
+            {sessions[0] ? (
+              `In ${sessions[0].name}: ${sessions[0].shortSummary}`
+            ) : (
+              <i>No latest happenings available</i>
+            )}
           </p>
         </div>
       </div>
