@@ -375,12 +375,28 @@ export const updateTranscriptPart = internalMutation({
 export const listTranscriptPartsByRecordingId = internalQuery({
   args: {
     recordingId: v.id('recordings'),
+    range: v.optional(
+      v.object({
+        start: v.number(),
+        end: v.number(),
+      }),
+    ),
   },
-  handler: async ({ db }, { recordingId }) => {
-    return await db
+  handler: async ({ db }, { recordingId, range }) => {
+    let query = db
       .query('transcripts')
       .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
       .order('asc')
-      .collect()
+
+    if (range) {
+      query = query.filter((q) =>
+        q.and(
+          q.gte(q.field('start'), range.start),
+          q.lte(q.field('start'), range.end),
+        ),
+      )
+    }
+
+    return await query.collect()
   },
 })

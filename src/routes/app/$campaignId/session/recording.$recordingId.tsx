@@ -17,6 +17,7 @@ import { useState } from 'react'
 export const Route = createFileRoute(
   '/app/$campaignId/session/recording/$recordingId',
 )({
+  ssr: false,
   parseParams: (params) => {
     const { recordingId } = params
 

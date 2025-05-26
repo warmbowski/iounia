@@ -46,21 +46,45 @@ export const streamChat = httpAction(async (ctx, request) => {
         },
       )
 
-      const transcriptIds = await ctx.vectorSearch(
-        'transcripts',
-        'by_campaign_embeddings',
-        {
+      // Perform a vector search to find relevant id/score of transcript utterances based on the embeddings
+      const hiScoreTranscriptIds = await ctx
+        .vectorSearch('transcripts', 'by_campaign_embeddings', {
           vector: embed || [],
-          limit: 10,
+          limit: 25,
           filter: (q) => q.eq('campaignId', campaignId),
-        },
-      )
-
-      const transcriptText = await ctx
-        .runQuery(internal.functions.transcripts.getTranscriptParts, {
-          transcriptId: transcriptIds.map((result) => result._id),
         })
-        .then((transcriptParts) => transcriptParts.map((part) => part.text))
+        .then((res) => res.filter((r) => r._score > 0.5))
+
+      // get the start times for the transcript utterances
+      const transcriptTimes = await ctx
+        .runQuery(internal.functions.transcripts.getTranscriptParts, {
+          transcriptId: hiScoreTranscriptIds.map((result) => result._id),
+        })
+        .then((transcriptParts) =>
+          transcriptParts.map((part) => ({
+            id: part._id,
+            recId: part.recordingId,
+            atTime: part.start,
+          })),
+        )
+
+      // generate larger context of 5 minutes around the transcript times
+      const context = await Promise.all(
+        transcriptTimes.map((time) => {
+          return ctx
+            .runQuery(
+              internal.functions.transcripts.listTranscriptPartsByRecordingId,
+              {
+                recordingId: time.recId as Id<'recordings'>,
+                range: {
+                  start: time.atTime - 1000 * 60 * 2.5, // 2.5 minutes before the time
+                  end: time.atTime + 1000 * 60 * 2.5, // 2.5 minutes after the time
+                },
+              },
+            )
+            .then((parts) => parts.map((part) => part.text).join('\n'))
+        }),
+      ).then((texts) => texts.join('\n'))
 
       const { textStream } = streamText({
         model: google('gemini-2.5-flash-preview-04-17'),
@@ -69,7 +93,7 @@ export const streamChat = httpAction(async (ctx, request) => {
             role: 'system',
             content: `The following messages contain context for an ongoing campaign which consists of a list of relevant messages from the
             campaign's transcripts to inform your response:
-            ${transcriptText.join('\n')}`,
+            ${context}`,
           },
           {
             role: 'system',
