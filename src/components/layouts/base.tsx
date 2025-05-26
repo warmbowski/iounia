@@ -1,7 +1,7 @@
 import { Progress } from '@heroui/react'
 import { TopNav } from '../topnav'
 import { useRouterState } from '@tanstack/react-router'
-import { BreadcrumbsBar } from '../topnav/breadcrumbs'
+import { BreadcrumbsBar } from '../breadcrumbs'
 
 interface BaseLayoutProps {
   children: React.ReactNode
