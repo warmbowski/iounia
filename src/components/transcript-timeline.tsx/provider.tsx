@@ -56,7 +56,7 @@ export function PersistedRecordingTimelineProvider({
         console.error('Error restoring query client')
       }}
       onSuccess={() => {
-        console.log('Initial restore of query client successful')
+        console.info('Initial restore of query client successful')
       }}
     >
       {children}

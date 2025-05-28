@@ -1,5 +1,6 @@
 import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
+import { generateSecureAlphanumericCode } from '../utililties'
 
 export const createCampaign = mutation({
   args: {
@@ -7,12 +8,8 @@ export const createCampaign = mutation({
     startDate: v.optional(v.string()),
     description: v.string(),
     tags: v.optional(v.array(v.string())),
-    invitations: v.optional(v.array(v.string())),
   },
-  handler: async (
-    { db, auth },
-    { name, startDate, tags, description, invitations },
-  ) => {
+  handler: async ({ db, auth }, { name, startDate, tags, description }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
 
@@ -22,7 +19,7 @@ export const createCampaign = mutation({
       description,
       tags: tags || [],
       ownerId: user.tokenIdentifier,
-      invitations: invitations || [],
+      joinCode: generateSecureAlphanumericCode(8),
     })
     await db.insert('members', {
       campaignId: campaignId,
@@ -42,6 +39,7 @@ export const updateCampaign = mutation({
       description: v.optional(v.string()),
       tags: v.optional(v.array(v.string())),
       gameSystem: v.optional(v.string()),
+      joinCode: v.optional(v.boolean()),
     }),
   },
 
@@ -56,11 +54,14 @@ export const updateCampaign = mutation({
 
     return await db.patch(campaignId, {
       ...updates,
+      joinCode: updates.joinCode
+        ? generateSecureAlphanumericCode(8)
+        : undefined,
     })
   },
 })
 
-export const readCampaign = query({
+export const readCampaignWithMembers = query({
   args: {
     campaignId: v.id('campaigns'),
   },
@@ -78,12 +79,12 @@ export const readCampaign = query({
 
     return {
       ...campaign,
-      members: campaignMembers.map((member) => member.userId),
+      members: campaignMembers,
     }
   },
 })
 
-export const listCampaigns = query({
+export const listCampaignsWithMembers = query({
   handler: async ({ db, auth }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
@@ -107,7 +108,7 @@ export const listCampaigns = query({
 
         return {
           ...campaign,
-          members: campaignMembers.map((member) => member.userId),
+          members: campaignMembers,
         }
       }),
     ).then((campaigns) => campaigns.filter((campaign) => !!campaign))

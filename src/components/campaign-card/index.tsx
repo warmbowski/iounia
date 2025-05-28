@@ -1,36 +1,30 @@
-import { getUsersListByIdsFn } from '@/integrations/clerk/auth'
+import { getUsersListByMembersFn } from '@/integrations/clerk/auth'
 import { formatDate } from '@/utils'
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Avatar,
-  AvatarGroup,
-  Chip,
-} from '@heroui/react'
+import { Card, CardBody, CardFooter, Avatar, Chip } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useQuery } from '@tanstack/react-query'
 import type { Doc, Id } from 'convex/_generated/dataModel'
+import { MemberGroup } from '../member-group'
 
 interface CampaignCardProps {
   campaign: Doc<'campaigns'> & {
-    members: Array<string>
+    members: Doc<'members'>[]
   }
   onPress?: (campaignId: Id<'campaigns'>) => void
 }
 
 export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
-  const { data: members } = useQuery({
-    queryKey: ['members', campaign._id],
+  const { data: memberUsers } = useQuery({
+    queryKey: ['memberUsers', campaign._id],
     queryFn: () =>
-      getUsersListByIdsFn({
+      getUsersListByMembersFn({
         data: campaign.members,
       }),
     initialData: [],
   })
 
-  const owner = members?.find((member) =>
-    campaign.ownerId.includes(member.userId),
+  const ownerUser = memberUsers?.find((user) =>
+    campaign.ownerId.includes(user.userId),
   )
 
   return (
@@ -50,14 +44,14 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
         <div className="p-4">
           <div className="flex items-center gap-3 mb-3">
             <Avatar
-              src={owner?.imageUrl}
-              name={owner?.fullName}
+              src={ownerUser?.imageUrl}
+              name={ownerUser?.fullName || ''}
               size="sm"
               isBordered
               color="primary"
             />
             <span className="text-sm text-default-600">
-              {owner?.fullName?.split(' ')[0] || 'Unknown'}'s Campaign
+              {ownerUser?.fullName?.split(' ')[0] || 'Unknown'}'s Campaign
             </span>
           </div>
           <h3 className="text-xl font-semibold mb-2">{campaign.name}</h3>
@@ -77,20 +71,7 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
             Started {formatDate(campaign._creationTime)}
           </span>
         </div>
-        <AvatarGroup max={5} size="sm" isBordered color="secondary" radius="sm">
-          {members && members.length > 0
-            ? members.map((member) => (
-                <Avatar
-                  key={member.userId}
-                  src={member.imageUrl}
-                  name={member.fullName}
-                  size="sm"
-                />
-              ))
-            : campaign.members.map((member) => (
-                <Avatar key={member} size="sm" />
-              ))}
-        </AvatarGroup>
+        <MemberGroup campaign={campaign} statusFilter="active" max={4} />
       </CardFooter>
     </Card>
   )

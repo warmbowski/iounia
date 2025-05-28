@@ -1,0 +1,153 @@
+import { v } from 'convex/values'
+import { mutation } from '../_generated/server'
+import { memberRole, memberStatus } from '../schema'
+import { MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT } from '../constants'
+
+export const createMembershipRequest = mutation({
+  args: {
+    joinCode: v.string(),
+  },
+  handler: async ({ db, auth }, { joinCode }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+    if (!joinCode || joinCode.trim() === '') {
+      throw new Error('Join code is required')
+    }
+
+    const campaign = await db
+      .query('campaigns')
+      .withIndex('by_join_code', (q) => q.eq('joinCode', joinCode))
+      .first()
+    if (!campaign) {
+      throw new Error('Campaign not found')
+    }
+
+    const membershipList = await db
+      .query('members')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaign._id))
+      .collect()
+
+    const existingMember = membershipList.find(
+      (member) => member.userId === user.tokenIdentifier,
+    )
+    if (existingMember && existingMember.status === 'active') {
+      throw new Error('User is already a member of this campaign')
+    } else if (existingMember && existingMember.status === 'pending') {
+      throw new Error('Membership request is already pending')
+    } else if (existingMember && existingMember.status === 'inactive') {
+      // If the user has previously been declined, we can allow them to re-request
+      return await db.patch(existingMember._id, { status: 'pending' })
+    }
+
+    return await db.insert('members', {
+      campaignId: campaign._id,
+      userId: user.tokenIdentifier,
+      role: 'member',
+      status: 'pending',
+    })
+  },
+})
+
+export const updateMembershipRoleById = mutation({
+  args: {
+    memberId: v.id('members'),
+    campaignId: v.id('campaigns'),
+    updates: v.object({
+      role: v.optional(memberRole()),
+      status: v.optional(memberStatus()),
+    }),
+  },
+  handler: async ({ db, auth }, { campaignId, memberId, updates }) => {
+    const { role, status } = updates
+    if (!role && !status) {
+      throw new Error('An updatable field must be provided')
+    }
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    const campaign = await db.get(campaignId)
+    if (!campaign) {
+      throw new Error('Campaign not found')
+    }
+
+    const membershipList = await db
+      .query('members')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .collect()
+    if (
+      membershipList.filter((member) => member.status === 'active').length >=
+      MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT
+    ) {
+      throw new Error(
+        `Maximum number of active members reached. Only ${MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT} active members allowed.`,
+      )
+    }
+
+    const memberToUpdate = membershipList.find(
+      (member) => member._id === memberId,
+    )
+    if (!memberToUpdate) {
+      throw new Error('Member not found in the campaign')
+    }
+
+    const memberRoleCanBeUpdated =
+      memberToUpdate.userId === campaign.ownerId ? false : true
+    if (!memberRoleCanBeUpdated) {
+      throw new Error('Invalid role update for this member')
+    }
+
+    const userCanMakeUpdate = membershipList.some(
+      (member) =>
+        member.userId === user.tokenIdentifier && member.role === 'admin',
+    )
+    if (!userCanMakeUpdate) {
+      throw new Error('User does not have permission to update membership')
+    }
+
+    return await db.patch(memberId, { ...updates })
+  },
+})
+
+export const removeMembershipById = mutation({
+  args: {
+    memberId: v.id('members'),
+    campaignId: v.id('campaigns'),
+  },
+  handler: async ({ db, auth }, { campaignId, memberId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    const campaign = await db.get(campaignId)
+    if (!campaign) {
+      throw new Error('Campaign not found')
+    }
+
+    const membershipList = await db
+      .query('members')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .collect()
+
+    const memberToRemove = membershipList.find(
+      (member) => member._id === memberId,
+    )
+    if (!memberToRemove) {
+      throw new Error('Member not found in the campaign')
+    }
+
+    const memberCanBeRemoved =
+      memberToRemove.userId === campaign.ownerId ? false : true
+    if (!memberCanBeRemoved) {
+      throw new Error('Invalid member removal for this campaign')
+    }
+
+    const userCanMakeUpdate = membershipList.some(
+      (member) =>
+        member.userId === user.tokenIdentifier && member.role === 'admin',
+    )
+    if (!userCanMakeUpdate) {
+      throw new Error('User does not have permission to update membership')
+    }
+
+    return await db.delete(memberId)
+  },
+})

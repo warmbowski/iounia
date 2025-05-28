@@ -17,7 +17,7 @@ export const Route = createFileRoute('/app/$campaignId')({
   },
   loader: async ({ context, params }) => {
     const campaign = await context.queryClient.ensureQueryData(
-      convexQuery(api.functions.campaigns.readCampaign, {
+      convexQuery(api.functions.campaigns.readCampaignWithMembers, {
         campaignId: params.campaignId,
       }),
     )

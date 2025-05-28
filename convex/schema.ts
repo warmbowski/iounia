@@ -3,8 +3,18 @@ import { embed } from 'ai'
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 
-const userId = v.string
-const isoDate = v.string
+const userId = () => v.string()
+export const isoDate = () => v.string()
+export const attendeeRole = () =>
+  v.union(v.literal('gm'), v.literal('player'), v.literal('observer'))
+export const memberRole = () => v.union(v.literal('member'), v.literal('admin'))
+export const memberStatus = () =>
+  v.union(
+    v.literal('pending'),
+    v.literal('active'),
+    v.literal('inactive'),
+    v.literal('banned'),
+  )
 
 export default defineSchema({
   userMessages: defineTable({
@@ -19,15 +29,16 @@ export default defineSchema({
     name: v.string(),
     startDate: v.optional(v.string()),
     description: v.string(),
-    gameSystem: v.optional(v.string()), // TODO: deprecated - remove data from db then remove this
+    joinCode: v.string(), // Unique code for joining the campaign
     tags: v.optional(v.array(v.string())),
     ownerId: userId(),
-    invitations: v.optional(v.array(v.string())),
-  }),
+  }).index('by_join_code', ['joinCode']),
 
   members: defineTable({
     campaignId: v.id('campaigns'),
     userId: userId(),
+    role: v.optional(memberRole()),
+    status: v.optional(memberStatus()),
   })
     .index('by_campaign_member', ['userId'])
     .index('by_campaign', ['campaignId']),
@@ -51,7 +62,7 @@ export default defineSchema({
   attendees: defineTable({
     sessionId: v.id('sessions'),
     userId: userId(),
-    role: v.optional(v.string()), // e.g., "DM", "Player"
+    role: v.optional(attendeeRole()),
   })
     .index('by_session_attendee', ['userId'])
     .index('by_session', ['sessionId']),

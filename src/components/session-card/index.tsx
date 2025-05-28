@@ -1,4 +1,4 @@
-import { getUsersListByIdsFn } from '@/integrations/clerk/auth'
+import { getUsersListByMembersFn } from '@/integrations/clerk/auth'
 import { formatDate } from '@/utils'
 import { Card, CardBody, CardFooter, Avatar, AvatarGroup } from '@heroui/react'
 import { Icon } from '@iconify/react'
@@ -16,8 +16,8 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
   const { data: attendees } = useQuery({
     queryKey: ['attendees', session._id],
     queryFn: () =>
-      getUsersListByIdsFn({
-        data: session.attendees,
+      getUsersListByMembersFn({
+        data: [], // session.attendees,
       }),
     initialData: [],
   })
@@ -53,7 +53,7 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
                 <Avatar
                   key={attendee.userId}
                   src={attendee.imageUrl}
-                  name={attendee.fullName}
+                  name={attendee.fullName || ''}
                   size="sm"
                 />
               ))

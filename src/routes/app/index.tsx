@@ -18,7 +18,7 @@ import { CampaignCard } from '@/components/campaign-card'
 export const Route = createFileRoute('/app/')({
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
-      convexQuery(api.functions.campaigns.listCampaigns, {}),
+      convexQuery(api.functions.campaigns.listCampaignsWithMembers, {}),
     )
   },
   component: Campaigns,
@@ -26,7 +26,7 @@ export const Route = createFileRoute('/app/')({
 
 function Campaigns() {
   const { data } = useSuspenseQuery(
-    convexQuery(api.functions.campaigns.listCampaigns, {}),
+    convexQuery(api.functions.campaigns.listCampaignsWithMembers, {}),
   )
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const navigate = useNavigate()

@@ -12,6 +12,7 @@ import type * as constants from "../constants.js";
 import type * as functions_assemblyai from "../functions/assemblyai.js";
 import type * as functions_campaigns from "../functions/campaigns.js";
 import type * as functions_cloudflareR2 from "../functions/cloudflareR2.js";
+import type * as functions_members from "../functions/members.js";
 import type * as functions_messages from "../functions/messages.js";
 import type * as functions_recordings from "../functions/recordings.js";
 import type * as functions_sessions from "../functions/sessions.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   "functions/assemblyai": typeof functions_assemblyai;
   "functions/campaigns": typeof functions_campaigns;
   "functions/cloudflareR2": typeof functions_cloudflareR2;
+  "functions/members": typeof functions_members;
   "functions/messages": typeof functions_messages;
   "functions/recordings": typeof functions_recordings;
   "functions/sessions": typeof functions_sessions;
