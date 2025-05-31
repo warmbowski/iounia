@@ -1,29 +1,25 @@
-import { getUsersListByMembersFn } from '@/integrations/clerk/auth'
 import { formatDate } from '@/utils'
 import { Card, CardBody, CardFooter, Avatar, Chip } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { useQuery } from '@tanstack/react-query'
-import type { Doc, Id } from 'convex/_generated/dataModel'
+import type { Id } from 'convex/_generated/dataModel'
 import { MemberGroup } from '../member-group'
+import { api } from 'convex/_generated/api'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { convexAction } from '@convex-dev/react-query'
 
 interface CampaignCardProps {
-  campaign: Doc<'campaigns'> & {
-    members: Doc<'members'>[]
-  }
+  campaign: typeof api.functions.campaigns.readCampaignWithMembers._returnType
   onPress?: (campaignId: Id<'campaigns'>) => void
 }
 
 export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
-  const { data: memberUsers } = useQuery({
-    queryKey: ['memberUsers', campaign._id],
-    queryFn: () =>
-      getUsersListByMembersFn({
-        data: campaign.members,
-      }),
-    initialData: [],
-  })
-
-  const ownerUser = memberUsers?.find((user) =>
+  const { data: allMemberUsers } = useSuspenseQuery(
+    convexAction(
+      api.functions.members.listAllAssociatedMembersWithUserData,
+      {},
+    ),
+  )
+  const ownerUser = allMemberUsers?.find((user) =>
     campaign.ownerId.includes(user.userId),
   )
 
@@ -71,7 +67,7 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
             Started {formatDate(campaign._creationTime)}
           </span>
         </div>
-        <MemberGroup campaign={campaign} statusFilter="active" max={4} />
+        <MemberGroup members={campaign.members} statusFilter="active" max={3} />
       </CardFooter>
     </Card>
   )

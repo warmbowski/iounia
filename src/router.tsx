@@ -8,12 +8,15 @@ import './styles.css'
 import { ConvexQueryClient } from '@convex-dev/react-query'
 import { QueryCache, QueryClient } from '@tanstack/react-query'
 import { addToast } from '@heroui/react'
+import { ConvexReactClient } from 'convex/react'
+import { ensureViteEnvironmentVariable } from '@/utils'
+import { DefaultCatchBoundary } from './components/default-catch-boundary'
+import { NotFound } from './components/not-found'
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL
-if (!CONVEX_URL) {
-  console.error('missing envar CONVEX_URL')
-}
-export const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
+const CONVEX_URL = ensureViteEnvironmentVariable('VITE_CONVEX_URL')
+
+export const convexClient = new ConvexReactClient(CONVEX_URL)
+export const convexQueryClient = new ConvexQueryClient(convexClient)
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -30,6 +33,8 @@ export const queryClient = new QueryClient({
     queries: {
       queryKeyHashFn: convexQueryClient.hashFn(),
       queryFn: convexQueryClient.queryFn(),
+      staleTime: Infinity, // Disable automatic refetching
+      gcTime: 10 * 1000, // 10 seconds
     },
   },
 })
@@ -40,10 +45,12 @@ export const createRouter = () => {
   const router = routerWithQueryClient(
     createTanstackRouter({
       routeTree,
-      context: { queryClient, convexClient: convexQueryClient },
+      context: { queryClient, convexQueryClient: convexQueryClient },
       scrollRestoration: true,
       scrollToTopSelectors: ['#base-layout-scrollable-area'],
-      defaultPreloadStaleTime: 0,
+      defaultPreload: 'intent',
+      defaultErrorComponent: DefaultCatchBoundary,
+      defaultNotFoundComponent: () => <NotFound />,
     }),
     queryClient,
   )

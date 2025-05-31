@@ -3,6 +3,7 @@ import {
   RecordingTimeline,
   PersistedRecordingTimelineProvider,
 } from '@/components/transcript-timeline.tsx'
+import { APP_TITLE } from '@/constants'
 import { formatDate } from '@/utils'
 import { convexQuery } from '@convex-dev/react-query'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
@@ -39,14 +40,25 @@ export const Route = createFileRoute(
         recordingId: params.recordingId,
       }),
     )
+    const crumb: LinkComponentProps = {
+      title: recording.fileName || 'Recording',
+      to: '/app/$campaignId/session/recording/$recordingId',
+      params,
+    } as LinkComponentProps
     return {
-      crumb: {
-        title: recording.fileName || 'Recording',
-        to: '/app/$campaignId/session/recording/$recordingId',
-        params,
-      } as LinkComponentProps,
+      crumb,
     }
   },
+  head: (context) => {
+    return {
+      meta: [
+        {
+          title: `${context.loaderData.crumb.title} - ${APP_TITLE}`,
+        },
+      ],
+    }
+  },
+
   component: RouteComponent,
 })
 
@@ -87,7 +99,7 @@ function RouteComponent() {
       </div>
       <PersistedRecordingTimelineProvider
         recordingId={recordingId}
-        cacheVersion={'cacheVersion-20250524'}
+        cacheVersion={'v1'}
       >
         <RecordingTimeline
           recordingId={recordingId}

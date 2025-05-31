@@ -34,12 +34,28 @@ export function formatTime(seconds: number): string {
  */
 export function getConvexSiteUrl() {
   let convexSiteUrl
-  if (import.meta.env.VITE_CONVEX_URL.includes('.cloud')) {
-    convexSiteUrl = import.meta.env.VITE_CONVEX_URL.replace(/\.cloud$/, '.site')
+  const CONVEX_URL = ensureViteEnvironmentVariable('VITE_CONVEX_URL')
+  if (CONVEX_URL.includes('.cloud')) {
+    convexSiteUrl = CONVEX_URL.replace(/\.cloud$/, '.site')
   } else {
-    const url = new URL(import.meta.env.VITE_CONVEX_URL)
+    const url = new URL(CONVEX_URL)
     url.port = String(Number(url.port) + 1)
     convexSiteUrl = url.toString()
   }
   return convexSiteUrl
+}
+
+/**
+ * Ensures that an environment variable is set, throwing an error if it is not.
+ *
+ * @param name - The name of the environment variable to check.
+ * @throws {Error} If the environment variable is not set.
+ * @returns {string} The value of the environment variable.
+ */
+export function ensureViteEnvironmentVariable(name: string): string {
+  const value = import.meta.env[name]
+  if (value === undefined) {
+    throw new Error(`missing environment variable ${name}`)
+  }
+  return value
 }

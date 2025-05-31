@@ -5,6 +5,7 @@ import { SignInOrSignUpLoginModal } from '../signin-or-signup-login-modal'
 import { ProfileButton } from '../profile-button'
 import { useAuth, useUser } from '@clerk/tanstack-react-start'
 import { RouterLink } from '../router-link'
+import { APP_TITLE } from '@/constants'
 
 interface TopNavProps {
   forceSignIn?: boolean
@@ -21,9 +22,7 @@ export function TopNav({ forceSignIn }: TopNavProps) {
         <NavbarItem>
           <RouterLink to="/app" className="flex items-center gap-2">
             <Icon icon="mdi:orbit" className="text-2xl text-primary" />
-            <span className="font-bold text-xl">
-              {import.meta.env.VITE_APP_TITLE}
-            </span>
+            <span className="font-bold text-xl">{APP_TITLE}</span>
           </RouterLink>
         </NavbarItem>
       </NavbarContent>

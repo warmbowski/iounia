@@ -10,26 +10,25 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { HeroUIProviderWithNav } from '@/integrations/heroui/provider-with-nav'
-import { DEFAULT_THEME_MODE } from '@/constants'
+import { APP_TITLE, DEFAULT_THEME_MODE } from '@/constants'
 import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start'
 import { ConvexProviderWithClerk } from 'convex/react-clerk'
 
 import appCss from '../styles.css?url'
 import { convexQueryClient } from '@/router'
-import { authStateFn } from '@/integrations/clerk/auth'
-import { BaseLayout } from '@/components/layouts'
 import { ToastProvider } from '@heroui/react'
+import { authStateFn } from '@/integrations/clerk/auth'
 
 interface RouterContext {
   queryClient: QueryClient
-  convexClient: ConvexQueryClient
+  convexQueryClient: ConvexQueryClient
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       {
-        title: `${import.meta.env.VITE_APP_TITLE}`,
+        title: `${APP_TITLE}`,
       },
       {
         charSet: 'utf-8',
@@ -58,32 +57,31 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
 
-  beforeLoad: async (ctx) => {
+  beforeLoad: async ({ context }) => {
     const { user, token } = await authStateFn()
     if (token) {
-      ctx.context.convexClient.serverHttpClient?.setAuth(token)
+      console.log('Setting auth token for Convex:', !!token)
+      context.convexQueryClient.serverHttpClient?.setAuth(token)
     }
     return { user }
   },
 
   component: () => (
-    <RootDocument>
-      <ClerkProvider>
+    <ClerkProvider>
+      <RootDocument>
         <ConvexProviderWithClerk
           client={convexQueryClient.convexClient}
           useAuth={useAuth}
         >
           <HeroUIProviderWithNav>
             <ToastProvider />
-            <BaseLayout>
-              <Outlet />
-            </BaseLayout>
+            <Outlet />
             <ReactQueryDevtools buttonPosition="bottom-right" />
             {/* <TanStackRouterDevtools /> */}
           </HeroUIProviderWithNav>
         </ConvexProviderWithClerk>
-      </ClerkProvider>
-    </RootDocument>
+      </RootDocument>
+    </ClerkProvider>
   ),
 })
 

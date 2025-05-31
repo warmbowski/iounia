@@ -1,3 +1,4 @@
+import { APP_TITLE } from '@/constants'
 import { convexQuery } from '@convex-dev/react-query'
 import {
   createFileRoute,
@@ -31,6 +32,16 @@ export const Route = createFileRoute('/app/$campaignId')({
       crumb: crumb,
     }
   },
+  head: (context) => {
+    return {
+      meta: [
+        {
+          title: `${context.loaderData.crumb.title} - ${APP_TITLE}`,
+        },
+      ],
+    }
+  },
+
   component: RouteComponent,
 })
 

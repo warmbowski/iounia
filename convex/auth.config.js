@@ -1,6 +1,6 @@
-import { ensureEnvironmentVariable } from './utililties'
+import { ensureServerEnironmentVariable } from './utililties'
 
-const CLERK_FRONTEND_API_URL = ensureEnvironmentVariable(
+const CLERK_FRONTEND_API_URL = ensureServerEnironmentVariable(
   'CLERK_FRONTEND_API_URL',
 )
 

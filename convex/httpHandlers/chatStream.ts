@@ -4,12 +4,12 @@ import { internal } from '../_generated/api'
 import { httpAction } from '../_generated/server'
 import { persistentTextStreaming } from '../functions/streaming'
 import type { StreamId } from '@convex-dev/persistent-text-streaming'
-import { ensureEnvironmentVariable } from '../utililties'
+import { ensureServerEnironmentVariable } from '../utililties'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { streamText } from 'ai'
 import { Id } from '../_generated/dataModel'
 
-const GEMINI_API_KEY = ensureEnvironmentVariable('GEMINI_API_KEY')
+const GEMINI_API_KEY = ensureServerEnironmentVariable('GEMINI_API_KEY')
 
 const google = createGoogleGenerativeAI({
   apiKey: GEMINI_API_KEY,

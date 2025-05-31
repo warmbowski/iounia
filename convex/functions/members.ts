@@ -1,7 +1,10 @@
 import { v } from 'convex/values'
-import { mutation } from '../_generated/server'
+import { action, mutation, query } from '../_generated/server'
 import { memberRole, memberStatus } from '../schema'
 import { MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT } from '../constants'
+import { Doc } from '../_generated/dataModel'
+import { createClerkClient, type EmailAddress, type User } from '@clerk/backend'
+import { api } from '../_generated/api'
 
 export const createMembershipRequest = mutation({
   args: {
@@ -149,5 +152,68 @@ export const removeMembershipById = mutation({
     }
 
     return await db.delete(memberId)
+  },
+})
+
+interface MemberUser {
+  userId: User['id']
+  emailAddress?: EmailAddress['emailAddress']
+  fullName?: User['fullName']
+  imageUrl?: User['imageUrl']
+  role?: Doc<'members'>['role']
+  status?: Doc<'members'>['status']
+  joined?: Doc<'members'>['_creationTime']
+}
+
+export const listAllAssociatedMembersWithUserDataTest = action({
+  handler: async ({ runQuery, auth }): Promise<MemberUser[]> => {
+    return []
+  },
+})
+
+export const listAllAssociatedMembersWithUserData = action({
+  handler: async ({ runQuery, auth }): Promise<MemberUser[]> => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+
+    const campaigns = await runQuery(
+      api.functions.campaigns.listCampaignsWithMembers,
+    )
+
+    const flatMembers = campaigns.flatMap((campaign) =>
+      campaign.members.map((member) => member),
+    )
+    if (flatMembers.length === 0) {
+      return []
+    }
+
+    const clerkClient = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    })
+
+    const userIds = flatMembers.map((member) => {
+      if (member.userId.includes('|')) {
+        return member.userId.split('|')[1]
+      }
+      return member.userId
+    })
+    if (!userIds || userIds.length === 0) {
+      return []
+    }
+
+    const userList = await clerkClient.users.getUserList({
+      userId: userIds,
+    })
+
+    return userList.data.map((user, index) => ({
+      userId: user.id,
+      campaignId: flatMembers[index].campaignId,
+      emailAddress: user.primaryEmailAddress?.emailAddress,
+      fullName: user.fullName || undefined,
+      imageUrl: user.imageUrl,
+      role: flatMembers[index]?.role,
+      status: flatMembers[index]?.status,
+      joined: flatMembers[index]?._creationTime,
+    }))
   },
 })

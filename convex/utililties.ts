@@ -34,7 +34,7 @@ export async function generateSha1Hash(file: File) {
  * @throws {Error} If the environment variable is not set.
  * @returns {string} The value of the environment variable.
  */
-export function ensureEnvironmentVariable(name: string): string {
+export function ensureServerEnironmentVariable(name: string): string {
   const value = process.env[name]
   if (value === undefined) {
     throw new Error(`missing environment variable ${name}`)

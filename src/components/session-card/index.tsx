@@ -1,9 +1,9 @@
-import { getUsersListByMembersFn } from '@/integrations/clerk/auth'
 import { formatDate } from '@/utils'
-import { Card, CardBody, CardFooter, Avatar, AvatarGroup } from '@heroui/react'
+import { Card, CardBody, CardFooter } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useQuery } from '@tanstack/react-query'
 import type { Doc, Id } from 'convex/_generated/dataModel'
+import { MemberGroup } from '../member-group'
 
 interface SessionCardProps {
   session: Doc<'sessions'> & {
@@ -14,11 +14,8 @@ interface SessionCardProps {
 
 export function SessionCard({ session, onPress }: SessionCardProps) {
   const { data: attendees } = useQuery({
-    queryKey: ['attendees', session._id],
-    queryFn: () =>
-      getUsersListByMembersFn({
-        data: [], // session.attendees,
-      }),
+    queryKey: ['attendeeUsers', session._id],
+    queryFn: () => [],
     initialData: [],
   })
 
@@ -47,20 +44,7 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
           <Icon icon="lucide:calendar" />
           <span className="text-sm ">{formatDate(session.date)}</span>
         </div>
-        <AvatarGroup max={5} size="sm" isBordered color="secondary" radius="sm">
-          {attendees && attendees.length > 0
-            ? attendees.map((attendee) => (
-                <Avatar
-                  key={attendee.userId}
-                  src={attendee.imageUrl}
-                  name={attendee.fullName || ''}
-                  size="sm"
-                />
-              ))
-            : session.attendees.map((attendee) => (
-                <Avatar key={attendee} size="sm" />
-              ))}
-        </AvatarGroup>
+        <MemberGroup members={attendees} max={3} />
       </CardFooter>
     </Card>
   )

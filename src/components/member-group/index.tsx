@@ -1,33 +1,38 @@
-import { getUsersListByMembersFn } from '@/integrations/clerk/auth'
+import { convexAction } from '@convex-dev/react-query'
 import { Avatar, AvatarGroup, type AvatarGroupProps } from '@heroui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { api } from 'convex/_generated/api'
 import type { Doc } from 'convex/_generated/dataModel'
 
 interface MemberGroupProps extends AvatarGroupProps {
-  campaign: Doc<'campaigns'> & {
-    members: Doc<'members'>[]
-  }
+  members: Doc<'members'>[] | Doc<'attendees'>[]
   roleFilter?: 'owner' | 'member' | 'guest'
   statusFilter?: 'active' | 'inactive' | 'pending'
 }
 
 export function MemberGroup({
-  campaign,
+  members,
   roleFilter,
   statusFilter,
   ...avatarGroupProps
 }: MemberGroupProps) {
-  const { data: userMembers } = useQuery({
-    queryKey: ['activeMembers', campaign._id],
-    enabled: campaign.members.length > 0,
-    queryFn: () =>
-      getUsersListByMembersFn({
-        data: campaign.members,
-      }),
-    initialData: [],
-  })
+  const { data: allMemberUsers } = useSuspenseQuery(
+    convexAction(
+      api.functions.members.listAllAssociatedMembersWithUserData,
+      {},
+    ),
+  )
 
-  const filteredUserMembers = userMembers.filter((member) => {
+  const memberUsers = members
+    .map((member) => {
+      const memberId = member.userId.includes('|')
+        ? member.userId.split('|')[1]
+        : member.userId
+      return allMemberUsers.find((user) => user.userId === memberId)!
+    })
+    .filter(Boolean)
+
+  const filteredUserMembers = memberUsers.filter((member) => {
     if (roleFilter && member.role !== roleFilter) return false
     if (statusFilter && member.status !== statusFilter) return false
     return true
@@ -50,9 +55,7 @@ export function MemberGroup({
               size="sm"
             />
           ))
-        : campaign.members.map((member) => (
-            <Avatar key={member.userId} size="sm" />
-          ))}
+        : members.map((member) => <Avatar key={member.userId} size="sm" />)}
     </AvatarGroup>
   )
 }

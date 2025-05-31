@@ -16,16 +16,11 @@ import { CreateEditCampaignForm } from '@/components/create-edit-campaign-form'
 import { CampaignCard } from '@/components/campaign-card'
 
 export const Route = createFileRoute('/app/')({
-  loader: async ({ context }) => {
-    await context.queryClient.prefetchQuery(
-      convexQuery(api.functions.campaigns.listCampaignsWithMembers, {}),
-    )
-  },
   component: Campaigns,
 })
 
 function Campaigns() {
-  const { data } = useSuspenseQuery(
+  const { data: campaigns } = useSuspenseQuery(
     convexQuery(api.functions.campaigns.listCampaignsWithMembers, {}),
   )
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -45,7 +40,7 @@ function Campaigns() {
       </Button>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8 mt-6">
-        {data.map((campaign) => (
+        {campaigns.map((campaign) => (
           <CampaignCard
             key={campaign._id}
             campaign={campaign}

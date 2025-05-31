@@ -1,11 +1,11 @@
-import { ensureEnvironmentVariable } from './utililties'
+import { ensureServerEnironmentVariable } from './utililties'
 
 export const MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT = 10
 export const AUDIO_CHUNK_DURATION_SEC = 15 * 60 // 15 minutes
 export const WEBHOOK_URL = `${'https://perfect-ermine-248.convex.site'}/webhooks/assemblyai`
 export const WEBHOOK_AUTH_HEADER_NAME = 'x-assemblyai-256'
 export const WEBHOOK_AUTH_HEADER_VALUE =
-  ensureEnvironmentVariable('WEBHOOK_SECRET')
+  ensureServerEnironmentVariable('WEBHOOK_SECRET')
 
 /** system prompts */
 

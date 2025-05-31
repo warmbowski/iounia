@@ -2,6 +2,7 @@ import { CampaignCard } from '@/components/campaign-card'
 import { CreateEditSessionForm } from '@/components/create-edit-session-form'
 import { MemberGroup } from '@/components/member-group'
 import { SessionCard } from '@/components/session-card'
+import { useUser } from '@clerk/tanstack-react-start'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import {
   Button,
@@ -19,8 +20,6 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
-
-// const VITE_CONVEX_URL = import.meta.env.VITE_CONVEX_URL
 
 export const Route = createFileRoute('/app/$campaignId/')({
   loader: async ({ context, params }) => {
@@ -41,6 +40,7 @@ export const Route = createFileRoute('/app/$campaignId/')({
 function RouteComponent() {
   const { campaignId } = Route.useParams()
   const navigate = useNavigate()
+  const { user } = useUser()
   const { data: campaign } = useSuspenseQuery(
     convexQuery(api.functions.campaigns.readCampaignWithMembers, {
       campaignId: campaignId,
@@ -51,7 +51,7 @@ function RouteComponent() {
       campaignId: campaignId,
     }),
   )
-  const { mutateAsync: updateCampaign } = useMutation({
+  const { mutateAsync: updateCampaign, isPending: isUpdating } = useMutation({
     mutationFn: useConvexMutation(api.functions.campaigns.updateCampaign),
   })
   const {
@@ -78,10 +78,10 @@ function RouteComponent() {
           </p>
           <h3 className="text-xl font-semibold mt-4 flex justify-between items-center">
             <span>Members</span>
-            <ButtonGroup className="flex items-center gap-1">
+            <ButtonGroup className="flex items-center">
               <Snippet
                 size="sm"
-                symbol=""
+                symbol="code"
                 className="h-[40px] rounded-l-[12px] rounded-r-none"
               >
                 {campaign.joinCode}
@@ -90,6 +90,8 @@ function RouteComponent() {
                 variant="flat"
                 size="md"
                 isIconOnly
+                disabled={user?.id ? !campaign.ownerId.endsWith(user.id) : true}
+                isLoading={isUpdating}
                 onPress={() =>
                   updateCampaign({ campaignId, updates: { joinCode: true } })
                 }
@@ -98,18 +100,21 @@ function RouteComponent() {
               </Button>
             </ButtonGroup>
           </h3>
-          <p>
-            {campaign.members.length > 0 ? (
-              <MemberGroup
-                campaign={campaign}
-                statusFilter="active"
-                max={10}
-                isGrid
-              />
-            ) : (
+
+          {campaign.members.length > 0 ? (
+            <MemberGroup
+              className="mt-2"
+              members={campaign.members}
+              statusFilter="active"
+              max={10}
+              isGrid
+            />
+          ) : (
+            <p>
               <i>No active members</i>
-            )}
-          </p>
+            </p>
+          )}
+
           <h3 className="text-xl font-semibold mt-4">Latest Happenings</h3>
           <p>
             {sessions[0] ? (
