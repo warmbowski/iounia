@@ -76,29 +76,16 @@ function RouteComponent() {
           <p className="text-balance">
             {campaign.description || <i>No description available</i>}
           </p>
+          <h3 className="text-xl font-semibold mt-4">Latest Happenings</h3>
+          <p>
+            {sessions[0] ? (
+              `${sessions[0].name}: ${sessions[0].shortSummary || 'No session summary available'}`
+            ) : (
+              <i>No sessions</i>
+            )}
+          </p>
           <h3 className="text-xl font-semibold mt-4 flex justify-between items-center">
-            <span>Members</span>
-            <ButtonGroup className="flex items-center">
-              <Snippet
-                size="sm"
-                symbol="code"
-                className="h-[40px] rounded-l-[12px] rounded-r-none"
-              >
-                {campaign.joinCode}
-              </Snippet>
-              <Button
-                variant="flat"
-                size="md"
-                isIconOnly
-                disabled={user?.id ? !campaign.ownerId.endsWith(user.id) : true}
-                isLoading={isUpdating}
-                onPress={() =>
-                  updateCampaign({ campaignId, updates: { joinCode: true } })
-                }
-              >
-                <Icon icon="lucide:refresh-cw" className="w-[18px] h-[18px]" />
-              </Button>
-            </ButtonGroup>
+            <span>Active Members</span>
           </h3>
 
           {campaign.members.length > 0 ? (
@@ -115,14 +102,51 @@ function RouteComponent() {
             </p>
           )}
 
-          <h3 className="text-xl font-semibold mt-4">Latest Happenings</h3>
-          <p>
-            {sessions[0] ? (
-              `${sessions[0].name}: ${sessions[0].shortSummary || 'No session summary available'}`
-            ) : (
-              <i>No sessions</i>
-            )}
-          </p>
+          {campaign.ownerId === user?.id && (
+            <>
+              <h3 className="text-xl font-semibold mt-4 flex justify-between items-center">
+                <span>Join Requests</span>
+              </h3>
+              <div className="flex items-center justify-between">
+                <MemberGroup
+                  className="mt-2"
+                  members={campaign.members}
+                  statusFilter="pending"
+                  max={10}
+                  isGrid
+                />
+                <ButtonGroup className="flex items-center">
+                  <Snippet
+                    size="sm"
+                    symbol="code"
+                    className="h-[40px] rounded-l-[12px] rounded-r-none"
+                  >
+                    {campaign.joinCode}
+                  </Snippet>
+                  <Button
+                    variant="flat"
+                    size="md"
+                    isIconOnly
+                    disabled={
+                      user?.id ? !campaign.ownerId.endsWith(user.id) : true
+                    }
+                    isLoading={isUpdating}
+                    onPress={() =>
+                      updateCampaign({
+                        campaignId,
+                        updates: { joinCode: true },
+                      })
+                    }
+                  >
+                    <Icon
+                      icon="lucide:refresh-cw"
+                      className="w-[18px] h-[18px]"
+                    />
+                  </Button>
+                </ButtonGroup>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

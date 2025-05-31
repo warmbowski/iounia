@@ -1,6 +1,9 @@
 import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
-import { generateSecureAlphanumericCode } from '../utililties'
+import {
+  getTokenIdentifierParts,
+  generateSecureAlphanumericCode,
+} from '../utililties'
 
 export const createCampaign = mutation({
   args: {
@@ -12,18 +15,25 @@ export const createCampaign = mutation({
   handler: async ({ db, auth }, { name, startDate, tags, description }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const campaignId = await db.insert('campaigns', {
       name,
       startDate,
       description,
       tags: tags || [],
-      ownerId: user.tokenIdentifier,
-      joinCode: generateSecureAlphanumericCode(8),
+      ownerId: userId,
+      joinCode: generateSecureAlphanumericCode(12),
     })
+
+    const prefix = campaignId.toString().slice(0, 4)
+    await db.patch(campaignId, {
+      joinCode: `${prefix}${generateSecureAlphanumericCode(8)}`,
+    })
+
     await db.insert('members', {
       campaignId: campaignId,
-      userId: user.tokenIdentifier,
+      userId,
     })
 
     return campaignId
@@ -46,16 +56,18 @@ export const updateCampaign = mutation({
   handler: async ({ db, auth }, { campaignId, updates }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
-    if (campaign.ownerId !== user.tokenIdentifier)
+    if (campaign.ownerId !== userId)
       throw new Error('User not authorized to update this campaign')
 
+    const prefix = campaignId.toString().slice(0, 4)
     return await db.patch(campaignId, {
       ...updates,
       joinCode: updates.joinCode
-        ? generateSecureAlphanumericCode(8)
+        ? `${prefix}${generateSecureAlphanumericCode(8)}`
         : undefined,
     })
   },
@@ -68,6 +80,7 @@ export const readCampaignWithMembers = query({
   handler: async ({ db, auth }, { campaignId }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
@@ -76,6 +89,10 @@ export const readCampaignWithMembers = query({
       .query('members')
       .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
       .collect()
+
+    if (!campaignMembers.find((member) => member.userId === userId)) {
+      throw new Error('User is not a member of this campaign')
+    }
 
     return {
       ...campaign,
@@ -88,29 +105,30 @@ export const listCampaignsWithMembers = query({
   handler: async ({ db, auth }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const myMemberships = await db
       .query('members')
-      .withIndex('by_campaign_member', (q) =>
-        q.eq('userId', user.tokenIdentifier),
-      )
+      .withIndex('by_campaign_member', (q) => q.eq('userId', userId))
       .collect()
 
     return await Promise.all(
-      myMemberships.map(async (me) => {
-        const campaign = await db.get(me.campaignId)
-        if (!campaign) return null
+      myMemberships
+        .filter((me) => me.status === 'active')
+        .map(async (me) => {
+          const campaign = await db.get(me.campaignId)
+          if (!campaign) return null
 
-        const campaignMembers = await db
-          .query('members')
-          .withIndex('by_campaign', (q) => q.eq('campaignId', campaign._id))
-          .collect()
+          const campaignMembers = await db
+            .query('members')
+            .withIndex('by_campaign', (q) => q.eq('campaignId', campaign._id))
+            .collect()
 
-        return {
-          ...campaign,
-          members: campaignMembers,
-        }
-      }),
+          return {
+            ...campaign,
+            members: campaignMembers,
+          }
+        }),
     ).then((campaigns) => campaigns.filter((campaign) => !!campaign))
   },
 })

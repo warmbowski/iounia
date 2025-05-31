@@ -7,8 +7,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  useDisclosure,
 } from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
+import { JoinCampaignModal } from '../join-campaign-modal'
 
 interface ProfileButtonProps {
   userInfo: {
@@ -20,6 +22,11 @@ interface ProfileButtonProps {
 }
 
 export function ProfileButton({ userInfo, onLogout }: ProfileButtonProps) {
+  const {
+    isOpen: joinModalOpen,
+    onOpen: onJoinModalOpen,
+    onOpenChange: onJoinModalOpenChange,
+  } = useDisclosure()
   const { theme, setTheme } = useTheme(undefined, THEME_LS_KEY)
   const isDark = theme === 'dark'
 
@@ -50,10 +57,17 @@ export function ProfileButton({ userInfo, onLogout }: ProfileButtonProps) {
         </DropdownTrigger>
         <DropdownMenu aria-label="Profile Actions">
           <DropdownItem
-            key="settings"
+            key="profile"
             startContent={<Icon icon="lucide:settings" className="text-lg" />}
           >
-            Settings
+            Profile
+          </DropdownItem>
+          <DropdownItem
+            key="join-campaign"
+            startContent={<Icon icon="lucide:users" className="text-lg" />}
+            onPress={onJoinModalOpen}
+          >
+            Join Campaign
           </DropdownItem>
           <DropdownItem
             key="theme"
@@ -80,6 +94,10 @@ export function ProfileButton({ userInfo, onLogout }: ProfileButtonProps) {
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
+      <JoinCampaignModal
+        isOpen={joinModalOpen}
+        onOpenChange={onJoinModalOpenChange}
+      />
     </div>
   )
 }

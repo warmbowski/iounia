@@ -1,5 +1,6 @@
 import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
+import { getTokenIdentifierParts } from '../utililties'
 
 export const createSession = mutation({
   args: {
@@ -11,10 +12,11 @@ export const createSession = mutation({
   handler: async ({ db, auth }, { campaignId, name, date, notes }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
-    if (campaign.ownerId !== user.tokenIdentifier)
+    if (campaign.ownerId !== userId)
       throw new Error(
         'User not authorized to create a session for this campaign',
       )
@@ -49,13 +51,14 @@ export const updateSession = mutation({
   handler: async ({ db, auth }, { sessionId, updates }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const session = await db.get(sessionId)
     if (!session) throw new Error('Session not found')
 
     const campaign = await db.get(session.campaignId)
     if (!campaign) throw new Error('Campaign not found')
-    if (campaign.ownerId !== user.tokenIdentifier)
+    if (campaign.ownerId !== userId)
       throw new Error('User not authorized to update this session')
 
     return await db.patch(sessionId, {

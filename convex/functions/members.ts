@@ -5,6 +5,7 @@ import { MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT } from '../constants'
 import { Doc } from '../_generated/dataModel'
 import { createClerkClient, type EmailAddress, type User } from '@clerk/backend'
 import { api } from '../_generated/api'
+import { getTokenIdentifierParts } from '../utililties'
 
 export const createMembershipRequest = mutation({
   args: {
@@ -13,6 +14,8 @@ export const createMembershipRequest = mutation({
   handler: async ({ db, auth }, { joinCode }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+
     if (!joinCode || joinCode.trim() === '') {
       throw new Error('Join code is required')
     }
@@ -31,27 +34,30 @@ export const createMembershipRequest = mutation({
       .collect()
 
     const existingMember = membershipList.find(
-      (member) => member.userId === user.tokenIdentifier,
+      (member) => member.userId === userId,
     )
-    if (existingMember && existingMember.status === 'active') {
+    if (existingMember?.status === 'active') {
       throw new Error('User is already a member of this campaign')
-    } else if (existingMember && existingMember.status === 'pending') {
+    } else if (existingMember?.status === 'pending') {
       throw new Error('Membership request is already pending')
-    } else if (existingMember && existingMember.status === 'inactive') {
+    } else if (existingMember?.status === 'banned') {
+      // Maybe make this fail silently so as to not leak information?
+      throw new Error('User is banned from this campaign')
+    } else if (existingMember?.status === 'inactive') {
       // If the user has previously been declined, we can allow them to re-request
       return await db.patch(existingMember._id, { status: 'pending' })
     }
 
     return await db.insert('members', {
       campaignId: campaign._id,
-      userId: user.tokenIdentifier,
+      userId: userId,
       role: 'member',
       status: 'pending',
     })
   },
 })
 
-export const updateMembershipRoleById = mutation({
+export const updateMembershipById = mutation({
   args: {
     memberId: v.id('members'),
     campaignId: v.id('campaigns'),
@@ -67,6 +73,7 @@ export const updateMembershipRoleById = mutation({
     }
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
@@ -100,8 +107,7 @@ export const updateMembershipRoleById = mutation({
     }
 
     const userCanMakeUpdate = membershipList.some(
-      (member) =>
-        member.userId === user.tokenIdentifier && member.role === 'admin',
+      (member) => member.userId === userId && member.role === 'admin',
     )
     if (!userCanMakeUpdate) {
       throw new Error('User does not have permission to update membership')
@@ -119,6 +125,7 @@ export const removeMembershipById = mutation({
   handler: async ({ db, auth }, { campaignId, memberId }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
@@ -144,8 +151,7 @@ export const removeMembershipById = mutation({
     }
 
     const userCanMakeUpdate = membershipList.some(
-      (member) =>
-        member.userId === user.tokenIdentifier && member.role === 'admin',
+      (member) => member.userId === userId && member.role === 'admin',
     )
     if (!userCanMakeUpdate) {
       throw new Error('User does not have permission to update membership')
@@ -156,7 +162,9 @@ export const removeMembershipById = mutation({
 })
 
 interface MemberUser {
+  memberId: Doc<'members'>['_id']
   userId: User['id']
+  campaignId: Doc<'members'>['campaignId']
   emailAddress?: EmailAddress['emailAddress']
   fullName?: User['fullName']
   imageUrl?: User['imageUrl']
@@ -164,12 +172,6 @@ interface MemberUser {
   status?: Doc<'members'>['status']
   joined?: Doc<'members'>['_creationTime']
 }
-
-export const listAllAssociatedMembersWithUserDataTest = action({
-  handler: async ({ runQuery, auth }): Promise<MemberUser[]> => {
-    return []
-  },
-})
 
 export const listAllAssociatedMembersWithUserData = action({
   handler: async ({ runQuery, auth }): Promise<MemberUser[]> => {
@@ -205,15 +207,19 @@ export const listAllAssociatedMembersWithUserData = action({
       userId: userIds,
     })
 
-    return userList.data.map((user, index) => ({
-      userId: user.id,
-      campaignId: flatMembers[index].campaignId,
-      emailAddress: user.primaryEmailAddress?.emailAddress,
-      fullName: user.fullName || undefined,
-      imageUrl: user.imageUrl,
-      role: flatMembers[index]?.role,
-      status: flatMembers[index]?.status,
-      joined: flatMembers[index]?._creationTime,
+    const userIdMap = new Map(userList.data.map((user) => [user.id, user]))
+
+    return flatMembers.map((member, index) => ({
+      memberId: member._id,
+      userId: member.userId,
+      campaignId: member.campaignId,
+      emailAddress: userIdMap.get(member.userId)?.primaryEmailAddress
+        ?.emailAddress,
+      fullName: userIdMap.get(member.userId)?.fullName || undefined,
+      imageUrl: userIdMap.get(member.userId)?.imageUrl,
+      role: member?.role,
+      status: member?.status,
+      joined: member?._creationTime,
     }))
   },
 })

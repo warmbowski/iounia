@@ -1,6 +1,7 @@
-import { convexAction } from '@convex-dev/react-query'
+import { convexAction, useConvexMutation } from '@convex-dev/react-query'
 import { Avatar, AvatarGroup, type AvatarGroupProps } from '@heroui/react'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { Icon } from '@iconify/react/dist/iconify.js'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import type { Doc } from 'convex/_generated/dataModel'
 
@@ -22,21 +23,34 @@ export function MemberGroup({
       {},
     ),
   )
+  const { mutateAsync: approveMembership, isPending } = useMutation({
+    mutationFn: useConvexMutation(api.functions.members.updateMembershipById),
+  })
 
   const memberUsers = members
     .map((member) => {
-      const memberId = member.userId.includes('|')
-        ? member.userId.split('|')[1]
-        : member.userId
-      return allMemberUsers.find((user) => user.userId === memberId)!
+      return allMemberUsers.find((user) => user.userId === member.userId)!
     })
     .filter(Boolean)
 
   const filteredUserMembers = memberUsers.filter((member) => {
-    if (roleFilter && member.role !== roleFilter) return false
-    if (statusFilter && member.status !== statusFilter) return false
-    return true
+    let allowed = true
+    if (roleFilter && member.role !== roleFilter) allowed = false
+    if (statusFilter && member.status !== statusFilter) allowed = false
+    return allowed
   })
+
+  const handleAddPendingMember = (member: (typeof allMemberUsers)[number]) => {
+    if (member.status === 'pending') {
+      approveMembership({
+        memberId: member.memberId,
+        campaignId: member.campaignId,
+        updates: {
+          status: 'active',
+        },
+      })
+    }
+  }
 
   return (
     <AvatarGroup
@@ -46,16 +60,36 @@ export function MemberGroup({
       color="secondary"
       radius="sm"
     >
-      {filteredUserMembers.length > 0
-        ? filteredUserMembers.map((member) => (
-            <Avatar
-              key={member.userId}
-              src={member.imageUrl}
-              name={member.fullName || ''}
-              size="sm"
-            />
-          ))
-        : members.map((member) => <Avatar key={member.userId} size="sm" />)}
+      {filteredUserMembers.length > 0 ? (
+        filteredUserMembers.map((member) => (
+          <Avatar
+            className={
+              member.status === 'pending' ? 'hover:cursor:pointer' : ''
+            }
+            color={member.status === 'pending' ? 'warning' : 'secondary'}
+            key={member.userId}
+            src={member.imageUrl}
+            name={member.fullName || ''}
+            size="sm"
+            onDoubleClick={() => handleAddPendingMember(member)}
+            aria-label={
+              member.status === 'pending'
+                ? `Double click to allow ${member.fullName} to join the campaign`
+                : undefined
+            }
+            isDisabled={member.status === 'pending' && isPending}
+          />
+        ))
+      ) : (
+        <Avatar
+          showFallback
+          fallback={
+            <Icon className="w-6 h-6 text-default-500" icon="lucide:user-x" />
+          }
+          size="sm"
+          aria-label="None found"
+        />
+      )}
     </AvatarGroup>
   )
 }

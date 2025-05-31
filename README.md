@@ -39,7 +39,7 @@ Northstar ideas: The app can also generate new content based on the campaign and
   - [x] Figure out how to add text embeddings to transcription chunks
   - [x] Maybe process audio files into transcriptions, summaries, and embeddings after audio is uploaded
     - [x] Maybe trigger with interaction, chron job, or webhook, whatever is best to reduce GenAI costs
-  - [ ] Set up invite system for users to join campaigns
+  - [x] Set up invite system for users to join campaigns
 
 ## Refinement list
 

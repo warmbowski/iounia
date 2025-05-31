@@ -7,6 +7,7 @@ import {
 } from '../_generated/server'
 import { v } from 'convex/values'
 import { r2 } from './cloudflareR2'
+import { getTokenIdentifierParts } from '../utililties'
 
 export const createRecording = mutation({
   args: {
@@ -19,6 +20,7 @@ export const createRecording = mutation({
   handler: async ({ db, auth, scheduler }, args) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const fileUrl = await r2.getUrl(args.storageId)
 
@@ -30,7 +32,7 @@ export const createRecording = mutation({
       fileName: args.fileName,
       fileType: args.fileType,
       durationSec: args.durationSec,
-      uploadedBy: user.tokenIdentifier,
+      uploadedBy: userId,
     })
 
     await scheduler.runAfter(
@@ -64,11 +66,12 @@ export const deleteRecording = mutation({
   handler: async ({ db, auth }, { recordingId }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')
 
-    if (recording.uploadedBy !== user.tokenIdentifier)
+    if (recording.uploadedBy !== userId)
       throw new Error('User not authorized to delete this recording')
 
     await db.delete(recordingId)
@@ -102,11 +105,12 @@ export const updateRecording = mutation({
   handler: async ({ db, auth }, { recordingId, updates }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
 
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')
 
-    if (recording.uploadedBy !== user.tokenIdentifier)
+    if (recording.uploadedBy !== userId)
       throw new Error('User not authorized to update this recording')
 
     return await db.patch(recordingId, {

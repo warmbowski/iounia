@@ -18,6 +18,7 @@ import appCss from '../styles.css?url'
 import { convexQueryClient } from '@/router'
 import { ToastProvider } from '@heroui/react'
 import { authStateFn } from '@/integrations/clerk/auth'
+import { BaseLayout } from '@/components/layouts'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -60,7 +61,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context }) => {
     const { user, token } = await authStateFn()
     if (token) {
-      console.log('Setting auth token for Convex:', !!token)
       context.convexQueryClient.serverHttpClient?.setAuth(token)
     }
     return { user }
@@ -75,7 +75,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         >
           <HeroUIProviderWithNav>
             <ToastProvider />
-            <Outlet />
+            <BaseLayout>
+              <Outlet />
+            </BaseLayout>
             <ReactQueryDevtools buttonPosition="bottom-right" />
             {/* <TanStackRouterDevtools /> */}
           </HeroUIProviderWithNav>

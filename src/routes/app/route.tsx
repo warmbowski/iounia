@@ -1,4 +1,3 @@
-import { BaseLayout } from '@/components/layouts'
 import { APP_TITLE } from '@/constants'
 import { convexAction, convexQuery } from '@convex-dev/react-query'
 import {
@@ -46,9 +45,5 @@ export const Route = createFileRoute('/app')({
 })
 
 function RouteComponent() {
-  return (
-    <BaseLayout>
-      <Outlet />
-    </BaseLayout>
-  )
+  return <Outlet />
 }

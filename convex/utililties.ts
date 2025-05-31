@@ -64,3 +64,19 @@ export function generateSecureAlphanumericCode(length = 8) {
 
   return result
 }
+
+export const getTokenIdentifierParts = (tokenIdentifier: string) => {
+  if (tokenIdentifier.includes('|')) {
+    // clerk id format: prefix|id
+    // e.g. '{clerkUrl}|1234567890abcdef12345678'
+    const [prefix, id] = tokenIdentifier.split('|') as [string, string]
+    return {
+      prefix,
+      id,
+    }
+  }
+  return {
+    prefix: '',
+    id: tokenIdentifier,
+  }
+}
