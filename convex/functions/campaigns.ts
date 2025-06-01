@@ -52,7 +52,6 @@ export const updateCampaign = mutation({
       joinCode: v.optional(v.boolean()),
     }),
   },
-
   handler: async ({ db, auth }, { campaignId, updates }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
@@ -96,7 +95,7 @@ export const readCampaignWithMembers = query({
 
     return {
       ...campaign,
-      members: campaignMembers,
+      members: [...campaignMembers],
     }
   },
 })

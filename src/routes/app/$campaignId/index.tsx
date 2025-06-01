@@ -92,7 +92,7 @@ function RouteComponent() {
             <MemberGroup
               className="mt-2"
               members={campaign.members}
-              statusFilter="active"
+              filter={(member) => member.status === 'active'}
               max={10}
               isGrid
             />
@@ -111,7 +111,7 @@ function RouteComponent() {
                 <MemberGroup
                   className="mt-2"
                   members={campaign.members}
-                  statusFilter="pending"
+                  filter={(member) => member.status !== 'active'}
                   max={10}
                   isGrid
                 />

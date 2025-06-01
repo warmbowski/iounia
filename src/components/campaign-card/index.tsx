@@ -13,15 +13,10 @@ interface CampaignCardProps {
 }
 
 export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
-  const { data: allMemberUsers } = useSuspenseQuery(
-    convexAction(
-      api.functions.members.listAllAssociatedMembersWithUserData,
-      {},
-    ),
+  const { data: userMap } = useSuspenseQuery(
+    convexAction(api.functions.users.getAllAssociatedUsersDataMap, {}),
   )
-  const ownerUser = allMemberUsers?.find((user) =>
-    campaign.ownerId.includes(user.userId),
-  )
+  const ownerUser = userMap[campaign.ownerId]
 
   return (
     <Card
@@ -67,7 +62,12 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
             Started {formatDate(campaign._creationTime)}
           </span>
         </div>
-        <MemberGroup members={campaign.members} statusFilter="active" max={3} />
+        <MemberGroup
+          members={campaign.members}
+          filter={(member) => member.status === 'active'}
+          max={3}
+          disableTooltips
+        />
       </CardFooter>
     </Card>
   )

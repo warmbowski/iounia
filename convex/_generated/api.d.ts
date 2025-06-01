@@ -19,6 +19,7 @@ import type * as functions_sessions from "../functions/sessions.js";
 import type * as functions_storage from "../functions/storage.js";
 import type * as functions_streaming from "../functions/streaming.js";
 import type * as functions_transcripts from "../functions/transcripts.js";
+import type * as functions_users from "../functions/users.js";
 import type * as http from "../http.js";
 import type * as httpHandlers_chatStream from "../httpHandlers/chatStream.js";
 import type * as migrations from "../migrations.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   "functions/storage": typeof functions_storage;
   "functions/streaming": typeof functions_streaming;
   "functions/transcripts": typeof functions_transcripts;
+  "functions/users": typeof functions_users;
   http: typeof http;
   "httpHandlers/chatStream": typeof httpHandlers_chatStream;
   migrations: typeof migrations;

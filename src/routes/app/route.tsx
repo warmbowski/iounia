@@ -19,10 +19,7 @@ export const Route = createFileRoute('/app')({
       convexQuery(api.functions.campaigns.listCampaignsWithMembers, {}),
     )
     await context.queryClient.prefetchQuery(
-      convexAction(
-        api.functions.members.listAllAssociatedMembersWithUserData,
-        {},
-      ),
+      convexAction(api.functions.users.getAllAssociatedUsersDataMap, {}),
     )
     return {
       crumb: {

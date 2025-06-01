@@ -57,6 +57,36 @@ export const createMembershipRequest = mutation({
   },
 })
 
+export const readMembershipsByCampaignId = query({
+  args: {
+    campaignId: v.id('campaigns'),
+  },
+  handler: async ({ db, auth }, { campaignId }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+
+    const campaign = await db.get(campaignId)
+    if (!campaign) {
+      throw new Error('Campaign not found')
+    }
+
+    const membershipList = await db
+      .query('members')
+      .withIndex('by_campaign', (q) => q.eq('campaignId', campaignId))
+      .collect()
+
+    const userMembership = membershipList.find(
+      (member) => member.userId === userId,
+    )
+    if (!userMembership) {
+      throw new Error('User is not a member of this campaign')
+    }
+
+    return membershipList
+  },
+})
+
 export const updateMembershipById = mutation({
   args: {
     memberId: v.id('members'),
@@ -158,68 +188,5 @@ export const removeMembershipById = mutation({
     }
 
     return await db.delete(memberId)
-  },
-})
-
-interface MemberUser {
-  memberId: Doc<'members'>['_id']
-  userId: User['id']
-  campaignId: Doc<'members'>['campaignId']
-  emailAddress?: EmailAddress['emailAddress']
-  fullName?: User['fullName']
-  imageUrl?: User['imageUrl']
-  role?: Doc<'members'>['role']
-  status?: Doc<'members'>['status']
-  joined?: Doc<'members'>['_creationTime']
-}
-
-export const listAllAssociatedMembersWithUserData = action({
-  handler: async ({ runQuery, auth }): Promise<MemberUser[]> => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-
-    const campaigns = await runQuery(
-      api.functions.campaigns.listCampaignsWithMembers,
-    )
-
-    const flatMembers = campaigns.flatMap((campaign) =>
-      campaign.members.map((member) => member),
-    )
-    if (flatMembers.length === 0) {
-      return []
-    }
-
-    const clerkClient = createClerkClient({
-      secretKey: process.env.CLERK_SECRET_KEY,
-    })
-
-    const userIds = flatMembers.map((member) => {
-      if (member.userId.includes('|')) {
-        return member.userId.split('|')[1]
-      }
-      return member.userId
-    })
-    if (!userIds || userIds.length === 0) {
-      return []
-    }
-
-    const userList = await clerkClient.users.getUserList({
-      userId: userIds,
-    })
-
-    const userIdMap = new Map(userList.data.map((user) => [user.id, user]))
-
-    return flatMembers.map((member, index) => ({
-      memberId: member._id,
-      userId: member.userId,
-      campaignId: member.campaignId,
-      emailAddress: userIdMap.get(member.userId)?.primaryEmailAddress
-        ?.emailAddress,
-      fullName: userIdMap.get(member.userId)?.fullName || undefined,
-      imageUrl: userIdMap.get(member.userId)?.imageUrl,
-      role: member?.role,
-      status: member?.status,
-      joined: member?._creationTime,
-    }))
   },
 })

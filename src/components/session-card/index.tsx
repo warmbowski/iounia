@@ -3,7 +3,7 @@ import { Card, CardBody, CardFooter } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useQuery } from '@tanstack/react-query'
 import type { Doc, Id } from 'convex/_generated/dataModel'
-import { MemberGroup } from '../member-group'
+import { AttendeeGroup } from '../attendee-group'
 
 interface SessionCardProps {
   session: Doc<'sessions'> & {
@@ -44,7 +44,7 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
           <Icon icon="lucide:calendar" />
           <span className="text-sm ">{formatDate(session.date)}</span>
         </div>
-        <MemberGroup members={attendees} max={3} />
+        <AttendeeGroup attendees={attendees} max={3} disableTooltips />
       </CardFooter>
     </Card>
   )

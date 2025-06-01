@@ -1,55 +1,71 @@
 import { convexAction, useConvexMutation } from '@convex-dev/react-query'
-import { Avatar, AvatarGroup, type AvatarGroupProps } from '@heroui/react'
+import {
+  Avatar,
+  AvatarGroup,
+  Tooltip,
+  type AvatarGroupProps,
+} from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import type { Doc } from 'convex/_generated/dataModel'
 
+const STATUS_COLOR_MAP = {
+  pending: 'warning',
+  active: 'success',
+  inactive: 'default',
+  banned: 'danger',
+  default: 'default',
+} as const
+
+// const STATUS_MESSAGE_MAP = {
+//   pending: 'Waiting for approval',
+//   active: "I'm a player!",
+//   inactive: 'Not playing right now',
+//   banned: 'Go away!',
+//   default: 'Unknown status',
+// } as const
+
+const ROLE_MESSAGE_MAP = {
+  admin: 'Campaign Admin',
+  member: 'Campaign Member',
+  default: 'Campaign Viewer',
+} as const
+
 interface MemberGroupProps extends AvatarGroupProps {
-  members: Doc<'members'>[] | Doc<'attendees'>[]
-  roleFilter?: 'owner' | 'member' | 'guest'
-  statusFilter?: 'active' | 'inactive' | 'pending'
+  members: Doc<'members'>[]
+  disableTooltips?: boolean
+  filter?: (member: Doc<'members'>) => boolean
 }
 
 export function MemberGroup({
   members,
-  roleFilter,
-  statusFilter,
+  disableTooltips = false,
+  filter,
   ...avatarGroupProps
 }: MemberGroupProps) {
-  const { data: allMemberUsers } = useSuspenseQuery(
-    convexAction(
-      api.functions.members.listAllAssociatedMembersWithUserData,
-      {},
-    ),
+  const { data: userMap } = useSuspenseQuery(
+    convexAction(api.functions.users.getAllAssociatedUsersDataMap, {}),
   )
-  const { mutateAsync: approveMembership, isPending } = useMutation({
+  const { mutateAsync: updateMember, isPending } = useMutation({
     mutationFn: useConvexMutation(api.functions.members.updateMembershipById),
   })
 
-  const memberUsers = members
-    .map((member) => {
-      return allMemberUsers.find((user) => user.userId === member.userId)!
-    })
-    .filter(Boolean)
+  const filteredMembers = filter ? members.filter(filter) : members
 
-  const filteredUserMembers = memberUsers.filter((member) => {
-    let allowed = true
-    if (roleFilter && member.role !== roleFilter) allowed = false
-    if (statusFilter && member.status !== statusFilter) allowed = false
-    return allowed
+  const memberUsers = filteredMembers.map((member) => {
+    return { ...userMap[member.userId], ...member }
   })
 
-  const handleAddPendingMember = (member: (typeof allMemberUsers)[number]) => {
-    if (member.status === 'pending') {
-      approveMembership({
-        memberId: member.memberId,
-        campaignId: member.campaignId,
-        updates: {
-          status: 'active',
-        },
-      })
-    }
+  const handleUpdateMember = (member: (typeof memberUsers)[number]) => {
+    if (member.status === 'banned') return
+    updateMember({
+      memberId: member._id,
+      campaignId: member.campaignId,
+      updates: {
+        status: member.status === 'active' ? 'inactive' : 'active',
+      },
+    })
   }
 
   return (
@@ -60,35 +76,57 @@ export function MemberGroup({
       color="secondary"
       radius="sm"
     >
-      {filteredUserMembers.length > 0 ? (
-        filteredUserMembers.map((member) => (
-          <Avatar
-            className={
-              member.status === 'pending' ? 'hover:cursor:pointer' : ''
+      {memberUsers.length > 0 ? (
+        memberUsers.map((mu) => (
+          <Tooltip
+            key={mu.userId}
+            color={STATUS_COLOR_MAP[mu.status || 'default']}
+            content={
+              <div className="flex flex-col align-center justify-center">
+                <span>{mu.fullName}</span>
+                <span className="text-xs text-muted">
+                  {ROLE_MESSAGE_MAP[mu.role || 'default']}
+                </span>
+              </div>
             }
-            color={member.status === 'pending' ? 'warning' : 'secondary'}
-            key={member.userId}
-            src={member.imageUrl}
-            name={member.fullName || ''}
-            size="sm"
-            onDoubleClick={() => handleAddPendingMember(member)}
-            aria-label={
-              member.status === 'pending'
-                ? `Double click to allow ${member.fullName} to join the campaign`
-                : undefined
-            }
-            isDisabled={member.status === 'pending' && isPending}
-          />
+            isDisabled={disableTooltips}
+            delay={500}
+            closeDelay={1000}
+          >
+            <Avatar
+              className={mu.status === 'pending' ? 'hover:cursor:pointer' : ''}
+              color={STATUS_COLOR_MAP[mu.status || 'default']}
+              src={mu.imageUrl}
+              name={mu.fullName || ''}
+              size="sm"
+              onDoubleClick={() => {
+                handleUpdateMember(mu)
+              }}
+              aria-label={
+                mu.status === 'pending'
+                  ? `Double click to allow ${mu.fullName} to join the campaign`
+                  : undefined
+              }
+              isDisabled={mu.status === 'pending' && isPending}
+            />
+          </Tooltip>
         ))
       ) : (
-        <Avatar
-          showFallback
-          fallback={
-            <Icon className="w-6 h-6 text-default-500" icon="lucide:user-x" />
-          }
-          size="sm"
-          aria-label="None found"
-        />
+        <Tooltip
+          content="No members"
+          isDisabled={disableTooltips}
+          delay={500}
+          closeDelay={1000}
+        >
+          <Avatar
+            showFallback
+            fallback={
+              <Icon className="w-6 h-6 text-default-500" icon="lucide:user-x" />
+            }
+            size="sm"
+            aria-label="None found"
+          />
+        </Tooltip>
       )}
     </AvatarGroup>
   )
