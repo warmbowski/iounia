@@ -26,14 +26,14 @@ export function CreateEditCampaignForm({
   const [description, setDescription] = useState(campaign?.description || '')
   const [tagInput, setTagInput] = useState('')
   const [tags, setTags] = useState<string[]>(campaign?.tags || [])
-  const createCampaign = useMutation({
+  const { mutateAsync: createCampaign } = useMutation({
     mutationFn: useConvexMutation(api.functions.campaigns.createCampaign),
   })
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     const isoDate = date ? date.toDate(getLocalTimeZone()).toISOString() : ''
-    await createCampaign.mutate({ name, description, tags, startDate: isoDate })
+    await createCampaign({ name, description, tags, startDate: isoDate })
     setName('')
     setDate(null)
     setDescription('')

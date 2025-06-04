@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@config "../tailwind.config.js";
+@import 'tailwindcss'; /*source('../');*/
+@config '../tailwind.config.js';
 
 /*
   Temp fix for focus ring problem:
