@@ -21,7 +21,7 @@ export const Route = createFileRoute('/app/')({
 
 function Campaigns() {
   const { data: campaigns } = useSuspenseQuery(
-    convexQuery(api.functions.campaigns.listCampaignsWithMembers, {}),
+    convexQuery(api.functions.campaigns.listCampaignsWithMembersByUser, {}),
   )
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const navigate = useNavigate()

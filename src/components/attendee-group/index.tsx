@@ -30,7 +30,7 @@ export function AttendeeGroup({
   ...avatarGroupProps
 }: AttendeeGroupProps) {
   const { data: userMap } = useSuspenseQuery(
-    convexAction(api.functions.users.getAllAssociatedUsersDataMap, {}),
+    convexAction(api.functions.users.getMapOfUsersAssociatedWithUser, {}),
   )
 
   const filteredAttendees = filter ? attendees.filter(filter) : attendees

@@ -14,7 +14,7 @@ interface CampaignCardProps {
 
 export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
   const { data: userMap } = useSuspenseQuery(
-    convexAction(api.functions.users.getAllAssociatedUsersDataMap, {}),
+    convexAction(api.functions.users.getMapOfUsersAssociatedWithUser, {}),
   )
   const ownerUser = userMap[campaign.ownerId]
 

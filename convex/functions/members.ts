@@ -190,3 +190,30 @@ export const removeMembershipById = mutation({
     return await db.delete(memberId)
   },
 })
+
+export const listMembersAssociatedWithUser = query({
+  handler: async ({ db, auth }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) throw new Error('User not authenticated')
+    const { id: userId } = getTokenIdentifierParts(user.tokenIdentifier)
+
+    const myMemberships = await db
+      .query('members')
+      .withIndex('by_campaign_member', (q) => q.eq('userId', userId))
+      .collect()
+
+    const userLists = await Promise.all(
+      myMemberships
+        .filter((me) => me.status === 'active')
+        .map(async (me) => {
+          const campaignMembers = await db
+            .query('members')
+            .withIndex('by_campaign', (q) => q.eq('campaignId', me.campaignId))
+            .collect()
+
+          return campaignMembers
+        }),
+    )
+    return userLists.flat().map((member) => member)
+  },
+})

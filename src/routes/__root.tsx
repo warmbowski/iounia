@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { ConvexQueryClient } from '@convex-dev/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { HeroUIProviderWithNav } from '@/integrations/heroui/provider-with-nav'
@@ -17,12 +17,14 @@ import { ConvexProviderWithClerk } from 'convex/react-clerk'
 import appCss from '../styles.css?url'
 import { convexQueryClient } from '@/router'
 import { ToastProvider } from '@heroui/react'
-import { authStateFn } from '@/integrations/clerk/auth'
 import { BaseLayout } from '@/components/layouts'
 
 interface RouterContext {
   queryClient: QueryClient
   convexQueryClient: ConvexQueryClient
+  auth: {
+    token: string | null
+  }
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -58,34 +60,34 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
 
-  beforeLoad: async ({ context }) => {
-    const { user, token } = await authStateFn()
-    if (token) {
-      context.convexQueryClient.serverHttpClient?.setAuth(token)
-    }
-    return { user }
+  component: () => {
+    return (
+      <ClerkProvider>
+        <RootDocument>
+          <ConvexProviderWithClerk
+            client={convexQueryClient.convexClient}
+            useAuth={useAuth}
+          >
+            <BaseApp />
+          </ConvexProviderWithClerk>
+        </RootDocument>
+      </ClerkProvider>
+    )
   },
-
-  component: () => (
-    <ClerkProvider>
-      <RootDocument>
-        <ConvexProviderWithClerk
-          client={convexQueryClient.convexClient}
-          useAuth={useAuth}
-        >
-          <HeroUIProviderWithNav>
-            <ToastProvider />
-            <BaseLayout>
-              <Outlet />
-            </BaseLayout>
-            <ReactQueryDevtools buttonPosition="bottom-right" />
-            {/* <TanStackRouterDevtools /> */}
-          </HeroUIProviderWithNav>
-        </ConvexProviderWithClerk>
-      </RootDocument>
-    </ClerkProvider>
-  ),
 })
+
+function BaseApp() {
+  return (
+    <HeroUIProviderWithNav>
+      <BaseLayout>
+        <Outlet />
+      </BaseLayout>
+      {/* <ReactQueryDevtools buttonPosition="bottom-right" /> */}
+      {/* <TanStackRouterDevtools /> */}
+      {typeof window !== 'undefined' && <ToastProvider />}
+    </HeroUIProviderWithNav>
+  )
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (

@@ -6,7 +6,17 @@ const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
 })
 
-export const getAllAssociatedUsersDataMap = action({
+const checkUserAuthentication = action({
+  handler: async ({ auth }) => {
+    const user = await auth.getUserIdentity()
+    if (!user) {
+      return null
+    }
+    return user
+  },
+})
+
+export const getMapOfUsersAssociatedWithUser = action({
   handler: async ({
     runQuery,
     auth,
@@ -18,17 +28,15 @@ export const getAllAssociatedUsersDataMap = action({
     }
   }> => {
     const user = await auth.getUserIdentity()
-    if (!user) return {}
+    if (!user) {
+      throw new Error('Unauthorized: User not authenticated')
+    }
 
-    const campaigns = await runQuery(
-      api.functions.campaigns.listCampaignsWithMembers,
+    const members = await runQuery(
+      api.functions.members.listMembersAssociatedWithUser,
     )
 
-    const flatMembers = campaigns.flatMap((campaign) =>
-      campaign.members.map((member) => member),
-    )
-
-    const userIds = flatMembers.map((member) => member.userId)
+    const userIds = members.map((member) => member.userId)
 
     const userList = await clerkClient.users.getUserList({
       userId: userIds,

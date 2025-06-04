@@ -10,16 +10,16 @@ import { api } from 'convex/_generated/api'
 
 export const Route = createFileRoute('/app')({
   beforeLoad: async ({ context }) => {
-    if (!context.user) {
+    if (!context.auth.token) {
       throw redirect({ to: '/', search: { forceSignIn: true } })
     }
   },
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
-      convexQuery(api.functions.campaigns.listCampaignsWithMembers, {}),
+      convexQuery(api.functions.campaigns.listCampaignsWithMembersByUser, {}),
     )
     await context.queryClient.prefetchQuery(
-      convexAction(api.functions.users.getAllAssociatedUsersDataMap, {}),
+      convexAction(api.functions.users.getMapOfUsersAssociatedWithUser, {}),
     )
     return {
       crumb: {

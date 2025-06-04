@@ -12,14 +12,20 @@ import { ConvexReactClient } from 'convex/react'
 import { ensureViteEnvironmentVariable } from '@/utils'
 import { DefaultCatchBoundary } from './components/default-catch-boundary'
 import { NotFound } from './components/not-found'
+import { getAuthTokenFn } from './integrations/clerk/auth'
 
 const CONVEX_URL = ensureViteEnvironmentVariable('VITE_CONVEX_URL')
-
 export const convexClient = new ConvexReactClient(CONVEX_URL)
 export const convexQueryClient = new ConvexQueryClient(convexClient)
+const token = await getAuthTokenFn()
+convexQueryClient.serverHttpClient?.setAuth(token || '')
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
+      // Do not trigger toasts when queryies are run on the server,
+      if (typeof window === 'undefined') return
+
       if (query.state.data !== undefined) {
         addToast({
           title: 'Error',
@@ -45,7 +51,11 @@ export const createRouter = () => {
   const router = routerWithQueryClient(
     createTanstackRouter({
       routeTree,
-      context: { queryClient, convexQueryClient: convexQueryClient },
+      context: {
+        queryClient,
+        convexQueryClient: convexQueryClient,
+        auth: { token },
+      },
       scrollRestoration: true,
       scrollToTopSelectors: ['#base-layout-scrollable-area'],
       defaultPreload: 'intent',

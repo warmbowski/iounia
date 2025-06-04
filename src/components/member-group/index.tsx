@@ -45,7 +45,7 @@ export function MemberGroup({
   ...avatarGroupProps
 }: MemberGroupProps) {
   const { data: userMap } = useSuspenseQuery(
-    convexAction(api.functions.users.getAllAssociatedUsersDataMap, {}),
+    convexAction(api.functions.users.getMapOfUsersAssociatedWithUser, {}),
   )
   const { mutateAsync: updateMember, isPending } = useMutation({
     mutationFn: useConvexMutation(api.functions.members.updateMembershipById),

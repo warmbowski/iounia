@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from 'convex/react'
+import { useConvexQuery, useConvexMutation } from '@convex-dev/react-query'
 import React, {
   useState,
   useRef,
@@ -18,7 +18,7 @@ interface ChatWindowProps {
 export default function ChatWindow({ campaignId }: ChatWindowProps) {
   const [drivenIds, setDrivenIds] = useState<Set<string>>(new Set())
   const [isStreaming, setIsStreaming] = useState(false)
-  const messages = useQuery(api.functions.messages.listMessages, {
+  const messages = useConvexQuery(api.functions.messages.listMessages, {
     campaignId,
   })
   const [inputValue, setInputValue] = useState('')
@@ -26,8 +26,10 @@ export default function ChatWindow({ campaignId }: ChatWindowProps) {
   const messageContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const sendMessage = useMutation(api.functions.messages.sendMessage)
-  const clearAllMessages = useMutation(api.functions.messages.clearMessages)
+  const sendMessage = useConvexMutation(api.functions.messages.sendMessage)
+  const clearAllMessages = useConvexMutation(
+    api.functions.messages.clearMessages,
+  )
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus()

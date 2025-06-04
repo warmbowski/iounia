@@ -100,7 +100,7 @@ export const readCampaignWithMembers = query({
   },
 })
 
-export const listCampaignsWithMembers = query({
+export const listCampaignsWithMembersByUser = query({
   handler: async ({ db, auth }) => {
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
