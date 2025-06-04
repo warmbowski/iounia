@@ -32,7 +32,9 @@ export default defineSchema({
     joinCode: v.string(), // Unique code for joining the campaign
     tags: v.optional(v.array(v.string())),
     ownerId: userId(),
-  }).index('by_join_code', ['joinCode']),
+  })
+    .index('by_join_code', ['joinCode'])
+    .index('by_owner', ['ownerId']),
 
   members: defineTable({
     campaignId: v.id('campaigns'),

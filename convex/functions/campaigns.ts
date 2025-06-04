@@ -4,6 +4,7 @@ import {
   getTokenIdentifierParts,
   generateSecureAlphanumericCode,
 } from '../utililties'
+import { MAX_CAMPAIGNS_PER_USER_COUNT } from '../constants'
 
 export const createCampaign = mutation({
   args: {
@@ -16,6 +17,17 @@ export const createCampaign = mutation({
     const user = await auth.getUserIdentity()
     if (!user) throw new Error('User not authenticated')
     const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+
+    const campaignsCount = await db
+      .query('campaigns')
+      .withIndex('by_owner', (q) => q.eq('ownerId', userId))
+      .collect()
+      .then((campaigns) => campaigns.length)
+    if (campaignsCount >= MAX_CAMPAIGNS_PER_USER_COUNT) {
+      throw new Error(
+        `User has reached the maximum number of campaigns (${MAX_CAMPAIGNS_PER_USER_COUNT})`,
+      )
+    }
 
     const campaignId = await db.insert('campaigns', {
       name,
