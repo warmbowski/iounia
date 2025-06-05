@@ -1,19 +1,10 @@
 import { createClerkClient } from '@clerk/backend'
 import { api } from '../_generated/api'
 import { action } from '../_generated/server'
+import { checkUserAuthentication } from '../helpers/auth'
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
-})
-
-const checkUserAuthentication = action({
-  handler: async ({ auth }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) {
-      return null
-    }
-    return user
-  },
 })
 
 export const getMapOfUsersAssociatedWithUser = action({
@@ -27,10 +18,7 @@ export const getMapOfUsersAssociatedWithUser = action({
       imageUrl: string
     }
   }> => {
-    const user = await auth.getUserIdentity()
-    if (!user) {
-      throw new Error('Unauthorized: User not authenticated')
-    }
+    await checkUserAuthentication(auth)
 
     const members = await runQuery(
       api.functions.members.listMembersAssociatedWithUser,

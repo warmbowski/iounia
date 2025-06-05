@@ -15,7 +15,8 @@ import {
   SYSTEM_PROMPT_SHORT_SUMMARIZATION,
   SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
 } from '../constants'
-import { ensureServerEnironmentVariable } from '../utililties'
+import { ensureServerEnironmentVariable } from '../helpers/utililties'
+import { checkUserAuthentication } from '../helpers/auth'
 
 const GEMINI_API_KEY = ensureServerEnironmentVariable('GEMINI_API_KEY')
 
@@ -47,8 +48,7 @@ export const generateSessionSummary = action({
     { runQuery, runMutation, auth },
     { sessionId, summaryPrompt },
   ) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     const transcriptParts = await runQuery(
       api.functions.transcripts.listTranscriptParts,
@@ -115,8 +115,7 @@ export const listTranscriptParts = query({
     sessionId: v.optional(v.id('sessions')),
   },
   handler: async ({ db, auth }, { recordingId, sessionId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     if (!recordingId && !sessionId) {
       throw new Error('Either recordingId or sessionId must be provided')
@@ -157,8 +156,7 @@ export const hasTranscript = query({
     recordingId: v.optional(v.id('recordings')),
   },
   handler: async ({ db, auth }, { sessionId, recordingId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     if (!recordingId && !sessionId) {
       throw new Error('Either recordingId or sessionId must be provided')
@@ -189,31 +187,12 @@ export const hasTranscript = query({
   },
 })
 
-// internal functions
-export const getTranscriptParts = internalQuery({
-  args: {
-    transcriptId: v.array(v.id('transcripts')),
-  },
-  handler: async ({ db }, { transcriptId }) => {
-    const transcripts = await Promise.all(
-      transcriptId.map(async (id) => {
-        const transcript = await db.get(id)
-        if (!transcript) throw new Error('Transcript not found')
-        return transcript
-      }),
-    )
-
-    return transcripts
-  },
-})
-
 export const deleteTranscriptPart = mutation({
   args: {
     transcriptId: v.id('transcripts'),
   },
   handler: async ({ db, auth }, { transcriptId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     const transcript = await db.get(transcriptId)
     if (!transcript) throw new Error('Transcript not found')
@@ -227,8 +206,7 @@ export const deleteAllTranscriptParts = mutation({
     recordingId: v.id('recordings'),
   },
   handler: async ({ db, auth }, { recordingId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')
@@ -246,6 +224,23 @@ export const deleteAllTranscriptParts = mutation({
 })
 
 /** internal functions */
+
+export const getTranscriptParts = internalQuery({
+  args: {
+    transcriptId: v.array(v.id('transcripts')),
+  },
+  handler: async ({ db }, { transcriptId }) => {
+    const transcripts = await Promise.all(
+      transcriptId.map(async (id) => {
+        const transcript = await db.get(id)
+        if (!transcript) throw new Error('Transcript not found')
+        return transcript
+      }),
+    )
+
+    return transcripts
+  },
+})
 
 export const generateTextEmbeddings = internalAction({
   args: {

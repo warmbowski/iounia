@@ -1,6 +1,6 @@
 import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
-import { getTokenIdentifierParts } from '../utililties'
+import { checkUserAuthentication } from '../helpers/auth'
 
 export const createSession = mutation({
   args: {
@@ -10,9 +10,7 @@ export const createSession = mutation({
     notes: v.optional(v.string()),
   },
   handler: async ({ db, auth }, { campaignId, name, date, notes }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
@@ -49,9 +47,7 @@ export const updateSession = mutation({
     }),
   },
   handler: async ({ db, auth }, { sessionId, updates }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const session = await db.get(sessionId)
     if (!session) throw new Error('Session not found')

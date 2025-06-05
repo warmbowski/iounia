@@ -8,9 +8,9 @@ import {
   WEBHOOK_URL,
 } from '../constants'
 import { r2 } from './cloudflareR2'
-import { ensureEnvironmentVariable } from '../utililties'
+import { ensureServerEnironmentVariable } from '../helpers/utililties'
 
-const ASSEMBLYAI_API_KEY = ensureEnvironmentVariable('ASSEMBLYAI_API_KEY')
+const ASSEMBLYAI_API_KEY = ensureServerEnironmentVariable('ASSEMBLYAI_API_KEY')
 const TRANSCRIPTION_URL = 'https://api.assemblyai.com/v2/transcript'
 const SPEECH_MODEL = 'slam-1'
 const KEYTERMS_BASE_PROMPT: Array<string> = [

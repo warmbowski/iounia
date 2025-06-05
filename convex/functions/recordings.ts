@@ -7,7 +7,7 @@ import {
 } from '../_generated/server'
 import { v } from 'convex/values'
 import { r2 } from './cloudflareR2'
-import { getTokenIdentifierParts } from '../utililties'
+import { checkUserAuthentication } from '../helpers/auth'
 
 export const createRecording = mutation({
   args: {
@@ -18,9 +18,7 @@ export const createRecording = mutation({
     durationSec: v.number(),
   },
   handler: async ({ db, auth, scheduler }, args) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const fileUrl = await r2.getUrl(args.storageId)
 
@@ -64,9 +62,7 @@ export const readRecording = query({
 export const deleteRecording = mutation({
   args: { recordingId: v.id('recordings') },
   handler: async ({ db, auth }, { recordingId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')
@@ -103,9 +99,7 @@ export const updateRecording = mutation({
     }),
   },
   handler: async ({ db, auth }, { recordingId, updates }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const recording = await db.get(recordingId)
     if (!recording) throw new Error('Recording not found')

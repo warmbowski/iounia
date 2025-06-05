@@ -1,4 +1,4 @@
-import { ensureServerEnironmentVariable } from './utililties'
+import { ensureServerEnironmentVariable } from './helpers/utililties'
 
 export const MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT = 10
 export const MAX_CAMPAIGNS_PER_USER_COUNT = 3

@@ -1,10 +1,8 @@
 import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
-import {
-  getTokenIdentifierParts,
-  generateSecureAlphanumericCode,
-} from '../utililties'
+import { generateSecureAlphanumericCode } from '../helpers/utililties'
 import { MAX_CAMPAIGNS_PER_USER_COUNT } from '../constants'
+import { checkUserAuthentication } from '../helpers/auth'
 
 export const createCampaign = mutation({
   args: {
@@ -14,9 +12,7 @@ export const createCampaign = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async ({ db, auth }, { name, startDate, tags, description }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const campaignsCount = await db
       .query('campaigns')
@@ -65,9 +61,7 @@ export const updateCampaign = mutation({
     }),
   },
   handler: async ({ db, auth }, { campaignId, updates }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
@@ -89,9 +83,7 @@ export const readCampaignWithMembers = query({
     campaignId: v.id('campaigns'),
   },
   handler: async ({ db, auth }, { campaignId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
     if (!campaign) throw new Error('Campaign not found')
@@ -114,9 +106,7 @@ export const readCampaignWithMembers = query({
 
 export const listCampaignsWithMembersByUser = query({
   handler: async ({ db, auth }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const myMemberships = await db
       .query('members')

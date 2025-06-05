@@ -1,20 +1,15 @@
 import { v } from 'convex/values'
-import { action, mutation, query } from '../_generated/server'
+import { mutation, query } from '../_generated/server'
 import { memberRole, memberStatus } from '../schema'
 import { MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT } from '../constants'
-import { Doc } from '../_generated/dataModel'
-import { createClerkClient, type EmailAddress, type User } from '@clerk/backend'
-import { api } from '../_generated/api'
-import { getTokenIdentifierParts } from '../utililties'
+import { checkUserAuthentication } from '../helpers/auth'
 
 export const createMembershipRequest = mutation({
   args: {
     joinCode: v.string(),
   },
   handler: async ({ db, auth }, { joinCode }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     if (!joinCode || joinCode.trim() === '') {
       throw new Error('Join code is required')
@@ -36,6 +31,16 @@ export const createMembershipRequest = mutation({
     const existingMember = membershipList.find(
       (member) => member.userId === userId,
     )
+
+    if (!existingMember) {
+      return await db.insert('members', {
+        campaignId: campaign._id,
+        userId: userId,
+        role: 'member',
+        status: 'pending',
+      })
+    }
+
     if (existingMember?.status === 'active') {
       throw new Error('User is already a member of this campaign')
     } else if (existingMember?.status === 'pending') {
@@ -48,12 +53,7 @@ export const createMembershipRequest = mutation({
       return await db.patch(existingMember._id, { status: 'pending' })
     }
 
-    return await db.insert('members', {
-      campaignId: campaign._id,
-      userId: userId,
-      role: 'member',
-      status: 'pending',
-    })
+    throw new Error('Unexpected membership status')
   },
 })
 
@@ -62,9 +62,7 @@ export const readMembershipsByCampaignId = query({
     campaignId: v.id('campaigns'),
   },
   handler: async ({ db, auth }, { campaignId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
@@ -91,19 +89,17 @@ export const updateMembershipById = mutation({
   args: {
     memberId: v.id('members'),
     campaignId: v.id('campaigns'),
-    updates: v.object({
-      role: v.optional(memberRole()),
-      status: v.optional(memberStatus()),
-    }),
+    updates: v.union(
+      v.object({
+        role: v.optional(memberRole()),
+      }),
+      v.object({
+        status: v.optional(memberStatus()),
+      }),
+    ),
   },
   handler: async ({ db, auth }, { campaignId, memberId, updates }) => {
-    const { role, status } = updates
-    if (!role && !status) {
-      throw new Error('An updatable field must be provided')
-    }
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
@@ -153,9 +149,7 @@ export const removeMembershipById = mutation({
     campaignId: v.id('campaigns'),
   },
   handler: async ({ db, auth }, { campaignId, memberId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const userId = getTokenIdentifierParts(user.tokenIdentifier).id
+    const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
@@ -193,9 +187,7 @@ export const removeMembershipById = mutation({
 
 export const listMembersAssociatedWithUser = query({
   handler: async ({ db, auth }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
-    const { id: userId } = getTokenIdentifierParts(user.tokenIdentifier)
+    const userId = await checkUserAuthentication(auth)
 
     const myMemberships = await db
       .query('members')
