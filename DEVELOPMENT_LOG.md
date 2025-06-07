@@ -35,6 +35,10 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 ## Data Management
 
+- ✅ Originally set up Firebase for data and file management
+  - ✅ Migrated to Convex for for better DX with schema, typing, and transactional functions
+  - ✅ Also because Firebase's security rules were complex, and a huge risk of making a mistake and getting unpredictable bill.
+  - ✅ Convex's server side approach seemed much more secure compared to Firebase's client side approach
 - ✅ Set up Convex schema for data tables
   - ✅ Created tables for campaigns, sessions, recordings, and transcriptions
   - ✅ Implemented Convex functions for CRUD operations on all tables
@@ -45,7 +49,7 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 ## File Storage
 
 - ✅ Initially investigated Convex file storage for audio files
-- ✅ Migrated from Convex to Cloudflare R2 for file storage due to bandwidth limitations
+- ✅ Migrated from Convex to Cloudflare R2 for file storage due to serving audio files leading to big egress bandwidth (free on R2)
   - ⬜ Stream audio from R2 using Range requests (in progress)
 
 ## AI Integration
