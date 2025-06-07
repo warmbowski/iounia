@@ -1,6 +1,6 @@
 import { defineConfig } from '@tanstack/react-start/config'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
-import tailwindcss from '@tailwindcss/vite'
+// import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
   tsr: {
@@ -12,7 +12,10 @@ const config = defineConfig({
       viteTsConfigPaths({
         projects: ['./tsconfig.json'],
       }),
-      tailwindcss(),
+      // BUG: removed tailwindcss vite plugin to avoid hydration mismatch errors
+      // TODO: remove code and uninstall plugin package if this fixes the hydration mismatch errors
+      // NOTE: postcss config is still used for tailwindcss
+      // tailwindcss(),
     ],
   },
 })
