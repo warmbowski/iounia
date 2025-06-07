@@ -7,6 +7,7 @@ export const Route = createFileRoute('/')({
     if (search.forceSignIn) {
       return { forceSignIn: true }
     }
+    return {}
   },
   component: Home,
 })

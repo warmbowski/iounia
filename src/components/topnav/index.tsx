@@ -3,11 +3,10 @@ import { Button, Input, Navbar, NavbarContent, NavbarItem } from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { SignInOrSignUpLoginModal } from '../signin-or-signup-login-modal'
 import { ProfileButton } from '../profile-button'
-import { useAuth } from '@clerk/tanstack-react-start'
+import { useAuth, useUser } from '@clerk/tanstack-react-start'
 import { RouterLink } from '../router-link'
 import { APP_TITLE } from '@/constants'
-import { useRouteContext } from '@tanstack/react-router'
-import { parseJwtPayload } from '@/utils'
+import { useRouter } from '@tanstack/react-router'
 
 interface TopNavProps {
   forceSignIn?: boolean
@@ -15,9 +14,9 @@ interface TopNavProps {
 
 export function TopNav({ forceSignIn }: TopNavProps) {
   const [isSignUpOpen, setIsSignUpOpen] = useState(forceSignIn || false)
+  const router = useRouter()
+  const { user, isSignedIn, isLoaded } = useUser()
   const { signOut } = useAuth()
-  const { auth } = useRouteContext({ from: '/app' })
-  const payload = auth?.token ? parseJwtPayload(auth.token) : null
 
   return (
     <Navbar maxWidth="full" isBordered>
@@ -51,22 +50,26 @@ export function TopNav({ forceSignIn }: TopNavProps) {
 
       <NavbarContent className="flex-1" justify="end">
         <NavbarItem>
-          {payload ? (
+          {user && isSignedIn ? (
             <ProfileButton
               userInfo={{
-                fullName: `${payload.given_name} ${payload.family_name}`,
-                emailAddress: payload.email,
-                imageUrl: payload.picture || '',
+                fullName: user.fullName || '',
+                emailAddress: user.primaryEmailAddress?.emailAddress || '',
+                imageUrl: user.imageUrl || '',
               }}
-              onLogout={() => signOut()}
+              onLogout={() => {
+                signOut()
+                router.invalidate()
+              }}
             />
           ) : (
             <Button
               color="primary"
               variant="flat"
               onPress={() => setIsSignUpOpen(true)}
+              isLoading={!isLoaded}
             >
-              Login/Sign Up
+              {isLoaded ? 'Login/Sign Up' : 'Checking...'}
             </Button>
           )}
         </NavbarItem>

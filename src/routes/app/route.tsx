@@ -1,4 +1,5 @@
 import { APP_TITLE } from '@/constants'
+import { getAuthTokenFn } from '@/integrations/clerk/auth'
 import { convexAction, convexQuery } from '@convex-dev/react-query'
 import {
   createFileRoute,
@@ -10,7 +11,9 @@ import { api } from 'convex/_generated/api'
 
 export const Route = createFileRoute('/app')({
   beforeLoad: async ({ context }) => {
-    if (!context.auth.token) {
+    const token = await getAuthTokenFn()
+    context.auth = { token }
+    if (!token) {
       throw redirect({ to: '/', search: { forceSignIn: true } })
     }
   },
