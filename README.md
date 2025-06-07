@@ -4,74 +4,6 @@ An app that uses Generative AI to help TTRPG players and GMs manage their campai
 
 Northstar ideas: The app can also generate new content based on the campaign and session info, such as off session chat interactions with NPCs that can be recorded and reviewed by GM and committed to canon if approved. The app will integrate with micro-publishing to create book form stories across sessions to allow printing or publishing.
 
-## Setup list
-
-- [x] Create a new TanStack Start app (Tamstack Router, Tanstack Query)
-  - [x] Plan and set up basic static and dynamic routes
-- [x] Set up HeroUI as a component library (great accessibility)
-  - [x] Set up Tailwind CSS for styling, as required by HeroUI
-- [x] Add auth and user managment via Clerk
-- [x] Add Convex for data storage and management
-  - [x] Integrate Convex with Tanstack Query for caching
-  - [x] Integrate Convex and Clerk for auth in data storage
-
-## Feature list
-
-- [x] Set up basic static and dynamic routes
-  - [x] Home page - public landing page
-  - [x] Campaigns/campaign details
-  - [x] Sessions/session details
-  - [x] Recordings and transcriptions
-- [x] Sign in and sign up flow
-  - [x] Figure out custom form integration with Clerk
-  - [x] Don't use prebuilt Clerk components
-  - [ ] User profile page
-- [x] Secure routes that require auth
-- [x] Set up Convex schema for data tables
-  - [x] campaigns, sessions, recordings, transcriptions tables
-  - [x] Set up Convex functions for crud for all tables
-  - [x] Figure out Convex file storage for audio files
-  - [x] Figure out best practice for data loading and securing data enpoints
-- [x] Install Google GenAI SDK
-  - [x] Set up Google GenAI API key and auth
-  - [x] Set up Convex actions for calling GenAI apis
-  - [x] Integrate GenAI into app for recording transcription and save to Convex in chunks by diarization
-  - [x] Figure out how to add text embeddings to transcription chunks
-  - [x] Maybe process audio files into transcriptions, summaries, and embeddings after audio is uploaded
-    - [x] Maybe trigger with interaction, chron job, or webhook, whatever is best to reduce GenAI costs
-  - [x] Set up invite system for users to join campaigns
-
-## Refinement list
-
-- [x] Remove left nav
-- [x] add breadcrumbs
-  - [x] create breadcrumbs in Tanstack Router loaderData
-  - [x] Use useMatch to compile breadcrumbs
-  - [x] Use HeroUI to display breadcrumbs
-- [x] Use file storage service other than Convex.
-  - [x] Convex bandwidth limits are too low for loading audio files in UI
-  - [x] Use Cloudflare R2 for file storage
-    - [ ] Stream audio from R2 using Range requests
-- [ ] Remove clerk url from user ids, and use raw clerk user id in members and attendee tables
-- [x] Refactor all AI calls to use Vercel AI SDK.
-  - [x] Replace Gemini transcription with dedicated transcription model like Assembly AI
-    - [x] Problems with Gemini timestamps is the biggest obstacle
-- [ ] Figure out a better way to check if user is logged in, current implementation is adds latency to all route loads
-- [x] Refine vscode copilot to include lib specific custom instructions and best practices for:
-  - [x] Convex
-- [x] Add PoC caching mechanism for Convex query function data
-  - [x] Transcript data is large and doesn't change, so caching will reduce convex DB bandwidth costs
-  - [x] Use TanStack Query's PersistedQueryClient to cache transcripts in indexedDB
-
-## Links for future investigation
-
-- Backblaze Media Storage/Streaming: https://www.backblaze.com/blog/roll-camera-streaming-media-from-backblaze-b2/
-
-<br />
-<br />
-<br />
-<br />
-<br />
 <br />
 
 ---
@@ -84,7 +16,7 @@ To run this application:
 
 ```bash
 pnpm install
-pnpm start
+pnpm dev
 ```
 
 # Building For Production
