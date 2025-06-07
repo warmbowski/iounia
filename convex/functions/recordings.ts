@@ -8,6 +8,7 @@ import {
 import { v } from 'convex/values'
 import { r2 } from './cloudflareR2'
 import { checkUserAuthentication } from '../helpers/auth'
+import { NotFoundError, UnauthorizedError } from '../helpers/errors'
 
 export const createRecording = mutation({
   args: {
@@ -49,11 +50,10 @@ export const createRecording = mutation({
 export const readRecording = query({
   args: { recordingId: v.id('recordings') },
   handler: async ({ db, auth }, { recordingId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     const recording = await db.get(recordingId)
-    if (!recording) throw new Error('Recording not found')
+    if (!recording) throw new NotFoundError('Recording not found')
 
     return recording
   },
@@ -65,10 +65,12 @@ export const deleteRecording = mutation({
     const userId = await checkUserAuthentication(auth)
 
     const recording = await db.get(recordingId)
-    if (!recording) throw new Error('Recording not found')
+    if (!recording) throw new NotFoundError('Recording not found')
 
     if (recording.uploadedBy !== userId)
-      throw new Error('User not authorized to delete this recording')
+      throw new UnauthorizedError(
+        'User not authorized to delete this recording',
+      )
 
     await db.delete(recordingId)
   },
@@ -77,8 +79,7 @@ export const deleteRecording = mutation({
 export const listRecordings = query({
   args: { sessionId: v.id('sessions') },
   handler: async ({ db, auth }, { sessionId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     return await db
       .query('recordings')
@@ -102,10 +103,12 @@ export const updateRecording = mutation({
     const userId = await checkUserAuthentication(auth)
 
     const recording = await db.get(recordingId)
-    if (!recording) throw new Error('Recording not found')
+    if (!recording) throw new NotFoundError('Recording not found')
 
     if (recording.uploadedBy !== userId)
-      throw new Error('User not authorized to update this recording')
+      throw new UnauthorizedError(
+        'User not authorized to update this recording',
+      )
 
     return await db.patch(recordingId, {
       ...updates,
@@ -122,7 +125,7 @@ export const readRecordingByJobId = internalQuery({
       .withIndex('by_processing_job', (q) => q.eq('processingJobId', jobId))
       .first()
 
-    if (!recording) throw new Error('Recording not found')
+    if (!recording) throw new NotFoundError('Recording not found')
 
     return recording
   },
@@ -137,7 +140,7 @@ export const updateRecordingJobId = internalMutation({
   },
   handler: async ({ db }, { recordingId, updates }) => {
     const recording = await db.get(recordingId)
-    if (!recording) throw new Error('Recording not found')
+    if (!recording) throw new NotFoundError('Recording not found')
 
     return await db.patch(recordingId, {
       ...updates,

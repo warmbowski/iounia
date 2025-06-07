@@ -3,6 +3,7 @@ import { R2 } from '@convex-dev/r2'
 import { DataModel } from '../_generated/dataModel'
 import { query } from '../_generated/server'
 import { v } from 'convex/values'
+import { checkUserAuthentication } from '../helpers/auth'
 export const r2 = new R2(components.r2)
 
 export const {
@@ -64,8 +65,7 @@ export const {
 export const getUrl = query({
   args: { key: v.string() },
   handler: async ({ auth }, { key }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     const url = await r2.getUrl(key)
     return url

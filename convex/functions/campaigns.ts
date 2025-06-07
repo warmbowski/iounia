@@ -3,6 +3,11 @@ import { v } from 'convex/values'
 import { generateSecureAlphanumericCode } from '../helpers/utililties'
 import { MAX_CAMPAIGNS_PER_USER_COUNT } from '../constants'
 import { checkUserAuthentication } from '../helpers/auth'
+import {
+  InvalidError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../helpers/errors'
 
 export const createCampaign = mutation({
   args: {
@@ -20,7 +25,7 @@ export const createCampaign = mutation({
       .collect()
       .then((campaigns) => campaigns.length)
     if (campaignsCount >= MAX_CAMPAIGNS_PER_USER_COUNT) {
-      throw new Error(
+      throw new InvalidError(
         `User has reached the maximum number of campaigns (${MAX_CAMPAIGNS_PER_USER_COUNT})`,
       )
     }
@@ -64,9 +69,9 @@ export const updateCampaign = mutation({
     const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
-    if (!campaign) throw new Error('Campaign not found')
+    if (!campaign) throw new NotFoundError('Campaign not found')
     if (campaign.ownerId !== userId)
-      throw new Error('User not authorized to update this campaign')
+      throw new UnauthorizedError('User not authorized to update this campaign')
 
     const prefix = campaignId.toString().slice(0, 4)
     return await db.patch(campaignId, {
@@ -86,7 +91,7 @@ export const readCampaignWithMembers = query({
     const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
-    if (!campaign) throw new Error('Campaign not found')
+    if (!campaign) throw new NotFoundError('Campaign not found')
 
     const campaignMembers = await db
       .query('members')
@@ -94,7 +99,7 @@ export const readCampaignWithMembers = query({
       .collect()
 
     if (!campaignMembers.find((member) => member.userId === userId)) {
-      throw new Error('User is not a member of this campaign')
+      throw new UnauthorizedError('User is not a member of this campaign')
     }
 
     return {

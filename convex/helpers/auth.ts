@@ -1,6 +1,6 @@
-import { ConvexError } from 'convex/values'
 import { getTokenIdentifierParts } from './utililties'
 import { Auth } from 'convex/server'
+import { UnauthenticatedError } from './errors'
 
 /**
  * Helper function to check authenticate of a user and return their user ID
@@ -13,7 +13,7 @@ export async function checkUserAuthentication(auth: Auth) {
   const user = await auth.getUserIdentity()
 
   if (!user) {
-    throw new ConvexError('UNAUTHENTICATED: User not authenticated')
+    throw new UnauthenticatedError('User not authenticated')
   }
 
   // Use the existing utility function to get the user ID

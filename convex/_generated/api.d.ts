@@ -21,6 +21,7 @@ import type * as functions_streaming from "../functions/streaming.js";
 import type * as functions_transcripts from "../functions/transcripts.js";
 import type * as functions_users from "../functions/users.js";
 import type * as helpers_auth from "../helpers/auth.js";
+import type * as helpers_errors from "../helpers/errors.js";
 import type * as helpers_utililties from "../helpers/utililties.js";
 import type * as http from "../http.js";
 import type * as httpHandlers_chatStream from "../httpHandlers/chatStream.js";
@@ -54,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   "functions/transcripts": typeof functions_transcripts;
   "functions/users": typeof functions_users;
   "helpers/auth": typeof helpers_auth;
+  "helpers/errors": typeof helpers_errors;
   "helpers/utililties": typeof helpers_utililties;
   http: typeof http;
   "httpHandlers/chatStream": typeof httpHandlers_chatStream;

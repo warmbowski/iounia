@@ -1,6 +1,7 @@
 import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
 import { checkUserAuthentication } from '../helpers/auth'
+import { NotFoundError, UnauthorizedError } from '../helpers/errors'
 
 export const createSession = mutation({
   args: {
@@ -13,9 +14,9 @@ export const createSession = mutation({
     const userId = await checkUserAuthentication(auth)
 
     const campaign = await db.get(campaignId)
-    if (!campaign) throw new Error('Campaign not found')
+    if (!campaign) throw new NotFoundError('Campaign not found')
     if (campaign.ownerId !== userId)
-      throw new Error(
+      throw new UnauthorizedError(
         'User not authorized to create a session for this campaign',
       )
 
@@ -50,12 +51,12 @@ export const updateSession = mutation({
     const userId = await checkUserAuthentication(auth)
 
     const session = await db.get(sessionId)
-    if (!session) throw new Error('Session not found')
+    if (!session) throw new NotFoundError('Session not found')
 
     const campaign = await db.get(session.campaignId)
-    if (!campaign) throw new Error('Campaign not found')
+    if (!campaign) throw new NotFoundError('Campaign not found')
     if (campaign.ownerId !== userId)
-      throw new Error('User not authorized to update this session')
+      throw new UnauthorizedError('User not authorized to update this session')
 
     return await db.patch(sessionId, {
       ...updates,
@@ -68,11 +69,10 @@ export const readSession = query({
     sessionId: v.id('sessions'),
   },
   handler: async ({ db, auth }, { sessionId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     const session = await db.get(sessionId)
-    if (!session) throw new Error('Session not found')
+    if (!session) throw new NotFoundError('Session not found')
 
     const sessionAttendees = await db
       .query('attendees')
@@ -91,8 +91,7 @@ export const listSessions = query({
     campaignId: v.id('campaigns'),
   },
   handler: async ({ db, auth }, { campaignId }) => {
-    const user = await auth.getUserIdentity()
-    if (!user) throw new Error('User not authenticated')
+    await checkUserAuthentication(auth)
 
     const sessions = await db
       .query('sessions')

@@ -17,6 +17,7 @@ import {
 } from '../constants'
 import { ensureServerEnironmentVariable } from '../helpers/utililties'
 import { checkUserAuthentication } from '../helpers/auth'
+import { BadRequestError, NotFoundError } from '../helpers/errors'
 
 const GEMINI_API_KEY = ensureServerEnironmentVariable('GEMINI_API_KEY')
 
@@ -110,23 +111,27 @@ export const generateSessionSummary = action({
 })
 
 export const listTranscriptParts = query({
-  args: {
+  args: v.object({
     recordingId: v.optional(v.id('recordings')),
     sessionId: v.optional(v.id('sessions')),
-  },
+  }),
   handler: async ({ db, auth }, { recordingId, sessionId }) => {
     await checkUserAuthentication(auth)
 
     if (!recordingId && !sessionId) {
-      throw new Error('Either recordingId or sessionId must be provided')
+      throw new BadRequestError(
+        'Either recordingId or sessionId must be provided',
+      )
     }
     if (recordingId && sessionId) {
-      throw new Error('Only one of recordingId or sessionId can be provided')
+      throw new BadRequestError(
+        'Only one of recordingId or sessionId can be provided',
+      )
     }
 
     if (sessionId) {
       const session = await db.get(sessionId)
-      if (!session) throw new Error('Session not found')
+      if (!session) throw new NotFoundError('Session not found')
 
       return await db
         .query('transcripts')
@@ -137,7 +142,7 @@ export const listTranscriptParts = query({
 
     if (recordingId) {
       const recording = await db.get(recordingId)
-      if (!recording) throw new Error('Recording not found')
+      if (!recording) throw new NotFoundError('Recording not found')
 
       return await db
         .query('transcripts')
@@ -159,10 +164,14 @@ export const hasTranscript = query({
     await checkUserAuthentication(auth)
 
     if (!recordingId && !sessionId) {
-      throw new Error('Either recordingId or sessionId must be provided')
+      throw new BadRequestError(
+        'Either recordingId or sessionId must be provided',
+      )
     }
     if (recordingId && sessionId) {
-      throw new Error('Only one of recordingId or sessionId can be provided')
+      throw new BadRequestError(
+        'Only one of recordingId or sessionId can be provided',
+      )
     }
 
     if (sessionId) {
@@ -195,7 +204,7 @@ export const deleteTranscriptPart = mutation({
     await checkUserAuthentication(auth)
 
     const transcript = await db.get(transcriptId)
-    if (!transcript) throw new Error('Transcript not found')
+    if (!transcript) throw new NotFoundError('Transcript not found')
 
     return await db.delete(transcriptId)
   },
@@ -209,7 +218,7 @@ export const deleteAllTranscriptParts = mutation({
     await checkUserAuthentication(auth)
 
     const recording = await db.get(recordingId)
-    if (!recording) throw new Error('Recording not found')
+    if (!recording) throw new NotFoundError('Recording not found')
 
     return await db
       .query('transcripts')
@@ -233,7 +242,7 @@ export const getTranscriptParts = internalQuery({
     const transcripts = await Promise.all(
       transcriptId.map(async (id) => {
         const transcript = await db.get(id)
-        if (!transcript) throw new Error('Transcript not found')
+        if (!transcript) throw new NotFoundError('Transcript not found')
         return transcript
       }),
     )
@@ -324,14 +333,14 @@ export const createTranscriptPart = internalMutation({
     { recordingId, text, start, end, speaker, embeddings },
   ) => {
     const recording = await db.get(recordingId)
-    if (!recording) throw new Error('Recording not found')
+    if (!recording) throw new NotFoundError('Recording not found')
 
     const campaignId = await db
       .query('sessions')
       .withIndex('by_id', (q) => q.eq('_id', recording.sessionId))
       .first()
       .then((session) => session?.campaignId)
-    if (!campaignId) throw new Error('Campaign not found')
+    if (!campaignId) throw new NotFoundError('Campaign not found')
 
     return await db.insert('transcripts', {
       recordingId,
@@ -359,7 +368,7 @@ export const updateTranscriptPart = internalMutation({
   },
   handler: async ({ db }, { transcriptId, updates }) => {
     const transcript = await db.get(transcriptId)
-    if (!transcript) throw new Error('Transcript not found')
+    if (!transcript) throw new NotFoundError('Transcript not found')
 
     return await db.patch(transcriptId, {
       ...updates,

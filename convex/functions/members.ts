@@ -3,6 +3,12 @@ import { mutation, query } from '../_generated/server'
 import { memberRole, memberStatus } from '../schema'
 import { MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT } from '../constants'
 import { checkUserAuthentication } from '../helpers/auth'
+import {
+  BadRequestError,
+  InvalidError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../helpers/errors'
 
 export const createMembershipRequest = mutation({
   args: {
@@ -12,7 +18,7 @@ export const createMembershipRequest = mutation({
     const userId = await checkUserAuthentication(auth)
 
     if (!joinCode || joinCode.trim() === '') {
-      throw new Error('Join code is required')
+      throw new BadRequestError('Join code is required')
     }
 
     const campaign = await db
@@ -20,7 +26,7 @@ export const createMembershipRequest = mutation({
       .withIndex('by_join_code', (q) => q.eq('joinCode', joinCode))
       .first()
     if (!campaign) {
-      throw new Error('Campaign not found')
+      throw new NotFoundError('Campaign not found')
     }
 
     const membershipList = await db
@@ -42,18 +48,18 @@ export const createMembershipRequest = mutation({
     }
 
     if (existingMember?.status === 'active') {
-      throw new Error('User is already a member of this campaign')
+      throw new InvalidError('User is already a member of this campaign')
     } else if (existingMember?.status === 'pending') {
-      throw new Error('Membership request is already pending')
+      throw new InvalidError('Membership request is already pending')
     } else if (existingMember?.status === 'banned') {
       // Maybe make this fail silently so as to not leak information?
-      throw new Error('User is banned from this campaign')
+      throw new InvalidError('User is banned from this campaign')
     } else if (existingMember?.status === 'inactive') {
       // If the user has previously been declined, we can allow them to re-request
       return await db.patch(existingMember._id, { status: 'pending' })
     }
 
-    throw new Error('Unexpected membership status')
+    throw new InvalidError('Unexpected membership status')
   },
 })
 
@@ -66,7 +72,7 @@ export const readMembershipsByCampaignId = query({
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
-      throw new Error('Campaign not found')
+      throw new NotFoundError('Campaign not found')
     }
 
     const membershipList = await db
@@ -78,7 +84,7 @@ export const readMembershipsByCampaignId = query({
       (member) => member.userId === userId,
     )
     if (!userMembership) {
-      throw new Error('User is not a member of this campaign')
+      throw new UnauthorizedError('User is not a member of this campaign')
     }
 
     return membershipList
@@ -91,10 +97,10 @@ export const updateMembershipById = mutation({
     campaignId: v.id('campaigns'),
     updates: v.union(
       v.object({
-        role: v.optional(memberRole()),
+        role: memberRole(),
       }),
       v.object({
-        status: v.optional(memberStatus()),
+        status: memberStatus(),
       }),
     ),
   },
@@ -103,7 +109,7 @@ export const updateMembershipById = mutation({
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
-      throw new Error('Campaign not found')
+      throw new NotFoundError('Campaign not found')
     }
 
     const membershipList = await db
@@ -114,7 +120,7 @@ export const updateMembershipById = mutation({
       membershipList.filter((member) => member.status === 'active').length >=
       MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT
     ) {
-      throw new Error(
+      throw new InvalidError(
         `Maximum number of active members reached. Only ${MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT} active members allowed.`,
       )
     }
@@ -123,20 +129,22 @@ export const updateMembershipById = mutation({
       (member) => member._id === memberId,
     )
     if (!memberToUpdate) {
-      throw new Error('Member not found in the campaign')
+      throw new NotFoundError('Member not found in the campaign')
     }
 
     const memberRoleCanBeUpdated =
       memberToUpdate.userId === campaign.ownerId ? false : true
     if (!memberRoleCanBeUpdated) {
-      throw new Error('Invalid role update for this member')
+      throw new InvalidError('Invalid role update for this member')
     }
 
     const userCanMakeUpdate = membershipList.some(
       (member) => member.userId === userId && member.role === 'admin',
     )
     if (!userCanMakeUpdate) {
-      throw new Error('User does not have permission to update membership')
+      throw new UnauthorizedError(
+        'User does not have permission to update membership',
+      )
     }
 
     return await db.patch(memberId, { ...updates })
@@ -153,7 +161,7 @@ export const removeMembershipById = mutation({
 
     const campaign = await db.get(campaignId)
     if (!campaign) {
-      throw new Error('Campaign not found')
+      throw new NotFoundError('Campaign not found')
     }
 
     const membershipList = await db
@@ -165,20 +173,22 @@ export const removeMembershipById = mutation({
       (member) => member._id === memberId,
     )
     if (!memberToRemove) {
-      throw new Error('Member not found in the campaign')
+      throw new NotFoundError('Member not found in the campaign')
     }
 
     const memberCanBeRemoved =
       memberToRemove.userId === campaign.ownerId ? false : true
     if (!memberCanBeRemoved) {
-      throw new Error('Invalid member removal for this campaign')
+      throw new InvalidError('Invalid member removal for this campaign')
     }
 
     const userCanMakeUpdate = membershipList.some(
       (member) => member.userId === userId && member.role === 'admin',
     )
     if (!userCanMakeUpdate) {
-      throw new Error('User does not have permission to update membership')
+      throw new UnauthorizedError(
+        'User does not have permission to update membership',
+      )
     }
 
     return await db.delete(memberId)
