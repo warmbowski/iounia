@@ -3,9 +3,11 @@ import { Button, Input, Navbar, NavbarContent, NavbarItem } from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { SignInOrSignUpLoginModal } from '../signin-or-signup-login-modal'
 import { ProfileButton } from '../profile-button'
-import { useAuth, useUser } from '@clerk/tanstack-react-start'
+import { useAuth } from '@clerk/tanstack-react-start'
 import { RouterLink } from '../router-link'
 import { APP_TITLE } from '@/constants'
+import { useRouteContext } from '@tanstack/react-router'
+import { parseJwtPayload } from '@/utils'
 
 interface TopNavProps {
   forceSignIn?: boolean
@@ -13,8 +15,9 @@ interface TopNavProps {
 
 export function TopNav({ forceSignIn }: TopNavProps) {
   const [isSignUpOpen, setIsSignUpOpen] = useState(forceSignIn || false)
-  const { user, isSignedIn, isLoaded } = useUser()
   const { signOut } = useAuth()
+  const { auth } = useRouteContext({ from: '/app' })
+  const payload = auth?.token ? parseJwtPayload(auth.token) : null
 
   return (
     <Navbar maxWidth="full" isBordered>
@@ -48,12 +51,12 @@ export function TopNav({ forceSignIn }: TopNavProps) {
 
       <NavbarContent className="flex-1" justify="end">
         <NavbarItem>
-          {user && isSignedIn ? (
+          {payload ? (
             <ProfileButton
               userInfo={{
-                fullName: user.fullName || '',
-                emailAddress: user.primaryEmailAddress?.emailAddress || '',
-                imageUrl: user.imageUrl || '',
+                fullName: `${payload.given_name} ${payload.family_name}`,
+                emailAddress: payload.email,
+                imageUrl: payload.picture || '',
               }}
               onLogout={() => signOut()}
             />
@@ -62,9 +65,8 @@ export function TopNav({ forceSignIn }: TopNavProps) {
               color="primary"
               variant="flat"
               onPress={() => setIsSignUpOpen(true)}
-              isLoading={!isLoaded}
             >
-              {isLoaded ? 'Login/Sign Up' : 'Checking...'}
+              Login/Sign Up
             </Button>
           )}
         </NavbarItem>

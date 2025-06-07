@@ -59,3 +59,50 @@ export function ensureViteEnvironmentVariable(name: string): string {
   }
   return value
 }
+
+/**
+ *
+ * @param token - JWT token to parse
+ * @description Parses a JWT token and returns the payload as an object.
+ * @returns
+ */
+export function parseJwtPayload(token: string): ConvexJwtPayload {
+  if (typeof window === 'undefined') {
+    return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
+  }
+
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  const jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split('')
+      .map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      })
+      .join(''),
+  )
+
+  return JSON.parse(jsonPayload)
+}
+
+interface ConvexJwtPayload {
+  aud: string
+  azp: string
+  email: string
+  email_verified: boolean
+  exp: number
+  family_name: string
+  given_name: string
+  iat: number
+  iss: string
+  jti: string
+  name: string
+  nbf: number
+  nickname: string | null
+  phone_number: string | null
+  phone_number_verified: boolean
+  picture: string
+  sub: string
+  updated_at: number
+}
