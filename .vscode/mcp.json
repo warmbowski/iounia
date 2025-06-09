@@ -1,9 +1,8 @@
 {
   "servers": {
-    "convex": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "convex@latest", "mcp", "start"]
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
     }
   }
 }

@@ -1,5 +1,5 @@
 import { APP_TITLE } from '@/constants'
-import { getAuthTokenFn } from '@/integrations/clerk/auth'
+import { getAuthTokenFn } from '@/server-functions/auth'
 import { convexAction, convexQuery } from '@convex-dev/react-query'
 import {
   createFileRoute,

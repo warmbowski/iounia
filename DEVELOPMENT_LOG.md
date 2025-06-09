@@ -75,6 +75,8 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
   - ✅ Added user profile button with authentication state
   - ✅ Fixed login/signup flow and button states
   - ✅ Implemented proper user data display from JWT and Clerk
+- ✅ Implemented markdown input component with react-codemirror package
+  - ✅ Styled similar to HeroUI inputs using heroui css vars so it matches theme
 
 ## Dependencies & Performance
 
