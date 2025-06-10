@@ -76,7 +76,9 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
   - ✅ Fixed login/signup flow and button states
   - ✅ Implemented proper user data display from JWT and Clerk
 - ✅ Implemented markdown input component with react-codemirror package
-  - ✅ Styled similar to HeroUI inputs using heroui css vars so it matches theme
+  - ✅ needed to lazy load react-codemirror to avoid hydration errors
+- ✅ rendering markdown react-remark package
+  - ✅ Styled similar to HeroUI inputs using tailwind @apply directive
 
 ## Dependencies & Performance
 
@@ -90,13 +92,16 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 ## Optimizations & Refinements
 
 - ✅ Refined VSCode Copilot to include library-specific instructions for Convex
-- ⬜ Working on improved method to check if users are logged in to reduce route load latency
-- ⬜ Planning to remove Clerk URL from user IDs and use raw Clerk user ID in members and attendee tables
+- ✅ Working on improved method to check if users are logged in to reduce route load latency
+- ✅ Planning to remove Clerk URL from user IDs and use raw Clerk user ID in members and attendee tables
 
 ## Future Investigation
 
 - Considering Backblaze Media Storage/Streaming for improved media handling
 - Investigating solutions for transcription model optimization
+- Problematic jwt session tokens when dev app left open for a long time
+  - JWT `aud="convex"` claim is missing from token
+  - may only affect development environment
 
 ---
 
