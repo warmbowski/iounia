@@ -35,7 +35,6 @@ iconify-icon {
   height: 1em;
 }
 
-.cm-editor.ͼ1e,
-.cm-editor.ͼ16 {
+.cm-editor {
   background-color: transparent;
 }

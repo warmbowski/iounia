@@ -1,9 +1,9 @@
+import { lazy, Suspense } from 'react'
 import { useTheme } from '@/hooks/use-theme'
-import CodeMirror from '@uiw/react-codemirror'
-import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
-import { duotoneDark, duotoneLight } from '@uiw/codemirror-theme-duotone'
-import { languages } from '@codemirror/language-data'
 import { THEME_LS_KEY } from '@/constants'
+import { Textarea } from '@heroui/react'
+
+const MarkdownEditor = lazy(() => import('./editor'))
 
 interface MarkdownInputProps {
   value: string
@@ -25,9 +25,22 @@ export function MarkdownInput({
   className = '',
 }: MarkdownInputProps) {
   const { theme } = useTheme(undefined, THEME_LS_KEY)
-  const isDark = theme === 'dark'
   const labelId = `${id}-label`
   const descriptionId = `${id}-description`
+
+  const fallbackEditor = (
+    <Textarea
+      id="notes"
+      className="flex-grow-1"
+      classNames={{
+        inputWrapper: 'flex-grow-1',
+      }}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      label={label}
+      placeholder={placeholder}
+    />
+  )
 
   return (
     <div className={`flex flex-col ${className}`}>
@@ -48,29 +61,18 @@ export function MarkdownInput({
           Markdown editor for {label.toLowerCase()}. You can use Markdown
           formatting.
         </span>
-        <CodeMirror
-          id={id}
-          value={value}
-          height="100%"
-          placeholder={placeholder}
-          onChange={onChange}
-          className="w-full h-full font-normal text-sm [&_.cm-editor]:bg-transparent [&_.cm-editor]:outline-none [&_.cm-content]:py-1 [&_.cm-gutters]:bg-transparent [&_.cm-focused]:outline-none [&_.cm-scroller]:!font-mono [&_.cm-activeLine]:bg-default-200/50 dark:[&_.cm-activeLine]:bg-default-100/50 [&_.cm-activeLineGutter]:bg-transparent dark:[&_.ͼo]:!text-default-300 dark:[&_.ͼb]:!text-primary-500 dark:[&_.ͼe]:!text-success-600 dark:[&_.ͼc]:!text-warning-500"
-          extensions={[
-            markdown({ base: markdownLanguage, codeLanguages: languages }),
-          ]}
-          theme={isDark ? duotoneDark : duotoneLight}
-          basicSetup={{
-            lineNumbers: false,
-            highlightActiveLine: false,
-            highlightActiveLineGutter: false,
-            foldGutter: false,
-          }}
-          aria-label={label}
-          aria-multiline="true"
-          aria-describedby={descriptionId}
-          aria-required={isRequired ? 'true' : 'false'}
-          tabIndex={0}
-        />
+        <Suspense fallback={fallbackEditor}>
+          <MarkdownEditor
+            className="w-full h-full font-normal text-sm [&_.cm-editor]:bg-transparent [&_.cm-editor]:outline-none [&_.cm-content]:py-1 [&_.cm-gutters]:bg-transparent [&_.cm-focused]:outline-none [&_.cm-scroller]:!font-mono [&_.cm-activeLine]:bg-default-200/50 dark:[&_.cm-activeLine]:bg-default-100/50 [&_.cm-activeLineGutter]:bg-transparent dark:[&_.ͼo]:!text-default-300 dark:[&_.ͼb]:!text-primary-500 dark:[&_.ͼe]:!text-success-600 dark:[&_.ͼc]:!text-warning-500"
+            id={id}
+            value={value}
+            label={label}
+            descriptionId={descriptionId}
+            placeholder={placeholder}
+            onChange={onChange}
+            theme={theme}
+          />
+        </Suspense>
       </div>
     </div>
   )
