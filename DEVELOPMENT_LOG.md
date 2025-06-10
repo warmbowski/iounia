@@ -50,7 +50,6 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 - ✅ Initially investigated Convex file storage for audio files
 - ✅ Migrated from Convex to Cloudflare R2 for file storage due to serving audio files leading to big egress bandwidth (free on R2)
-  - ⬜ Stream audio from R2 using Range requests (in progress)
 
 ## AI Integration
 
@@ -92,17 +91,55 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 ## Optimizations & Refinements
 
 - ✅ Refined VSCode Copilot to include library-specific instructions for Convex
-- ✅ Working on improved method to check if users are logged in to reduce route load latency
-- ✅ Planning to remove Clerk URL from user IDs and use raw Clerk user ID in members and attendee tables
+- ✅ Worked on improved method to check if users are logged in to reduce route load latency
+- ✅ Removed Clerk URL from user IDs and use raw Clerk user ID in members and attendee tables
 
 ## Future Investigation
 
+- Stream audio from R2 using Range requests
 - Considering Backblaze Media Storage/Streaming for improved media handling
 - Investigating solutions for transcription model optimization
 - Problematic jwt session tokens when dev app left open for a long time
   - JWT `aud="convex"` claim is missing from token
   - may only affect development environment
 
----
+## Work List
 
-_Note: This development log is based on completed tasks tracked in the project history and will be updated as development progresses._
+### AI Features
+
+- [ ] Reimplement AI chat window for campaign and session Q&A
+  - [ ] Per user chat history
+  - [ ] Chat topics and conversation management
+- [ ] Implement Chat with NPCs
+  - [ ] DM Assigns users to interact with specific NPCs
+  - [ ] DM can view and manage NPC conversations and commit conversations to lore
+
+### Campaign Management
+
+- [ ] Editing campaign details
+- [ ] Uploading campaign lore documents in various formats, such as PDF, text, etc.
+- [ ] Add character lists to campaigns,
+  - [ ] Allow users to add/edit their characters
+- [ ] AI adds or suggests to add characters from new transcripts
+- [ ] Feed character entities to AI for better context in transcriptions
+
+### Session Management
+
+### Recording Management
+
+- [ ] Implement recording deletion and cascading deletion of transcriptions
+
+### User Profile Management
+
+- [ ] Implement user profile management
+  - [ ] Allow users to update their profile information
+  - [ ] Add user avatar support
+
+### Other Stuff
+
+- [ ] Add application favicons
+- [ ] Implement pagination for recordings and transcriptions
+- [ ] Move to Turborepo monorepo and move many UI components to package
+  - [ ] Fork `@convex-dev/react-query` into monorepo package to fix issues and add pagination support
+
+---
