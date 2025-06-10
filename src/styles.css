@@ -26,7 +26,26 @@ h3,
 h4,
 h5,
 h6 {
-  color: hsl(var(--heroui-foreground-400));
+  @apply text-foreground-400;
+  @apply my-2;
+}
+h1 {
+  @apply text-2xl font-bold;
+}
+h2 {
+  @apply text-xl font-bold;
+}
+h3 {
+  @apply text-xl font-semibold;
+}
+h4 {
+  @apply text-lg font-semibold;
+}
+h5 {
+  @apply text-lg;
+}
+h6 {
+  @apply text-base font-bold;
 }
 
 iconify-icon {
@@ -37,4 +56,24 @@ iconify-icon {
 
 .cm-editor {
   background-color: transparent;
+}
+
+.markdown-section {
+  & * {
+    @apply my-2;
+  }
+  & p {
+    @apply leading-4;
+  }
+  & ul > li {
+    @apply list-disc;
+    @apply mx-4;
+  }
+  & a {
+    @apply text-blue-300;
+  }
+
+  & a:hover {
+    @apply underline;
+  }
 }

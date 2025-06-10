@@ -46,6 +46,7 @@
     "idb-keyval": "^6.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-remark": "^2.1.0",
     "tailwindcss": "^4.1.8",
     "vinxi": "^0.5.3",
     "vite-tsconfig-paths": "^5.1.4",

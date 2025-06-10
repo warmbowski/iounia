@@ -140,7 +140,7 @@ export function AudioPlayerCard({
             />
           </div>
           <div className="flex-1">
-            <h3 className="font-medium text-lg">{title}</h3>
+            <h3 className="font-semibold text-xl">{title}</h3>
             <p className="text-default-500">{artist}</p>
           </div>
         </div>

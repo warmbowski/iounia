@@ -34,14 +34,17 @@ export const updateSession = mutation({
   args: {
     sessionId: v.id('sessions'),
     updates: v.object({
+      name: v.optional(v.string()),
       sessionNumber: v.optional(v.number()),
       date: v.optional(v.string()),
       summaryPrompt: v.optional(v.string()),
-      summary: v.array(
-        v.object({
-          icon: v.string(),
-          text: v.string(),
-        }),
+      summary: v.optional(
+        v.array(
+          v.object({
+            icon: v.string(),
+            text: v.string(),
+          }),
+        ),
       ),
       shortSummary: v.optional(v.string()),
       notes: v.optional(v.string()),

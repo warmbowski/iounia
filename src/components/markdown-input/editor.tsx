@@ -1,4 +1,4 @@
-import CodeMirror from '@uiw/react-codemirror'
+import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { gruvboxDark, gruvboxLight } from '@uiw/codemirror-theme-gruvbox-dark'
 
@@ -47,6 +47,7 @@ export default function MarkdownEditor({
       theme={isDark ? gruvboxDark : gruvboxLight}
       extensions={[
         markdown({ base: markdownLanguage, codeLanguages: languages }),
+        EditorView.lineWrapping,
       ]}
       basicSetup={{
         lineNumbers: false,

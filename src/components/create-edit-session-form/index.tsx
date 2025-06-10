@@ -11,25 +11,37 @@ import type { Doc, Id } from 'convex/_generated/dataModel'
 import { useState, type FormEvent } from 'react'
 import { MarkdownInput } from '@/components/markdown-input'
 
-interface CreateEditSessionFormProps {
-  campaignId: Id<'campaigns'>
-  session?: Doc<'sessions'>
-  onClose: () => void
-}
+type CreateEditSessionFormProps =
+  | {
+      type: 'create'
+      campaignId: Id<'campaigns'>
+      onClose: () => void
+    }
+  | {
+      type: 'edit'
+      session: Doc<'sessions'>
+      onClose: () => void
+    }
 
-export function CreateEditSessionForm({
-  campaignId,
-  session,
-  onClose,
-}: CreateEditSessionFormProps) {
-  const [name, setName] = useState(session?.name || '')
-  const [date, setDate] = useState<DateValue | null>(
-    session?.date ? parseAbsoluteToLocal(session.date) : null,
+export function CreateEditSessionForm(props: CreateEditSessionFormProps) {
+  const [name, setName] = useState(
+    props.type === 'edit' ? props.session.name : '',
   )
-  const [notes, setNotes] = useState(session?.notes || '')
+  const [date, setDate] = useState<DateValue | null>(
+    props.type === 'edit' && props.session.date
+      ? parseAbsoluteToLocal(props.session.date)
+      : null,
+  )
+  const [notes, setNotes] = useState(
+    props.type === 'edit' ? props.session.notes : '',
+  )
 
   const createSession = useMutation({
     mutationFn: useConvexMutation(api.functions.sessions.createSession),
+  })
+
+  const updateSession = useMutation({
+    mutationFn: useConvexMutation(api.functions.sessions.updateSession),
   })
 
   const handleSubmit = async (e: FormEvent) => {
@@ -38,17 +50,28 @@ export function CreateEditSessionForm({
       return
     }
     const isoDate = date ? date.toDate(getLocalTimeZone()).toISOString() : ''
-    await createSession.mutate({
-      campaignId,
-      name,
-      date: isoDate,
-      notes,
-    })
+    if (props.type === 'edit') {
+      await updateSession.mutate({
+        sessionId: props.session._id,
+        updates: {
+          name,
+          date: isoDate,
+          notes,
+        },
+      })
+    } else {
+      await createSession.mutate({
+        campaignId: props.campaignId,
+        name,
+        date: isoDate,
+        notes,
+      })
+    }
 
     setName('')
     setDate(null)
     setNotes('')
-    onClose()
+    props.onClose()
   }
 
   return (
@@ -79,7 +102,7 @@ export function CreateEditSessionForm({
         <MarkdownInput
           id="notes"
           className="flex-grow h-full"
-          value={notes}
+          value={notes || ''}
           onChange={setNotes}
           label="Session Notes"
           placeholder="Write session notes in Markdown"
@@ -88,7 +111,7 @@ export function CreateEditSessionForm({
 
       <div className="flex-grow-0">
         <Button type="submit" color="primary">
-          Add Session
+          {props.type === 'edit' ? 'Update Session' : 'Add Session'}
         </Button>
       </div>
     </form>

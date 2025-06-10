@@ -72,7 +72,7 @@ function RouteComponent() {
       <div className="grid grid-cols-[350px_minmax(350px,_auto)] gap-8">
         <CampaignCard campaign={campaign} />
         <div>
-          <h2 className="text-2xl font-bold">Campaign Details</h2>
+          <h2 className="text-xl font-bold">Campaign Details</h2>
           <p className="text-balance">
             {campaign.description || <i>No description available</i>}
           </p>
@@ -179,6 +179,7 @@ function RouteComponent() {
               </DrawerHeader>
               <DrawerBody>
                 <CreateEditSessionForm
+                  type="create"
                   campaignId={campaignId}
                   onClose={onClose}
                 />

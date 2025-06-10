@@ -1,6 +1,8 @@
+import { CreateEditSessionForm } from '@/components/create-edit-session-form'
 import { CreateRecordingForm } from '@/components/create-recording-form'
 import { SessionCard } from '@/components/session-card'
 import { convexQuery, useConvexAction } from '@convex-dev/react-query'
+import { Remark } from 'react-remark'
 import {
   Button,
   Drawer,
@@ -61,9 +63,14 @@ function RouteComponent() {
   )
 
   const {
-    isOpen: drawerOpen,
-    onOpen: onDrawerOpen,
-    onOpenChange: onDrawerOpenChange,
+    isOpen: addRecordingOpen,
+    onOpen: onAddRecordingOpen,
+    onOpenChange: onAddRecordingOpenChange,
+  } = useDisclosure()
+  const {
+    isOpen: editSessionOpen,
+    onOpen: onEditSessionOpen,
+    onOpenChange: onEditSessionOpenChange,
   } = useDisclosure()
   const {
     isOpen: modalOpen,
@@ -90,13 +97,15 @@ function RouteComponent() {
       <div className="grid grid-cols-[350px_minmax(350px,_auto)] gap-8">
         <SessionCard session={session} />
         <div>
-          <h2 className="text-2xl font-bold">What Happened</h2>
+          <h2 className="text-xl font-bold">What Happened</h2>
           <p className="text-balance">
             {session.shortSummary || <i>No short summary available</i>}
           </p>
           <h3 className="text-xl font-semibold mt-4">Session Notes</h3>
-          <p className="text-balance">
-            {session.notes || <i>No notes available</i>}
+          <p className="markdown-section text-balance">
+            <Remark>
+              {session.notes ? session.notes : `**No notes available**`}
+            </Remark>
           </p>
           <h3 className="text-xl font-semibold mt-4">Recordings</h3>
           <div className="flex flex-col gap-2">
@@ -123,14 +132,22 @@ function RouteComponent() {
               <i>No recordings available</i>
             )}
           </div>
-          <Button
-            className="mt-4"
-            color="primary"
-            startContent={<Icon icon="lucide:upload" />}
-            onPress={onDrawerOpen}
-          >
-            Upload New Audio
-          </Button>
+          <div className="flex gap-4 mt-4">
+            <Button
+              color="primary"
+              startContent={<Icon icon="lucide:upload" />}
+              onPress={onAddRecordingOpen}
+            >
+              Upload New Audio
+            </Button>
+            <Button
+              color="primary"
+              startContent={<Icon icon="lucide:edit" />}
+              onPress={onEditSessionOpen}
+            >
+              Edit Session
+            </Button>
+          </div>
         </div>
       </div>
       <div>
@@ -171,8 +188,8 @@ function RouteComponent() {
       </div>
 
       <Drawer
-        isOpen={drawerOpen}
-        onOpenChange={onDrawerOpenChange}
+        isOpen={addRecordingOpen}
+        onOpenChange={onAddRecordingOpenChange}
         placement="right"
       >
         <DrawerContent>
@@ -183,6 +200,34 @@ function RouteComponent() {
               </DrawerHeader>
               <DrawerBody>
                 <CreateRecordingForm sessionId={sessionId} onClose={onClose} />
+              </DrawerBody>
+              <DrawerFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+              </DrawerFooter>
+            </>
+          )}
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer
+        isOpen={editSessionOpen}
+        onOpenChange={onEditSessionOpenChange}
+        placement="right"
+      >
+        <DrawerContent>
+          {(onClose) => (
+            <>
+              <DrawerHeader className="flex flex-col gap-1">
+                Update Session
+              </DrawerHeader>
+              <DrawerBody>
+                <CreateEditSessionForm
+                  type="edit"
+                  session={session}
+                  onClose={onClose}
+                />
               </DrawerBody>
               <DrawerFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
