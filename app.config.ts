@@ -3,6 +3,9 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 // import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
+  server: {
+    preset: 'netlify',
+  },
   tsr: {
     appDirectory: 'src',
   },

@@ -137,6 +137,11 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 ### Other Stuff
 
+- [ ] set up prod deployment on Netlify
+  - [ ] Set up Convex production environment
+    - [ ] Migrate dev database to prod
+  - [ ] Set up Clerk production environment
+  - [ ] Set up Cloudflare R2 production environment
 - [ ] Add application favicons
 - [ ] Implement pagination for recordings and transcriptions
 - [ ] Move to Turborepo monorepo and move many UI components to package

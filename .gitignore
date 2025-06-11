@@ -9,3 +9,5 @@ count.txt
 .env
 .env.*
 gitlog.txt
+# Local Netlify folder
+.netlify
