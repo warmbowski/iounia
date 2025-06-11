@@ -1,4 +1,4 @@
-import { components, internal } from '../_generated/api'
+import { components } from '../_generated/api'
 import { R2 } from '@convex-dev/r2'
 import { DataModel } from '../_generated/dataModel'
 import { query } from '../_generated/server'

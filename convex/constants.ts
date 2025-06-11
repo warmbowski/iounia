@@ -3,7 +3,10 @@ import { ensureServerEnironmentVariable } from './helpers/utililties'
 export const MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT = 10
 export const MAX_CAMPAIGNS_PER_USER_COUNT = 3
 export const AUDIO_CHUNK_DURATION_SEC = 15 * 60 // 15 minutes
-export const WEBHOOK_URL = `${'https://perfect-ermine-248.convex.site'}/webhooks/assemblyai`
+export const CONVEX_CLOUD_URL =
+  ensureServerEnironmentVariable('CONVEX_CLOUD_URL')
+export const CONVEX_SITE_URL = ensureServerEnironmentVariable('CONVEX_SITE_URL')
+export const WEBHOOK_URL = `${CONVEX_SITE_URL}/webhooks/assemblyai`
 export const WEBHOOK_AUTH_HEADER_NAME = 'x-assemblyai-256'
 export const WEBHOOK_AUTH_HEADER_VALUE =
   ensureServerEnironmentVariable('WEBHOOK_SECRET')

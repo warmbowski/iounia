@@ -2,9 +2,12 @@ import { createClerkClient } from '@clerk/backend'
 import { api } from '../_generated/api'
 import { action } from '../_generated/server'
 import { checkUserAuthentication } from '../helpers/auth'
+import { ensureServerEnironmentVariable } from '../helpers/utililties'
+
+const CLERK_SECRET_KEY = ensureServerEnironmentVariable('CLERK_SECRET_KEY')
 
 const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
+  secretKey: CLERK_SECRET_KEY,
 })
 
 export const getMapOfUsersAssociatedWithUser = action({
