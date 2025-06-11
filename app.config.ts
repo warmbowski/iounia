@@ -5,6 +5,11 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 const config = defineConfig({
   server: {
     preset: 'netlify',
+    esbuild: {
+      options: {
+        target: 'es2022', // browsers can handle es2022 features
+      },
+    },
   },
   tsr: {
     appDirectory: 'src',
