@@ -1,6 +1,6 @@
 import { TranscribeParams, Transcript } from 'assemblyai'
 import { internalAction } from '../_generated/server'
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import { api, internal } from '../_generated/api'
 import {
   WEBHOOK_AUTH_HEADER_NAME,
@@ -9,6 +9,7 @@ import {
 } from '../constants'
 import { r2 } from './cloudflareR2'
 import { ensureServerEnironmentVariable } from '../helpers/utililties'
+import { BadRequestError, NotFoundError } from '../helpers/errors'
 
 const ASSEMBLYAI_API_KEY = ensureServerEnironmentVariable('ASSEMBLYAI_API_KEY')
 const TRANSCRIPTION_URL = 'https://api.assemblyai.com/v2/transcript'
@@ -45,7 +46,7 @@ export const submitRecordingForTranscription = internalAction({
       const fileUrl = await r2.getUrl(storageId)
       if (!fileUrl) {
         console.error('File URL not found for storageId:', storageId)
-        throw new Error('File URL not found')
+        throw new NotFoundError('File URL not found')
       }
 
       const body: TranscribeParams = {
@@ -56,7 +57,7 @@ export const submitRecordingForTranscription = internalAction({
         webhook_auth_header_name: WEBHOOK_AUTH_HEADER_NAME,
         webhook_auth_header_value: WEBHOOK_AUTH_HEADER_VALUE,
         keyterms_prompt: KEYTERMS_BASE_PROMPT,
-        entity_detection: true,
+        entity_detection: false,
       }
 
       const response = await fetch(TRANSCRIPTION_URL, {
@@ -70,19 +71,19 @@ export const submitRecordingForTranscription = internalAction({
 
       if (!response.ok) {
         console.error('Transcription submission error:', response)
-        throw new Error('Transcription submission error')
+        throw new ConvexError('Transcription submission error')
       }
 
       const transcript = await response.json()
       if (!transcript) {
         console.error('Transcription error:', transcript)
-        throw new Error('Transcription error')
+        throw new NotFoundError('Transcription error')
       }
 
       const jobId = transcript.id
       if (!jobId) {
         console.error('Job ID not found in transcription response:', transcript)
-        throw new Error('Job ID not found')
+        throw new NotFoundError('Job ID not found')
       }
 
       await runMutation(internal.functions.recordings.updateRecordingJobId, {
@@ -97,7 +98,7 @@ export const submitRecordingForTranscription = internalAction({
       }
     } catch (error) {
       console.error('Error during audio submission:', error)
-      throw new Error('Audio submission failed')
+      throw new BadRequestError('Audio submission failed')
     }
   },
 })
@@ -118,16 +119,16 @@ export const processRecordingTranscript = internalAction({
       })
       if (!response.ok) {
         console.error('Transcription retrieval error:', response)
-        throw new Error('Transcription retrieval error')
+        throw new ConvexError('Transcription retrieval error')
       }
       const transcript: Transcript = await response.json()
       if (!transcript) {
         console.error('Transcription error:', transcript)
-        throw new Error('Transcription error')
+        throw new NotFoundError('Transcription error')
       }
 
       if (transcript.status !== 'completed') {
-        throw new Error('Transcript is not ready yet')
+        throw new ConvexError('Transcript is not ready yet')
       }
 
       await Promise.all(
@@ -159,7 +160,7 @@ export const processRecordingTranscript = internalAction({
       }
     } catch (error) {
       console.error('Error during transcript processing:', error)
-      throw new Error('Transcript processing failed')
+      throw new ConvexError('Transcript processing failed')
     }
   },
 })
