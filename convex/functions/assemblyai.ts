@@ -34,6 +34,8 @@ const KEYTERMS_BASE_PROMPT: Array<string> = [
   // 'Geth',
   // 'Lashashana',
   // 'Amadabahara',
+  // 'Aeerianhod',
+  // 'Aervik Narn',
 ]
 
 export const submitRecordingForTranscription = internalAction({
