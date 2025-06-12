@@ -53,7 +53,7 @@ export const Route = createFileRoute(
     return {
       meta: [
         {
-          title: `${context.loaderData.crumb.title} - ${APP_TITLE}`,
+          title: `${context.loaderData?.crumb.title} - ${APP_TITLE}`,
         },
       ],
     }

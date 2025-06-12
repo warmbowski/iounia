@@ -1,9 +1,10 @@
+import { createServerFileRoute } from '@tanstack/react-start/server'
+import { createFileRoute } from '@tanstack/react-router'
 import { getAuth } from '@clerk/tanstack-react-start/server'
 import { json } from '@tanstack/react-start'
-import { createAPIFileRoute } from '@tanstack/react-start/api'
 import { createClerkClient } from '@clerk/backend'
 
-export const Route = createAPIFileRoute('/api/auth')({
+export const ServerRoute = createServerFileRoute('/api/auth').methods({
   GET: async ({ request }) => {
     const { userId, getToken } = await getAuth(request)
     const token = await getToken({ template: 'convex' })

@@ -2,10 +2,10 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "eslint.config.js",
-    "prettier.config.js",
-    "tailwind.config.js",
-    "postcss.config.js",
+    "eslint.config.mjs",
+    "prettier.config.mjs",
+    "tailwind.config.mjs",
+    "postcss.config.mjs",
     "vite.config.js"
   ],
 

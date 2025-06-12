@@ -18,6 +18,7 @@ import appCss from '../styles.css?url'
 import { convexQueryClient } from '@/router'
 import { ToastProvider } from '@heroui/react'
 import { BaseLayout } from '@/components/layouts'
+import { getAuthTokenFn } from '@/server-functions/auth'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -43,13 +44,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
     links: [
       {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-      {
         rel: 'stylesheet preload',
         as: 'style',
         href: 'https://fonts.googleapis.com/css2?family=Outfit&display=optional',
+      },
+      {
+        rel: 'stylesheet',
+        href: appCss,
       },
     ],
     scripts: [
@@ -59,6 +60,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       },
     ],
   }),
+
+  beforeLoad: async ({ context }) => {
+    const token = await getAuthTokenFn()
+    context.convexQueryClient.serverHttpClient?.setAuth(token || '')
+    context.auth = { token }
+  },
 
   component: () => {
     return (

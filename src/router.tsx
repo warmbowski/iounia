@@ -12,13 +12,13 @@ import { ConvexReactClient } from 'convex/react'
 import { ensureViteEnvironmentVariable } from '@/utils'
 import { DefaultCatchBoundary } from './components/default-catch-boundary'
 import { NotFound } from './components/not-found'
-import { getAuthTokenFn } from './server-functions/auth'
+// import { getAuthTokenFn } from './server-functions/auth'
 
 const CONVEX_URL = ensureViteEnvironmentVariable('VITE_CONVEX_URL')
 export const convexClient = new ConvexReactClient(CONVEX_URL)
 export const convexQueryClient = new ConvexQueryClient(convexClient)
-const token = await getAuthTokenFn()
-convexQueryClient.serverHttpClient?.setAuth(token || '')
+// const token = await getAuthTokenFn()
+// convexQueryClient.serverHttpClient?.setAuth(token || '')
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -54,7 +54,7 @@ export const createRouter = () => {
       context: {
         queryClient,
         convexQueryClient: convexQueryClient,
-        auth: { token },
+        auth: { token: null },
       },
       scrollRestoration: true,
       scrollToTopSelectors: ['#base-layout-scrollable-area'],
