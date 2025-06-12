@@ -108,6 +108,7 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 ### AI Features
 
 - [ ] Reimplement AI chat window for campaign and session Q&A
+  - [ ] Implement with AI Chat component from Convex
   - [ ] Per user chat history
   - [ ] Chat topics and conversation management
 - [ ] Implement Chat with NPCs
@@ -137,13 +138,13 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 ### Other Stuff
 
-- [ ] set up prod deployment on Netlify
-  - [ ] Set up Convex production environment
+- [x] set up prod deployment on Netlify
+  - [x] Set up Convex production environment
     - [ ] Migrate dev database to prod
   - [ ] Set up Clerk production environment
-  - [ ] Set up Cloudflare R2 production environment
+  - [ ] Set up Cloudflare R2 development environment
 - [ ] Add application favicons
-- [ ] Implement pagination for recordings and transcriptions
+- [ ] Implement pagination for recordings and transcriptions list functions
 - [ ] Move to Turborepo monorepo and move many UI components to package
   - [ ] Fork `@convex-dev/react-query` into monorepo package to fix issues and add pagination support
 
