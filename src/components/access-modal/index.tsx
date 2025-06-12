@@ -11,15 +11,12 @@ import { useAuth } from '@clerk/tanstack-react-start'
 import SignInForm from './signin-form'
 import SignUpForm from './signup-form'
 
-interface SignInOrSignUpLoginModalProps {
+interface AccessModalProps {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
 }
 
-export function SignInOrSignUpLoginModal({
-  isOpen,
-  onOpenChange,
-}: SignInOrSignUpLoginModalProps) {
+export function AccessModal({ isOpen, onOpenChange }: AccessModalProps) {
   const { isLoaded } = useAuth()
   const [isLogin, setIsLogin] = useState(true)
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button, Input, Navbar, NavbarContent, NavbarItem } from '@heroui/react'
 import { Icon } from '@iconify/react/dist/iconify.js'
-import { SignInOrSignUpLoginModal } from '../signin-or-signup-login-modal'
+import { AccessModal } from '../access-modal'
 import { ProfileButton } from '../profile-button'
 import { useAuth, useUser } from '@clerk/tanstack-react-start'
 import { RouterLink } from '../router-link'
@@ -13,10 +13,17 @@ interface TopNavProps {
 }
 
 export function TopNav({ forceSignIn }: TopNavProps) {
-  const [isSignUpOpen, setIsSignUpOpen] = useState(forceSignIn || false)
+  const [accessModalOpen, setAccessModalOpen] = useState(forceSignIn || false)
   const router = useRouter()
   const { user, isSignedIn, isLoaded } = useUser()
   const { signOut } = useAuth()
+
+  const handleCloseAccessModal = () => {
+    setAccessModalOpen(false)
+    if (forceSignIn) {
+      router.navigate({ to: '/' })
+    }
+  }
 
   return (
     <Navbar maxWidth="full" isBordered>
@@ -66,7 +73,7 @@ export function TopNav({ forceSignIn }: TopNavProps) {
             <Button
               color="primary"
               variant="flat"
-              onPress={() => setIsSignUpOpen(true)}
+              onPress={() => setAccessModalOpen(true)}
               isLoading={!isLoaded}
             >
               {isLoaded ? 'Login/Sign Up' : 'Checking...'}
@@ -74,9 +81,9 @@ export function TopNav({ forceSignIn }: TopNavProps) {
           )}
         </NavbarItem>
       </NavbarContent>
-      <SignInOrSignUpLoginModal
-        isOpen={isSignUpOpen}
-        onOpenChange={setIsSignUpOpen}
+      <AccessModal
+        isOpen={accessModalOpen}
+        onOpenChange={handleCloseAccessModal}
       />
     </Navbar>
   )
