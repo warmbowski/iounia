@@ -36,7 +36,16 @@ export const getAuthTokenFn = createServerFn({ method: 'GET' }).handler(
       const { getToken } = await getAuth(request)
       token = await getToken({ template: 'convex' })
     } catch (error) {
-      console.error('Error getting auth token:', error)
+      if (error instanceof Error) {
+        console.error('Error getting auth token:', error.message)
+      } else if (error instanceof Response) {
+        console.error(
+          'Error getting auth token:',
+          error.statusText || error.status || error,
+        )
+      } else {
+        console.error('Unknown error getting auth token:', error)
+      }
       return null
     }
 

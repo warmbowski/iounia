@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Divider, Input } from '@heroui/react'
+import { Alert, Button, Divider, Input } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useNavigate } from '@tanstack/react-router'
 import { useSignUp } from '@clerk/tanstack-react-start'
@@ -213,11 +213,15 @@ export default function SignUpForm() {
         </form>
       )}
       {errors && (
-        <ul>
-          {errors.map((err, index) => (
-            <li key={index}>{err.longMessage}</li>
-          ))}
-        </ul>
+        <div className="flex items-center justify-center w-full">
+          <Alert
+            color="danger"
+            description={errors.map((err, index) => (
+              <p key={index}>{err.longMessage}</p>
+            ))}
+            variant="faded"
+          />
+        </div>
       )}
     </>
   )
