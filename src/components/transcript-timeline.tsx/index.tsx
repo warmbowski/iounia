@@ -4,6 +4,7 @@ import { Button } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
+import { useRef } from 'react'
 
 export { PersistedRecordingTimelineProvider } from './provider'
 
@@ -11,12 +12,14 @@ interface RecordingTimelineProps {
   recordingId: Id<'recordings'>
   currentTime: number
   setSeekTime: (time: number) => void
+  scrollToSeekTime?: boolean
 }
 
 export function RecordingTimeline({
   recordingId,
   currentTime,
   setSeekTime,
+  scrollToSeekTime = false,
 }: RecordingTimelineProps) {
   const {
     data: transcript,
@@ -31,9 +34,13 @@ export function RecordingTimeline({
     retry: 1,
   })
 
+  const focusRef = useRef<HTMLButtonElement>(null)
+  if (focusRef.current && scrollToSeekTime) {
+    focusRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
   return (
-    <div className="mt-4">
-      <h2 className="text-xl font-bold">Transcript</h2>
+    <div className="my-4">
       {transcript ? (
         <div className="pr-100">
           {transcript.map((utterance) => {
@@ -44,9 +51,10 @@ export function RecordingTimeline({
               <p
                 data-status={isAtTime}
                 key={utterance._id}
-                className="mt-2 data-[status=true]:text-warning-500 grid grid-cols-[auto_1fr] gap-2"
+                className="mt-2 data-[status=true]:text-warning-500 flex flex-col items-start"
               >
                 <Button
+                  ref={isAtTime ? focusRef : null}
                   className="font-mono bold text-sm focus:outline-solid"
                   size="sm"
                   variant="light"
@@ -57,7 +65,7 @@ export function RecordingTimeline({
                   {formatTime(utterance.start / 1000)} Speaker
                   {utterance.speaker}:
                 </Button>
-                <span className="basis-auto mt-[0.2em]">{utterance.text}</span>
+                <span className="ml-8">{utterance.text}</span>
               </p>
             )
           })}

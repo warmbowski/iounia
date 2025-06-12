@@ -6,6 +6,7 @@ import {
 import { APP_TITLE } from '@/constants'
 import { formatDate } from '@/utils'
 import { convexQuery } from '@convex-dev/react-query'
+import { Button } from '@heroui/react'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import {
   createFileRoute,
@@ -66,6 +67,8 @@ function RouteComponent() {
   const { recordingId } = Route.useParams()
   const [currentTime, setCurrentTime] = useState(0)
   const [seekTime, setSeekTime] = useState<number | null>(null)
+  const [scrollToTime, setScrollToTime] = useState<boolean>(true)
+
   const { data: rec } = useSuspenseQuery(
     convexQuery(api.functions.recordings.readRecording, {
       recordingId,
@@ -80,8 +83,22 @@ function RouteComponent() {
   })
 
   return rec ? (
-    <div className="w-full h-full p-6">
-      <div className="fixed right-[10px] min-w-sm z-50 shadow-md">
+    <div className="w-full h-full px-6">
+      <div className="fixed w-full flex items-center gap-4 bg-background z-50 shadow-md">
+        <h2 className="text-xl font-bold">Transcript</h2>
+        <Button
+          className=""
+          size="sm"
+          variant={scrollToTime ? 'bordered' : 'solid'}
+          color="secondary"
+          aria-label="Follow time"
+          disabled={scrollToTime}
+          onPress={() => setScrollToTime(!scrollToTime)}
+        >
+          {scrollToTime ? 'Following' : 'Follow'}
+        </Button>
+      </div>
+      <div className="fixed right-[20px] min-w-sm z-50 shadow-md">
         {
           <AudioPlayerCard
             key={rec._id}
@@ -101,11 +118,21 @@ function RouteComponent() {
         recordingId={recordingId}
         cacheVersion={'v1'}
       >
-        <RecordingTimeline
-          recordingId={recordingId}
-          currentTime={currentTime}
-          setSeekTime={setSeekTime}
-        />
+        <div
+          className="pt-12"
+          onWheel={() => {
+            if (scrollToTime) {
+              setScrollToTime(false)
+            }
+          }}
+        >
+          <RecordingTimeline
+            recordingId={recordingId}
+            currentTime={currentTime}
+            setSeekTime={setSeekTime}
+            scrollToSeekTime={scrollToTime}
+          />
+        </div>
       </PersistedRecordingTimelineProvider>
     </div>
   ) : (
