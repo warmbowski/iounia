@@ -126,9 +126,10 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 ### Session Management
 
-### Recording Management
+### Recording/Transcript Management
 
-- [ ] Implement recording deletion and cascading deletion of transcriptions
+- [x] Implement recording deletion and cascading deletion of transcriptions
+- [x] Add transcript follow/unfollow when playing recording
 
 ### User Profile Management
 
@@ -140,9 +141,10 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 - [x] set up prod deployment on Netlify
   - [x] Set up Convex production environment
-    - [ ] Migrate dev database to prod
+    - [x] Migrate dev database to prod
   - [ ] Set up Clerk production environment
-  - [ ] Set up Cloudflare R2 development environment
+    - [ ] Migrate users from dev to prod
+  - [ ] Set up Cloudflare R2 development bucket
 - [ ] Add application favicons
 - [ ] Implement pagination for recordings and transcriptions list functions
 - [ ] Move to Turborepo monorepo and move many UI components to package

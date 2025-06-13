@@ -22,6 +22,7 @@ import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import { useEffect, useState } from 'react'
+import { ButtonConfirm } from '@/components/button-confirm'
 
 export const Route = createFileRoute('/app/$campaignId/session/$sessionId/')({
   loader: async ({ context, params }) => {
@@ -61,6 +62,11 @@ function RouteComponent() {
       sessionId: sessionId,
     }),
   )
+  const { mutate: deleteRecording } = useMutation({
+    mutationFn: useConvexAction(
+      api.functions.recordings.deleteRecordingAndTranscript,
+    ),
+  })
 
   const {
     isOpen: addRecordingOpen,
@@ -125,6 +131,20 @@ function RouteComponent() {
                     <span className="text-sm text-gray-500">
                       {new Date(recording._creationTime).toLocaleDateString()}
                     </span>
+                    <ButtonConfirm
+                      actionType="deletion"
+                      actionAdditionalInfo="This will delete the recording and its associated transcript."
+                      size="sm"
+                      variant="light"
+                      color="danger"
+                      onConfirm={() => {
+                        deleteRecording({ recordingId: recording._id })
+                      }}
+                      isIconOnly
+                      aria-label="Delete recording"
+                    >
+                      <Icon icon="lucide:trash" />
+                    </ButtonConfirm>
                   </div>
                 )
               })
