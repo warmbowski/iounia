@@ -8,6 +8,7 @@ import { ensureServerEnironmentVariable } from '../helpers/utililties'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { streamText } from 'ai'
 import { Id } from '../_generated/dataModel'
+import { TIME_SPAN_CONTEXT_LENGTH_MS } from '../constants'
 
 const GEMINI_API_KEY = ensureServerEnironmentVariable('GEMINI_API_KEY')
 
@@ -77,8 +78,8 @@ export const streamChat = httpAction(async (ctx, request) => {
               {
                 recordingId: time.recId as Id<'recordings'>,
                 range: {
-                  start: time.atTime - 1000 * 60 * 2.5, // 2.5 minutes before the time
-                  end: time.atTime + 1000 * 60 * 2.5, // 2.5 minutes after the time
+                  start: time.atTime - TIME_SPAN_CONTEXT_LENGTH_MS / 2,
+                  end: time.atTime + TIME_SPAN_CONTEXT_LENGTH_MS / 2,
                 },
               },
             )

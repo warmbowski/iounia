@@ -12,6 +12,7 @@ import { generateObject, embedMany } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { v } from 'convex/values'
 import {
+  MIN_TEXT_LENGTH_FOR_EMBEDDING_GENERATION,
   SYSTEM_PROMPT_SHORT_SUMMARIZATION,
   SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
 } from '../constants'
@@ -217,18 +218,21 @@ export const deleteAllTranscriptParts = mutation({
   handler: async ({ db, auth }, { recordingId }) => {
     await checkUserAuthentication(auth)
 
-    const recording = await db.get(recordingId)
-    if (!recording) throw new NotFoundError('Recording not found')
-
-    return await db
+    const transcripts = await db
       .query('transcripts')
       .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
       .collect()
-      .then((transcripts) => {
-        return Promise.all(
-          transcripts.map((transcript) => db.delete(transcript._id)),
-        )
-      })
+
+    console.info(
+      `Deleting ${transcripts.length} transcript parts for recording ${recordingId}`,
+    )
+
+    return await Promise.all(
+      transcripts.map((transcript) => {
+        db.delete(transcript._id)
+        return 'deleted'
+      }),
+    )
   },
 })
 
@@ -285,9 +289,13 @@ export const updateTextEmbeddings = internalAction({
     recordingId: v.id('recordings'),
   },
   handler: async ({ runQuery, runAction, runMutation }, { recordingId }) => {
-    const transcriptParts: any[] = await runQuery(
+    const transcriptParts = await runQuery(
       internal.functions.transcripts.listTranscriptPartsByRecordingId,
       { recordingId },
+    ).then((parts) =>
+      parts.filter(
+        (part) => part.text.length > MIN_TEXT_LENGTH_FOR_EMBEDDING_GENERATION,
+      ),
     )
 
     const textList = transcriptParts.map((item) => item.text)

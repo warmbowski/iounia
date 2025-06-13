@@ -1,8 +1,34 @@
 import { Migrations } from '@convex-dev/migrations'
-import { components } from './_generated/api.js'
+import { api, components } from './_generated/api.js'
 import { DataModel } from './_generated/dataModel.js'
+import { run } from 'node:test'
 
 export const migrations = new Migrations<DataModel>(components.migrations)
+
+/**
+ * Migration to remove all transcript parts with recordings that don't exist anymore.
+ * CLI command: `pnpx convex run migrations:runner '{fn: "migrations:addCampaignIdToTranscriptParts"}'
+ *
+ * This migration can be run in cron to make sure orphaned transcripts are removed.
+ */
+export const deleteOrphanedTranscriptParts = migrations.define({
+  table: 'transcripts',
+  migrateOne: async (ctx, doc) => {
+    const recordingExists = await ctx.db
+      .query('recordings')
+      .withIndex('by_id', (q) => q.eq('_id', doc.recordingId))
+      .first()
+
+    if (!recordingExists) {
+      console.info(
+        `Deleting transcript part ${doc._id} because recording ${doc.recordingId} does not exist`,
+      )
+
+      console.info(`Transcript part ${doc._id} will be deleted.`)
+      const result = ctx.db.delete(doc._id)
+    }
+  },
+})
 
 /**
  * Migration to populate the `campaignId` field to all transcript parts.

@@ -1,14 +1,16 @@
-import { internal } from '../_generated/api'
+import { api, internal } from '../_generated/api'
 import {
   mutation,
   query,
   internalQuery,
   internalMutation,
+  action,
 } from '../_generated/server'
 import { v } from 'convex/values'
 import { r2 } from './cloudflareR2'
 import { checkUserAuthentication } from '../helpers/auth'
 import { NotFoundError, UnauthorizedError } from '../helpers/errors'
+import { getTokenIdentifierParts } from '../helpers/utililties'
 
 export const createRecording = mutation({
   args: {
@@ -67,12 +69,38 @@ export const deleteRecording = mutation({
     const recording = await db.get(recordingId)
     if (!recording) throw new NotFoundError('Recording not found')
 
-    if (recording.uploadedBy !== userId)
+    const session = await db.get(recording.sessionId)
+    if (!session) throw new NotFoundError('Session not found')
+
+    const campaign = await db.get(session.campaignId)
+    if (!campaign) throw new NotFoundError('Campaign not found')
+
+    if (
+      campaign.ownerId !== userId ||
+      getTokenIdentifierParts(recording.uploadedBy).id !== userId
+    ) {
       throw new UnauthorizedError(
         'User not authorized to delete this recording',
       )
+    }
 
+    // TODO: Delete from R2
     await db.delete(recordingId)
+  },
+})
+
+export const deleteRecordingAndTranscript = action({
+  args: { recordingId: v.id('recordings') },
+  handler: async ({ auth, runMutation }, { recordingId }) => {
+    const userId = await checkUserAuthentication(auth)
+
+    // remove recording first as gatekeeper function
+    await runMutation(api.functions.recordings.deleteRecording, { recordingId })
+
+    // TODO: turn this into a schedule job to delete transcript parts that don't have a recording
+    await runMutation(api.functions.transcripts.deleteAllTranscriptParts, {
+      recordingId,
+    })
   },
 })
 
