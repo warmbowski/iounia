@@ -28,16 +28,21 @@ export function TopNav({ forceSignIn }: TopNavProps) {
 
   return (
     <Navbar maxWidth="full" isBordered>
-      <NavbarContent className="flex-1" justify="start">
+      <NavbarContent
+        className="sm:flex-1 flex-none sm:data-[justify=start]:grow-1 data-[justify=start]:grow-0"
+        justify="start"
+      >
         <NavbarItem>
           <RouterLink to="/app" className="flex items-center gap-2">
             <Icon icon="lucide:orbit" className="text-2xl text-primary" />
-            <span className="font-bold text-xl">{APP_TITLE}</span>
+            <span className="font-bold text-xl sm:inline hidden">
+              {APP_TITLE}
+            </span>
           </RouterLink>
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="flex-2">
+      <NavbarContent className="flex-auto sm:flex-3">
         <NavbarItem className="w-full">
           {isSignedIn && location.pathname.startsWith('/app/') && (
             <Input
@@ -58,7 +63,10 @@ export function TopNav({ forceSignIn }: TopNavProps) {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="flex-1" justify="end">
+      <NavbarContent
+        className="sm:flex-1 flex-none sm:data-[justify=end]:grow-1 data-[justify=end]:grow-0"
+        justify="end"
+      >
         <NavbarItem>
           {user && isSignedIn ? (
             <ProfileButton
