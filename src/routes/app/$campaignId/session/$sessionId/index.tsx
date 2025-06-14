@@ -108,11 +108,11 @@ function RouteComponent() {
             {session.shortSummary || <i>No short summary available</i>}
           </p>
           <h3 className="text-xl font-semibold mt-4">Session Notes</h3>
-          <p className="markdown-section text-balance">
+          <article className="markdown-section text-balance">
             <Remark>
               {session.notes ? session.notes : `**No notes available**`}
             </Remark>
-          </p>
+          </article>
           <h3 className="text-xl font-semibold mt-4">Recordings</h3>
           <div className="flex flex-col gap-2">
             {recordings.length > 0 ? (
