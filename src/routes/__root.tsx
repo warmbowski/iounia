@@ -44,6 +44,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
     links: [
       {
+        rel: 'icon',
+        href: '/orbit-48.ico',
+      },
+      {
         rel: 'stylesheet preload',
         as: 'style',
         href: 'https://fonts.googleapis.com/css2?family=Outfit&display=optional',
