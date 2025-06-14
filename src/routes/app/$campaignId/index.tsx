@@ -17,7 +17,7 @@ import {
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 
@@ -40,6 +40,7 @@ export const Route = createFileRoute('/app/$campaignId/')({
 function RouteComponent() {
   const { campaignId } = Route.useParams()
   const navigate = useNavigate()
+  const router = useRouter()
   const { user } = useUser()
   const { data: campaign } = useSuspenseQuery(
     convexQuery(api.functions.campaigns.readCampaignWithMembers, {
@@ -65,6 +66,17 @@ function RouteComponent() {
       to: '/app/$campaignId/session/$sessionId',
       params: { campaignId, sessionId },
     })
+  }
+
+  const handleCardHover = (sessionId: Id<'sessions'>) => {
+    try {
+      router.preloadRoute({
+        to: '/app/$campaignId/session/$sessionId',
+        params: { campaignId, sessionId },
+      })
+    } catch (err) {
+      // Failed to preload route
+    }
   }
 
   return (
@@ -162,7 +174,8 @@ function RouteComponent() {
           <SessionCard
             key={session._id}
             session={session}
-            onPress={() => handleCardClick(session._id)}
+            onPress={handleCardClick}
+            onHover={handleCardHover}
           />
         ))}
       </div>

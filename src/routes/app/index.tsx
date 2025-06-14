@@ -10,7 +10,7 @@ import {
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import { convexQuery } from '@convex-dev/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import type { Id } from 'convex/_generated/dataModel'
 import { CreateEditCampaignForm } from '@/components/create-edit-campaign-form'
 import { CampaignCard } from '@/components/campaign-card'
@@ -20,6 +20,7 @@ export const Route = createFileRoute('/app/')({
 })
 
 function Campaigns() {
+  const router = useRouter()
   const { data: campaigns } = useSuspenseQuery(
     convexQuery(api.functions.campaigns.listCampaignsWithMembersByUser, {}),
   )
@@ -31,6 +32,17 @@ function Campaigns() {
       to: '/app/$campaignId',
       params: { campaignId },
     })
+  }
+
+  const handleCardHover = (campaignId: Id<'campaigns'>) => {
+    try {
+      router.preloadRoute({
+        to: '/app/$campaignId',
+        params: { campaignId },
+      })
+    } catch (err) {
+      // Failed to preload route
+    }
   }
 
   return (
@@ -45,6 +57,7 @@ function Campaigns() {
             key={campaign._id}
             campaign={campaign}
             onPress={handleCardClick}
+            onHover={handleCardHover}
           />
         ))}
       </div>

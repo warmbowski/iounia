@@ -10,9 +10,14 @@ import { convexAction } from '@convex-dev/react-query'
 interface CampaignCardProps {
   campaign: typeof api.functions.campaigns.readCampaignWithMembers._returnType
   onPress?: (campaignId: Id<'campaigns'>) => void
+  onHover?: (campaignId: Id<'campaigns'>) => void
 }
 
-export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
+export function CampaignCard({
+  campaign,
+  onPress,
+  onHover,
+}: CampaignCardProps) {
   const { data: userMap } = useSuspenseQuery(
     convexAction(api.functions.users.getMapOfUsersAssociatedWithUser, {}),
   )
@@ -22,6 +27,7 @@ export function CampaignCard({ campaign, onPress }: CampaignCardProps) {
     <Card
       className="min-w-[200px] max-w-[400px] bg-content2 text-content-foreground2 border-2"
       onPress={onPress ? () => onPress(campaign._id) : undefined}
+      onMouseOver={onHover ? () => onHover(campaign._id) : undefined}
       isPressable={!!onPress}
     >
       <CardBody className="p-0">

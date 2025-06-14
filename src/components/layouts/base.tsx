@@ -16,7 +16,6 @@ export function BaseLayout({ children }: BaseLayoutProps) {
       className="flex flex-col h-screen w-screen bg-content"
     >
       <TopNav forceSignIn={location?.search?.forceSignIn} />
-      <BreadcrumbsBar />
       <div>
         {isLoading && (
           <Progress
@@ -28,6 +27,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
           />
         )}
       </div>
+      <BreadcrumbsBar />
       <div id="base-layout-scrollable-area" className="flex-1 overflow-auto">
         {children}
       </div>

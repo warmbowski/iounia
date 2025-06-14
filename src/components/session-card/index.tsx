@@ -10,9 +10,10 @@ interface SessionCardProps {
     attendees: Array<string>
   }
   onPress?: (sessionId: Id<'sessions'>) => void
+  onHover?: (sessionId: Id<'sessions'>) => void
 }
 
-export function SessionCard({ session, onPress }: SessionCardProps) {
+export function SessionCard({ session, onPress, onHover }: SessionCardProps) {
   const { data: attendees } = useQuery({
     queryKey: ['attendeeUsers', session._id],
     queryFn: () => [],
@@ -23,6 +24,7 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
     <Card
       className="min-w-[200px] max-w-[400px] bg-content2 text-content-foreground2 border-2"
       onPress={onPress ? () => onPress(session._id) : undefined}
+      onMouseOver={onHover ? () => onHover(session._id) : undefined}
       isPressable={!!onPress}
     >
       <CardBody className="p-0">
