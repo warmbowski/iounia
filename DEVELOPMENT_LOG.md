@@ -93,6 +93,7 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 - ✅ Refined VSCode Copilot to include library-specific instructions for Convex
 - ✅ Worked on improved method to check if users are logged in to reduce route load latency
 - ✅ Removed Clerk URL from user IDs and use raw Clerk user ID in members and attendee tables
+- ✅ tanstack-router set to preload on link hover, added manual preloading to non links that navigate (cards)
 
 ## Future Investigation
 
@@ -145,7 +146,7 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
   - [ ] Set up Clerk production environment
     - [ ] Migrate users from dev to prod
   - [ ] Set up Cloudflare R2 development bucket
-- [ ] Add application favicons
+- [x] Add application favicons
 - [ ] Implement pagination for recordings and transcriptions list functions
 - [ ] Move to Turborepo monorepo and move many UI components to package
   - [ ] Fork `@convex-dev/react-query` into monorepo package to fix issues and add pagination support

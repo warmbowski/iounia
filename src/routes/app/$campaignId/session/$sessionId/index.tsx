@@ -100,8 +100,10 @@ function RouteComponent() {
 
   return (
     <div className="p-6">
-      <div className="grid grid-cols-[350px_minmax(350px,_auto)] gap-8">
-        <SessionCard session={session} />
+      <div className="grid md:grid-cols-[350px_minmax(350px,_auto)] gap-8">
+        <div className="md:block hidden">
+          <SessionCard session={session} />
+        </div>
         <div>
           <h2 className="text-xl font-bold">What Happened</h2>
           <p className="text-balance">

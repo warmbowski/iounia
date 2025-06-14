@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Icon } from '@iconify/react/dist/iconify.js'
-import { Button, Card, CardBody, Chip } from '@heroui/react'
+import { Button, Card, CardBody } from '@heroui/react'
 import { RouterLink } from '@/components/router-link'
 
 export const Route = createFileRoute('/')({
