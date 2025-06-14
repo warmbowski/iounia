@@ -6,7 +6,7 @@ import { ProfileButton } from '../profile-button'
 import { useAuth, useUser } from '@clerk/tanstack-react-start'
 import { RouterLink } from '../router-link'
 import { APP_TITLE } from '@/constants'
-import { useRouter } from '@tanstack/react-router'
+import { useLocation, useRouter } from '@tanstack/react-router'
 
 interface TopNavProps {
   forceSignIn?: boolean
@@ -15,6 +15,7 @@ interface TopNavProps {
 export function TopNav({ forceSignIn }: TopNavProps) {
   const [accessModalOpen, setAccessModalOpen] = useState(forceSignIn || false)
   const router = useRouter()
+  const location = useLocation()
   const { user, isSignedIn, isLoaded } = useUser()
   const { signOut } = useAuth()
 
@@ -30,7 +31,7 @@ export function TopNav({ forceSignIn }: TopNavProps) {
       <NavbarContent className="flex-1" justify="start">
         <NavbarItem>
           <RouterLink to="/app" className="flex items-center gap-2">
-            <Icon icon="mdi:orbit" className="text-2xl text-primary" />
+            <Icon icon="lucide:orbit" className="text-2xl text-primary" />
             <span className="font-bold text-xl">{APP_TITLE}</span>
           </RouterLink>
         </NavbarItem>
@@ -38,20 +39,22 @@ export function TopNav({ forceSignIn }: TopNavProps) {
 
       <NavbarContent className="flex-2">
         <NavbarItem className="w-full">
-          <Input
-            classNames={{
-              base: 'max-w-full sm:max-w-[24rem] h-10',
-              mainWrapper: 'h-full',
-              inputWrapper: 'h-full',
-              input: 'text-small',
-            }}
-            placeholder="Ask a question..."
-            size="sm"
-            startContent={
-              <Icon icon="lucide:search" className="text-default-400" />
-            }
-            type="search"
-          />
+          {isSignedIn && location.pathname.startsWith('/app/') && (
+            <Input
+              classNames={{
+                base: 'max-w-full sm:max-w-[24rem] h-10',
+                mainWrapper: 'h-full',
+                inputWrapper: 'h-full',
+                input: 'text-small',
+              }}
+              placeholder="Ask a question..."
+              size="sm"
+              startContent={
+                <Icon icon="lucide:search" className="text-default-400" />
+              }
+              type="search"
+            />
+          )}
         </NavbarItem>
       </NavbarContent>
 
