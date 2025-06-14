@@ -7,6 +7,10 @@ export function BreadcrumbsBar() {
     .filter((match) => !!match.loaderData?.crumb)
     .map((match) => match.loaderData!.crumb)
 
+  if (crumbs.length === 0) {
+    return null
+  }
+
   return (
     <Breadcrumbs className="bg-content px-4 py-2">
       {crumbs.map((crumb, index) => (
