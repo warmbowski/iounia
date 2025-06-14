@@ -81,7 +81,7 @@ function RouteComponent() {
 
   return (
     <div className="p-6">
-      <div className="grid md:grid-cols-[350px_minmax(350px,_auto)] gap-8">
+      <div className="md:grid md:grid-cols-[350px_minmax(350px,_auto)] gap-8">
         <div className="md:block hidden">
           <CampaignCard campaign={campaign} />
         </div>
