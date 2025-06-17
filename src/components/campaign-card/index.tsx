@@ -64,7 +64,7 @@ export function CampaignCard({
       <CardFooter className="flex justify-between items-center">
         <div className="flex items-center gap-3 text-primary-700">
           <Icon icon="lucide:calendar" />
-          <span className="text-sm">
+          <span className="text-sm" suppressHydrationWarning>
             Started {formatDate(campaign._creationTime)}
           </span>
         </div>

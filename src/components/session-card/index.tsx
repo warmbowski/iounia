@@ -44,7 +44,9 @@ export function SessionCard({ session, onPress, onHover }: SessionCardProps) {
       <CardFooter className="flex justify-between items-center">
         <div className="flex items-center gap-3 text-primary-700">
           <Icon icon="lucide:calendar" />
-          <span className="text-sm ">{formatDate(session.date)}</span>
+          <span className="text-sm " suppressHydrationWarning>
+            {formatDate(session.date)}
+          </span>
         </div>
         <AttendeeGroup attendees={attendees} max={3} disableTooltips />
       </CardFooter>

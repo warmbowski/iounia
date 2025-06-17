@@ -28,10 +28,18 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 - ✅ Fixed authentication flow in routing
   - ✅ Implemented token-based auth context in route loader
   - ✅ Created JWT parsing utility for extracting user data from tokens
+
+## SSR & Hydration Mismatch Errors
+
 - ✅ Fixed auth issues during SSR because of 2 issues with @convex-dev/react-query package
   - ✅ [New ConvexHttpClient instance wipes out auth token](https://github.com/get-convex/convex-react-query/issues/15)
   - ✅ [Deprecated ConvexHttpClient.consistentQuery method throws errors](https://github.com/get-convex/convex-react-query/issues/16)
-  - ⬜ Need to make PR to @convex-dev/react-query to project if I get feedback from Convex team
+  - ✅ Fixed by convex team (see issues for details)
+- ✅ Fixed Tailwind CSS hydration issues by removing problematic Vite plugin
+  - ✅ Maintained Tailwind CSS support through PostCSS config
+- ✅ Fixed hydration errors with react-codemirror by lazy loading the component
+- ✅ Fixed hydration errors with react-remark by lazy loading the component
+- ✅ Fixed hydration errors on formatted dates due to timezone differences between server and client
 
 ## Data Management
 
@@ -84,9 +92,6 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 - ✅ Updated critical dependencies
   - ✅ Upgraded Convex from 1.24.6 to 1.24.8
   - ✅ Upgraded Vite from 6.1.0 to 6.3.5
-- ✅ Fixed hydration mismatch errors
-  - ✅ Removed problematic Tailwind CSS Vite plugin
-  - ✅ Maintained Tailwind CSS support through PostCSS config
 
 ## Optimizations & Refinements
 
@@ -149,6 +154,6 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 - [x] Add application favicons
 - [ ] Implement pagination for recordings and transcriptions list functions
 - [ ] Move to Turborepo monorepo and move many UI components to package
-  - [ ] Fork `@convex-dev/react-query` into monorepo package to fix issues and add pagination support
+  - [x] ~~Fork `@convex-dev/react-query` into monorepo package to fix issues and add pagination support~~
 
 ---

@@ -15,4 +15,11 @@ export default defineConfig({
     }),
     tanstackStart({ target: 'netlify' }),
   ],
+  // build: {
+  //   minify: false,
+  //   terserOptions: {
+  //     compress: false,
+  //     mangle: false,
+  //   },
+  // },
 })
