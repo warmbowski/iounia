@@ -27,7 +27,7 @@ export function CampaignCard({
     <Card
       className="min-w-[200px] max-w-[400px] bg-content2 text-content-foreground2 border-2"
       onPress={onPress ? () => onPress(campaign._id) : undefined}
-      onMouseOver={onHover ? () => onHover(campaign._id) : undefined}
+      onMouseEnter={onHover ? () => onHover(campaign._id) : undefined}
       isPressable={!!onPress}
     >
       <CardBody className="p-0">

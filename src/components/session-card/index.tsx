@@ -24,7 +24,7 @@ export function SessionCard({ session, onPress, onHover }: SessionCardProps) {
     <Card
       className="min-w-[200px] max-w-[400px] bg-content2 text-content-foreground2 border-2"
       onPress={onPress ? () => onPress(session._id) : undefined}
-      onMouseOver={onHover ? () => onHover(session._id) : undefined}
+      onMouseEnter={onHover ? () => onHover(session._id) : undefined}
       isPressable={!!onPress}
     >
       <CardBody className="p-0">
