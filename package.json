@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
-    "start": "node .output/server/index.mjs",
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
@@ -22,7 +21,7 @@
     "@convex-dev/migrations": "^0.2.7",
     "@convex-dev/persistent-text-streaming": "^0.2.2",
     "@convex-dev/r2": "^0.5.1",
-    "@convex-dev/react-query": "0.0.0-alpha.8",
+    "@convex-dev/react-query": "0.0.0-alpha.11",
     "@heroui/react": "2.8.0-beta.5",
     "@heroui/use-theme": "^2.1.6",
     "@iconify/react": "^5.2.1",

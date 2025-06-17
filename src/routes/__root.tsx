@@ -45,7 +45,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     links: [
       {
         rel: 'icon',
-        href: '/orbit-48.ico',
+        href: '/orbit-48.png',
       },
       {
         rel: 'stylesheet preload',

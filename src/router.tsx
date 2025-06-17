@@ -16,7 +16,9 @@ import { NotFound } from './components/not-found'
 
 const CONVEX_URL = ensureViteEnvironmentVariable('VITE_CONVEX_URL')
 export const convexClient = new ConvexReactClient(CONVEX_URL)
-export const convexQueryClient = new ConvexQueryClient(convexClient)
+export const convexQueryClient = new ConvexQueryClient(convexClient, {
+  dangerouslyUseInconsistentQueriesDuringSSR: true,
+})
 // const token = await getAuthTokenFn()
 // convexQueryClient.serverHttpClient?.setAuth(token || '')
 
