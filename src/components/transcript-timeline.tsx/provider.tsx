@@ -29,6 +29,7 @@ const queryClient = new QueryClient({
   }),
   defaultOptions: {
     queries: {
+      staleTime: Infinity, // Disable automatic refetching
       gcTime: 1000 * 60 * 60 * 24 * 21, // 21 days
       queryKeyHashFn: convexQueryClient.hashFn(),
       queryFn: convexQueryClient.queryFn(),
