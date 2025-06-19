@@ -14,6 +14,7 @@ import type * as functions_campaigns from "../functions/campaigns.js";
 import type * as functions_cloudflareR2 from "../functions/cloudflareR2.js";
 import type * as functions_members from "../functions/members.js";
 import type * as functions_messages from "../functions/messages.js";
+import type * as functions_presence from "../functions/presence.js";
 import type * as functions_recordings from "../functions/recordings.js";
 import type * as functions_sessions from "../functions/sessions.js";
 import type * as functions_storage from "../functions/storage.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   "functions/cloudflareR2": typeof functions_cloudflareR2;
   "functions/members": typeof functions_members;
   "functions/messages": typeof functions_messages;
+  "functions/presence": typeof functions_presence;
   "functions/recordings": typeof functions_recordings;
   "functions/sessions": typeof functions_sessions;
   "functions/storage": typeof functions_storage;
@@ -73,6 +75,91 @@ export declare const internal: FilterApi<
 >;
 
 export declare const components: {
+  migrations: {
+    lib: {
+      cancel: FunctionReference<
+        "mutation",
+        "internal",
+        { name: string },
+        {
+          batchSize?: number;
+          cursor?: string | null;
+          error?: string;
+          isDone: boolean;
+          latestEnd?: number;
+          latestStart: number;
+          name: string;
+          next?: Array<string>;
+          processed: number;
+          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+        }
+      >;
+      cancelAll: FunctionReference<
+        "mutation",
+        "internal",
+        { sinceTs?: number },
+        Array<{
+          batchSize?: number;
+          cursor?: string | null;
+          error?: string;
+          isDone: boolean;
+          latestEnd?: number;
+          latestStart: number;
+          name: string;
+          next?: Array<string>;
+          processed: number;
+          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+        }>
+      >;
+      clearAll: FunctionReference<
+        "mutation",
+        "internal",
+        { before?: number },
+        null
+      >;
+      getStatus: FunctionReference<
+        "query",
+        "internal",
+        { limit?: number; names?: Array<string> },
+        Array<{
+          batchSize?: number;
+          cursor?: string | null;
+          error?: string;
+          isDone: boolean;
+          latestEnd?: number;
+          latestStart: number;
+          name: string;
+          next?: Array<string>;
+          processed: number;
+          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+        }>
+      >;
+      migrate: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          batchSize?: number;
+          cursor?: string | null;
+          dryRun: boolean;
+          fnHandle: string;
+          name: string;
+          next?: Array<{ fnHandle: string; name: string }>;
+        },
+        {
+          batchSize?: number;
+          cursor?: string | null;
+          error?: string;
+          isDone: boolean;
+          latestEnd?: number;
+          latestStart: number;
+          name: string;
+          next?: Array<string>;
+          processed: number;
+          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+        }
+      >;
+    };
+  };
   persistentTextStreaming: {
     lib: {
       addChunk: FunctionReference<
@@ -105,6 +192,57 @@ export declare const components: {
           streamId: string;
         },
         any
+      >;
+    };
+  };
+  presence: {
+    public: {
+      disconnect: FunctionReference<
+        "mutation",
+        "internal",
+        { sessionToken: string },
+        null
+      >;
+      heartbeat: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          interval?: number;
+          roomId: string;
+          sessionId: string;
+          userId: string;
+        },
+        { roomToken: string; sessionToken: string }
+      >;
+      list: FunctionReference<
+        "query",
+        "internal",
+        { limit?: number; roomToken: string },
+        Array<{ lastDisconnected: number; online: boolean; userId: string }>
+      >;
+      listRoom: FunctionReference<
+        "query",
+        "internal",
+        { limit?: number; onlineOnly?: boolean; roomId: string },
+        Array<{ lastDisconnected: number; online: boolean; userId: string }>
+      >;
+      listUser: FunctionReference<
+        "query",
+        "internal",
+        { limit?: number; onlineOnly?: boolean; userId: string },
+        Array<{ lastDisconnected: number; online: boolean; roomId: string }>
+      >;
+      removeRoom: FunctionReference<
+        "mutation",
+        "internal",
+        { roomId: string },
+        null
+      >;
+      removeRoomUser: FunctionReference<
+        "mutation",
+        "internal",
+        { roomId: string; userId: string },
+        null
       >;
     };
   };
@@ -228,91 +366,6 @@ export declare const components: {
           secretAccessKey: string;
         },
         null
-      >;
-    };
-  };
-  migrations: {
-    lib: {
-      cancel: FunctionReference<
-        "mutation",
-        "internal",
-        { name: string },
-        {
-          batchSize?: number;
-          cursor?: string | null;
-          error?: string;
-          isDone: boolean;
-          latestEnd?: number;
-          latestStart: number;
-          name: string;
-          next?: Array<string>;
-          processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
-        }
-      >;
-      cancelAll: FunctionReference<
-        "mutation",
-        "internal",
-        { sinceTs?: number },
-        Array<{
-          batchSize?: number;
-          cursor?: string | null;
-          error?: string;
-          isDone: boolean;
-          latestEnd?: number;
-          latestStart: number;
-          name: string;
-          next?: Array<string>;
-          processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
-        }>
-      >;
-      clearAll: FunctionReference<
-        "mutation",
-        "internal",
-        { before?: number },
-        null
-      >;
-      getStatus: FunctionReference<
-        "query",
-        "internal",
-        { limit?: number; names?: Array<string> },
-        Array<{
-          batchSize?: number;
-          cursor?: string | null;
-          error?: string;
-          isDone: boolean;
-          latestEnd?: number;
-          latestStart: number;
-          name: string;
-          next?: Array<string>;
-          processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
-        }>
-      >;
-      migrate: FunctionReference<
-        "mutation",
-        "internal",
-        {
-          batchSize?: number;
-          cursor?: string | null;
-          dryRun: boolean;
-          fnHandle: string;
-          name: string;
-          next?: Array<{ fnHandle: string; name: string }>;
-        },
-        {
-          batchSize?: number;
-          cursor?: string | null;
-          error?: string;
-          isDone: boolean;
-          latestEnd?: number;
-          latestStart: number;
-          name: string;
-          next?: Array<string>;
-          processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
-        }
       >;
     };
   };

@@ -32,6 +32,9 @@ importers:
       '@convex-dev/persistent-text-streaming':
         specifier: ^0.2.2
         version: 0.2.2(convex@1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@convex-dev/presence':
+        specifier: ^0.1.4
+        version: 0.1.4(convex@1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@convex-dev/r2':
         specifier: ^0.5.1
         version: 0.5.1(convex@1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.24.4)
@@ -757,6 +760,13 @@ packages:
     resolution: {integrity: sha512-biiiZsE3aa4uTllItyUZk3043xXOxWi2+PXoOxBcr/pZFZlgBs3TOGO8PZQranaStblkZMAZeBEpwYzOth5jvA==}
     peerDependencies:
       convex: '>=1.23.0 <1.35.0'
+      react: ~18.3.1 || ^19.0.0
+      react-dom: ~18.3.1 || ^19.0.0
+
+  '@convex-dev/presence@0.1.4':
+    resolution: {integrity: sha512-c6FvfL1S9HGr1ZwIHT4E2V8ycl61X5ni7qGsgGoWIVNjh9ITllZRcXV50i9txVXmvW9pVGSW4NXT47zgPsQVKw==}
+    peerDependencies:
+      convex: '>=1.24.8 <1.35.0'
       react: ~18.3.1 || ^19.0.0
       react-dom: ~18.3.1 || ^19.0.0
 
@@ -8157,6 +8167,12 @@ snapshots:
       convex: 1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
 
   '@convex-dev/persistent-text-streaming@0.2.2(convex@1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      convex: 1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
+  '@convex-dev/presence@0.1.4(convex@1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       convex: 1.24.8(@clerk/clerk-react@5.31.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       react: 19.1.0

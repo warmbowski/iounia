@@ -3,6 +3,7 @@ import { CreateEditSessionForm } from '@/components/create-edit-session-form'
 import { MemberGroup } from '@/components/member-group'
 import { SessionCard } from '@/components/session-card'
 import { useUser } from '@clerk/tanstack-react-start'
+import usePresence from '@convex-dev/presence/react'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import {
   Button,
@@ -42,6 +43,12 @@ function RouteComponent() {
   const navigate = useNavigate()
   const router = useRouter()
   const { user } = useUser()
+  const presenceState = usePresence(
+    api.functions.presence,
+    campaignId,
+    user?.id || 'no-user',
+  )
+
   const { data: campaign } = useSuspenseQuery(
     convexQuery(api.functions.campaigns.readCampaignWithMembers, {
       campaignId: campaignId,
@@ -105,6 +112,7 @@ function RouteComponent() {
           {campaign.members.length > 0 ? (
             <MemberGroup
               className="mt-2"
+              presenceState={presenceState}
               members={campaign.members}
               filter={(member) => member.status === 'active'}
               max={10}
@@ -125,6 +133,7 @@ function RouteComponent() {
                 <MemberGroup
                   className="mt-2"
                   members={campaign.members}
+                  presenceState={presenceState}
                   filter={(member) => member.status !== 'active'}
                   max={10}
                   isGrid

@@ -20,6 +20,7 @@
     "@convex-dev/eslint-plugin": "0.0.1-alpha.4",
     "@convex-dev/migrations": "^0.2.7",
     "@convex-dev/persistent-text-streaming": "^0.2.2",
+    "@convex-dev/presence": "^0.1.4",
     "@convex-dev/r2": "^0.5.1",
     "@convex-dev/react-query": "0.0.0-alpha.11",
     "@heroui/react": "2.8.0-beta.5",

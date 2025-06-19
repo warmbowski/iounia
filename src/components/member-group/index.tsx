@@ -1,7 +1,9 @@
+import type { PresenceState } from '@convex-dev/presence/react'
 import { convexAction, useConvexMutation } from '@convex-dev/react-query'
 import {
   Avatar,
   AvatarGroup,
+  Badge,
   Tooltip,
   type AvatarGroupProps,
 } from '@heroui/react'
@@ -28,18 +30,21 @@ const STATUS_COLOR_MAP = {
 
 const ROLE_MESSAGE_MAP = {
   admin: 'Campaign Admin',
+  session_admin: 'Session Admin',
   member: 'Campaign Member',
   default: 'Campaign Viewer',
 } as const
 
 interface MemberGroupProps extends AvatarGroupProps {
   members: Doc<'members'>[]
+  presenceState?: PresenceState[]
   disableTooltips?: boolean
   filter?: (member: Doc<'members'>) => boolean
 }
 
 export function MemberGroup({
   members,
+  presenceState = [],
   disableTooltips = false,
   filter,
   ...avatarGroupProps
@@ -77,40 +82,56 @@ export function MemberGroup({
       radius="sm"
     >
       {memberUsers.length > 0 ? (
-        memberUsers.map((mu) => (
-          <Tooltip
-            key={mu.userId}
-            color={STATUS_COLOR_MAP[mu.status || 'default']}
-            content={
-              <div className="flex flex-col align-center justify-center">
-                <span>{mu.fullName}</span>
-                <span className="text-xs text-muted">
-                  {ROLE_MESSAGE_MAP[mu.role || 'default']}
-                </span>
-              </div>
-            }
-            isDisabled={disableTooltips}
-            delay={500}
-            closeDelay={1000}
-          >
-            <Avatar
-              className={mu.status === 'pending' ? 'hover:cursor:pointer' : ''}
+        memberUsers.map((mu) => {
+          const online = presenceState.find(
+            (p) => p.userId === mu.userId,
+          )?.online
+
+          return (
+            <Tooltip
+              key={mu.userId}
               color={STATUS_COLOR_MAP[mu.status || 'default']}
-              src={mu.imageUrl}
-              name={mu.fullName || ''}
-              size="sm"
-              onDoubleClick={() => {
-                handleUpdateMember(mu)
-              }}
-              aria-label={
-                mu.status === 'pending'
-                  ? `Double click to allow ${mu.fullName} to join the campaign`
-                  : undefined
+              content={
+                <div className="flex flex-col align-center justify-center">
+                  <span>{mu.fullName}</span>
+                  <span className="text-xs text-muted">
+                    {ROLE_MESSAGE_MAP[mu.role || 'default']}
+                  </span>
+                </div>
               }
-              isDisabled={mu.status === 'pending' && isPending}
-            />
-          </Tooltip>
-        ))
+              isDisabled={disableTooltips}
+              delay={500}
+              closeDelay={1000}
+            >
+              <Badge
+                isOneChar
+                isInvisible={!online}
+                placement="bottom-left"
+                color="success"
+                content={<Icon icon="lucide:radio" />}
+              >
+                <Avatar
+                  className={
+                    mu.status === 'pending' ? 'hover:cursor:pointer' : ''
+                  }
+                  color={STATUS_COLOR_MAP[mu.status || 'default']}
+                  src={mu.imageUrl}
+                  name={mu.fullName || ''}
+                  size="sm"
+                  onDoubleClick={() => {
+                    handleUpdateMember(mu)
+                  }}
+                  aria-label={
+                    mu.status === 'pending'
+                      ? `Double click to allow ${mu.fullName} to join the campaign`
+                      : undefined
+                  }
+                  isDisabled={mu.status === 'pending' || isPending}
+                />
+              </Badge>
+            </Tooltip>
+          )
+        })
       ) : (
         <Tooltip
           content="No members"

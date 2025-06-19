@@ -7,7 +7,8 @@ const userId = () => v.string()
 export const isoDate = () => v.string()
 export const attendeeRole = () =>
   v.union(v.literal('gm'), v.literal('player'), v.literal('observer'))
-export const memberRole = () => v.union(v.literal('member'), v.literal('admin'))
+export const memberRole = () =>
+  v.union(v.literal('member'), v.literal('admin'), v.literal('session_admin'))
 export const memberStatus = () =>
   v.union(
     v.literal('pending'),
@@ -41,6 +42,9 @@ export default defineSchema({
     userId: userId(),
     role: v.optional(memberRole()),
     status: v.optional(memberStatus()),
+    presence: v.optional(v.union(v.literal('online'), v.literal('offline'))),
+    lastActive: v.optional(isoDate()),
+    joinedAt: v.optional(isoDate()),
   })
     .index('by_campaign_member', ['userId'])
     .index('by_campaign', ['campaignId']),
