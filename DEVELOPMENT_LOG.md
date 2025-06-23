@@ -113,16 +113,17 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 ### AI Features
 
-- [ ] Reimplement AI chat window for campaign and session Q&A
-  - [ ] Implement with AI Chat component from Convex
-  - [ ] Per user chat history
-  - [ ] Chat topics and conversation management
+- [x] Reimplement AI chat window for campaign and session Q&A
+  - [x] Implement with AI Chat component from Convex
+  - [x] Per user chat history
+  - [x] Chat topics and conversation management
 - [ ] Implement Chat with NPCs
   - [ ] DM Assigns users to interact with specific NPCs
   - [ ] DM can view and manage NPC conversations and commit conversations to lore
 
 ### Campaign Management
 
+- [x] Show campaign members' presence
 - [ ] Editing campaign details
 - [ ] Uploading campaign lore documents in various formats, such as PDF, text, etc.
 - [ ] Add character lists to campaigns,

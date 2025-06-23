@@ -15,10 +15,12 @@ import {
   MIN_TEXT_LENGTH_FOR_EMBEDDING_GENERATION,
   SYSTEM_PROMPT_SHORT_SUMMARIZATION,
   SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
+  TIME_SPAN_CONTEXT_LENGTH_MS,
 } from '../constants'
 import { ensureServerEnironmentVariable } from '../helpers/utililties'
 import { checkUserAuthentication } from '../helpers/auth'
 import { BadRequestError, NotFoundError } from '../helpers/errors'
+import { Id } from '../_generated/dataModel'
 
 const GEMINI_API_KEY = ensureServerEnironmentVariable('GEMINI_API_KEY')
 
@@ -410,5 +412,65 @@ export const listTranscriptPartsByRecordingId = internalQuery({
     }
 
     return await query.collect()
+  },
+})
+
+export const getTranscriptVectorSearch = internalAction({
+  args: {
+    prompt: v.string(),
+    campaignId: v.id('campaigns'),
+    maxResults: v.optional(v.number()),
+  },
+  handler: async (
+    { runAction, runQuery, vectorSearch },
+    { prompt, campaignId, maxResults },
+  ): Promise<string> => {
+    const [embed] = await runAction(
+      internal.functions.transcripts.generateTextEmbeddings,
+      {
+        texts: [prompt],
+      },
+    )
+
+    // Perform a vector search to find relevant id/score of transcript utterances based on the embeddings
+    const hiScoreTranscriptIds = await vectorSearch(
+      'transcripts',
+      'by_campaign_embeddings',
+      {
+        vector: embed || [],
+        limit: maxResults || 25,
+        filter: (q) => q.eq('campaignId', campaignId),
+      },
+    ).then((res) => res.filter((r) => r._score > 0.5))
+
+    // get the start times for the transcript utterances
+    const transcriptTimes = await runQuery(
+      internal.functions.transcripts.getTranscriptParts,
+      {
+        transcriptId: hiScoreTranscriptIds.map((result) => result._id),
+      },
+    ).then((transcriptParts) =>
+      transcriptParts.map((part) => ({
+        id: part._id,
+        recId: part.recordingId,
+        atTime: part.start,
+      })),
+    )
+
+    // generate larger context of 5 minutes around the transcript times
+    return await Promise.all(
+      transcriptTimes.map((time) => {
+        return runQuery(
+          internal.functions.transcripts.listTranscriptPartsByRecordingId,
+          {
+            recordingId: time.recId as Id<'recordings'>,
+            range: {
+              start: time.atTime - TIME_SPAN_CONTEXT_LENGTH_MS / 2,
+              end: time.atTime + TIME_SPAN_CONTEXT_LENGTH_MS / 2,
+            },
+          },
+        ).then((parts) => parts.map((part) => part.text).join('\n'))
+      }),
+    ).then((texts) => texts.join('\n'))
   },
 })

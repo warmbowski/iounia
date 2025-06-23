@@ -1,7 +1,6 @@
-import { StreamIdValidator } from '@convex-dev/persistent-text-streaming'
-import { embed } from 'ai'
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
+import { threadId } from 'worker_threads'
 
 const userId = () => v.string()
 export const isoDate = () => v.string()
@@ -18,14 +17,6 @@ export const memberStatus = () =>
   )
 
 export default defineSchema({
-  userMessages: defineTable({
-    prompt: v.string(),
-    campaignId: v.id('campaigns'),
-    responseStreamId: StreamIdValidator,
-  })
-    .index('by_stream', ['responseStreamId'])
-    .index('by_campaign', ['campaignId']),
-
   campaigns: defineTable({
     name: v.string(),
     startDate: v.optional(v.string()),
@@ -106,4 +97,13 @@ export default defineSchema({
     .index('by_campaign', ['campaignId'])
     .index('by_recording', ['recordingId', 'start'])
     .index('by_session', ['sessionId', 'start']),
+
+  threadTracker: defineTable({
+    userId: userId(),
+    threadId: v.string(),
+    campaignId: v.id('campaigns'),
+    threadScope: v.union(v.literal('campaign'), v.literal('npc')),
+  })
+    .index('by_campaign', ['campaignId', 'userId'])
+    .index('by_scope', ['threadScope']),
 })
