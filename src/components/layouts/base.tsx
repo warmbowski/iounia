@@ -28,9 +28,9 @@ export function BaseLayout({ children }: BaseLayoutProps) {
         )}
       </div>
       <BreadcrumbsBar />
-      <div id="base-layout-scrollable-area" className="flex-1 overflow-auto">
+      <main id="base-layout-scrollable-area" className="flex-1 overflow-auto">
         {children}
-      </div>
+      </main>
     </section>
   )
 }

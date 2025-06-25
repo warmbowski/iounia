@@ -12,15 +12,12 @@ import { ConvexReactClient } from 'convex/react'
 import { ensureViteEnvironmentVariable } from '@/utils'
 import { DefaultCatchBoundary } from './components/default-catch-boundary'
 import { NotFound } from './components/not-found'
-// import { getAuthTokenFn } from './server-functions/auth'
 
 const CONVEX_URL = ensureViteEnvironmentVariable('VITE_CONVEX_URL')
 export const convexClient = new ConvexReactClient(CONVEX_URL)
 export const convexQueryClient = new ConvexQueryClient(convexClient, {
   dangerouslyUseInconsistentQueriesDuringSSR: true,
 })
-// const token = await getAuthTokenFn()
-// convexQueryClient.serverHttpClient?.setAuth(token || '')
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({

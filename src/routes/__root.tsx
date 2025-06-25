@@ -19,6 +19,8 @@ import { convexQueryClient } from '@/router'
 import { ToastProvider } from '@heroui/react'
 import { BaseLayout } from '@/components/layouts'
 import { getAuthTokenFn } from '@/server-functions/auth'
+import { parseJwtPayload } from '@/utils'
+import { StrictMode } from 'react'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -68,7 +70,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context }) => {
     const token = await getAuthTokenFn()
     context.convexQueryClient.serverHttpClient?.setAuth(token || '')
-    context.auth = { token }
+    const payload = token ? parseJwtPayload(token) : null
+    const auth = { token, userId: payload?.sub || null }
+    return { auth } // update context with auth token
   },
 
   component: () => {
@@ -79,7 +83,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             client={convexQueryClient.convexClient}
             useAuth={useAuth}
           >
-            <BaseApp />
+            <StrictMode>
+              <BaseApp />
+            </StrictMode>
           </ConvexProviderWithClerk>
         </RootDocument>
       </ClerkProvider>

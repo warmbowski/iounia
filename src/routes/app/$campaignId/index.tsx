@@ -2,7 +2,6 @@ import { CampaignCard } from '@/components/campaign-card'
 import { CreateEditSessionForm } from '@/components/create-edit-session-form'
 import { MemberGroup } from '@/components/member-group'
 import { SessionCard } from '@/components/session-card'
-import { useUser } from '@clerk/tanstack-react-start'
 import usePresence from '@convex-dev/presence/react'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import {
@@ -42,11 +41,11 @@ function RouteComponent() {
   const { campaignId } = Route.useParams()
   const navigate = useNavigate()
   const router = useRouter()
-  const { user } = useUser()
+  const { auth } = Route.useRouteContext()
   const presenceState = usePresence(
     api.functions.presence,
     campaignId,
-    user?.id || 'no-user',
+    auth.userId || 'no-user', // Note: error here indicates no user logged in, which shouldn't happen on this route
   )
 
   const { data: campaign } = useSuspenseQuery(
@@ -124,7 +123,7 @@ function RouteComponent() {
             </p>
           )}
 
-          {campaign.ownerId === user?.id && (
+          {campaign.ownerId === auth.userId && (
             <>
               <h3 className="text-xl font-semibold mt-4 flex justify-between items-center">
                 <span>Join Requests</span>
@@ -151,7 +150,9 @@ function RouteComponent() {
                     size="md"
                     isIconOnly
                     disabled={
-                      user?.id ? !campaign.ownerId.endsWith(user.id) : true
+                      auth.userId
+                        ? !campaign.ownerId.endsWith(auth.userId)
+                        : true
                     }
                     isLoading={isUpdating}
                     onPress={() =>

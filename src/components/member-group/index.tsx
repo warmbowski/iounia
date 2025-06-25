@@ -88,27 +88,28 @@ export function MemberGroup({
           )?.online
 
           return (
-            <Tooltip
+            <Badge
               key={mu.userId}
-              color={STATUS_COLOR_MAP[mu.status || 'default']}
-              content={
-                <div className="flex flex-col align-center justify-center">
-                  <span>{mu.fullName}</span>
-                  <span className="text-xs text-muted">
-                    {ROLE_MESSAGE_MAP[mu.role || 'default']}
-                  </span>
-                </div>
-              }
-              isDisabled={disableTooltips}
-              delay={500}
-              closeDelay={1000}
+              isOneChar
+              isInvisible={!online}
+              placement="bottom-left"
+              color="success"
+              content={<Icon icon="lucide:radio" />}
             >
-              <Badge
-                isOneChar
-                isInvisible={!online}
-                placement="bottom-left"
-                color="success"
-                content={<Icon icon="lucide:radio" />}
+              <Tooltip
+                key={mu.userId}
+                color={STATUS_COLOR_MAP[mu.status || 'default']}
+                content={
+                  <div className="flex flex-col align-center justify-center">
+                    <span>{mu.fullName}</span>
+                    <span className="text-xs text-muted">
+                      {ROLE_MESSAGE_MAP[mu.role || 'default']}
+                    </span>
+                  </div>
+                }
+                isDisabled={disableTooltips}
+                delay={500}
+                closeDelay={1000}
               >
                 <Avatar
                   className={
@@ -128,8 +129,8 @@ export function MemberGroup({
                   }
                   isDisabled={mu.status === 'pending' || isPending}
                 />
-              </Badge>
-            </Tooltip>
+              </Tooltip>
+            </Badge>
           )
         })
       ) : (
