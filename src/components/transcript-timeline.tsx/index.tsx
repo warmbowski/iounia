@@ -34,7 +34,7 @@ export function RecordingTimeline({
     itemsPerPage: 100,
   })
 
-  const loadMoreRef = useInfiniteLoader(fetchNextPage, hasNextPage)
+  const loadMoreRef = useInfiniteLoader(fetchNextPage, hasNextPage, 500)
 
   const focusRef = useRef<HTMLButtonElement>(null)
   if (focusRef.current && scrollToSeekTime) {
@@ -71,7 +71,12 @@ export function RecordingTimeline({
               </p>
             )
           })}
-          <div ref={loadMoreRef} />
+          <div
+            className="relative w-[100vw] h-[50px] flex justify-center text-warning-500 items-center"
+            ref={loadMoreRef}
+          >
+            {hasNextPage && isFetching && 'Loading more...'}
+          </div>
         </div>
       ) : (
         <p className="text-default-500">

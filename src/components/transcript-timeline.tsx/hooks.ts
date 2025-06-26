@@ -19,9 +19,6 @@ const getTranscriptParts = async ({
   authToken,
   recordingId,
 }: GetTranscriptParts) => {
-  console.log(
-    `Fetching transcript parts for recording ${recordingId} with cursor ${nextCursor} and itemsPerPage ${itemsPerPage}`,
-  )
   client.setAuth(authToken)
   const results = await client.query(
     api.functions.transcripts.listAllTranscriptParts,
@@ -71,7 +68,11 @@ export const useInfiniteTranscript = ({
   }
 }
 
-export const useInfiniteLoader = (fetchData: () => void, hasMore: boolean) => {
+export const useInfiniteLoader = (
+  fetchData: () => void,
+  hasMore: boolean,
+  offset: string | number = 0,
+) => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
   const handleIntersection = useCallback(
@@ -86,7 +87,7 @@ export const useInfiniteLoader = (fetchData: () => void, hasMore: boolean) => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(handleIntersection, {
-      rootMargin: '-200px 0px 0px 0px',
+      rootMargin: typeof offset === 'number' ? `${offset}px` : offset,
     })
 
     if (loadMoreRef.current) {
