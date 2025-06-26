@@ -1,10 +1,9 @@
 import { formatTime } from '@/utils'
-import { convexQuery } from '@convex-dev/react-query'
 import { Button } from '@heroui/react'
-import { useQuery } from '@tanstack/react-query'
-import { api } from 'convex/_generated/api'
+import { useMatch } from '@tanstack/react-router'
 import type { Id } from 'convex/_generated/dataModel'
 import { useRef } from 'react'
+import { useInfiniteLoader, useInfiniteTranscript } from './hooks'
 
 export { PersistedRecordingTimelineProvider } from './provider'
 
@@ -21,18 +20,21 @@ export function RecordingTimeline({
   setSeekTime,
   scrollToSeekTime = false,
 }: RecordingTimelineProps) {
+  const { context } = useMatch({ from: '/app' })
+
   const {
     data: transcript,
+    fetchNextPage,
+    hasNextPage,
     isPending,
     isFetching,
-  } = useQuery({
-    ...convexQuery(api.functions.transcripts.listTranscriptParts, {
-      recordingId,
-    }),
-    staleTime: Infinity,
-    gcTime: Infinity,
-    retry: 1,
+  } = useInfiniteTranscript({
+    recordingId,
+    authToken: context.auth.token ?? '',
+    itemsPerPage: 100,
   })
+
+  const loadMoreRef = useInfiniteLoader(fetchNextPage, hasNextPage)
 
   const focusRef = useRef<HTMLButtonElement>(null)
   if (focusRef.current && scrollToSeekTime) {
@@ -69,6 +71,7 @@ export function RecordingTimeline({
               </p>
             )
           })}
+          <div ref={loadMoreRef} />
         </div>
       ) : (
         <p className="text-default-500">

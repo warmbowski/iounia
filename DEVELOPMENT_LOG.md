@@ -137,6 +137,9 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 
 - [x] Implement recording deletion and cascading deletion of transcriptions
 - [x] Add transcript follow/unfollow when playing recording
+- [x] Implement pagination (infintite scroll) for transcription display
+  - [x] Avoid Convex's usePaginatedQuery in favor of TanStack Query's useInfiniteQuery
+  - [x] Ensure indexdb caching with the TanStack PersistedQueryClient
 
 ### User Profile Management
 

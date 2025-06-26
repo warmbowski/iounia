@@ -21,6 +21,7 @@ import { ensureServerEnironmentVariable } from '../helpers/utililties'
 import { checkUserAuthentication } from '../helpers/auth'
 import { BadRequestError, NotFoundError } from '../helpers/errors'
 import { Id } from '../_generated/dataModel'
+import { paginationOptsValidator } from 'convex/server'
 
 const GEMINI_API_KEY = ensureServerEnironmentVariable('GEMINI_API_KEY')
 
@@ -55,7 +56,7 @@ export const generateSessionSummary = action({
     await checkUserAuthentication(auth)
 
     const transcriptParts = await runQuery(
-      api.functions.transcripts.listTranscriptParts,
+      internal.functions.transcripts.listTranscriptsBySessionId,
       { sessionId },
     )
 
@@ -113,12 +114,13 @@ export const generateSessionSummary = action({
   },
 })
 
-export const listTranscriptParts = query({
+export const listAllTranscriptParts = query({
   args: v.object({
     recordingId: v.optional(v.id('recordings')),
     sessionId: v.optional(v.id('sessions')),
+    paginationOpts: paginationOptsValidator,
   }),
-  handler: async ({ db, auth }, { recordingId, sessionId }) => {
+  handler: async ({ db, auth }, { recordingId, sessionId, paginationOpts }) => {
     await checkUserAuthentication(auth)
 
     if (!recordingId && !sessionId) {
@@ -140,7 +142,7 @@ export const listTranscriptParts = query({
         .query('transcripts')
         .withIndex('by_session', (q) => q.eq('sessionId', sessionId))
         .order('asc')
-        .collect()
+        .paginate(paginationOpts)
     }
 
     if (recordingId) {
@@ -151,10 +153,12 @@ export const listTranscriptParts = query({
         .query('transcripts')
         .withIndex('by_recording', (q) => q.eq('recordingId', recordingId))
         .order('asc')
-        .collect()
+        .paginate(paginationOpts)
     }
 
-    return []
+    throw new BadRequestError(
+      'Either recordingId or sessionId must be provided',
+    )
   },
 })
 
@@ -292,7 +296,7 @@ export const updateTextEmbeddings = internalAction({
   },
   handler: async ({ runQuery, runAction, runMutation }, { recordingId }) => {
     const transcriptParts = await runQuery(
-      internal.functions.transcripts.listTranscriptPartsByRecordingId,
+      internal.functions.transcripts.listTranscriptRangeByRecordingId,
       { recordingId },
     ).then((parts) =>
       parts.filter(
@@ -386,7 +390,7 @@ export const updateTranscriptPart = internalMutation({
   },
 })
 
-export const listTranscriptPartsByRecordingId = internalQuery({
+export const listTranscriptRangeByRecordingId = internalQuery({
   args: {
     recordingId: v.id('recordings'),
     range: v.optional(
@@ -412,6 +416,19 @@ export const listTranscriptPartsByRecordingId = internalQuery({
     }
 
     return await query.collect()
+  },
+})
+
+export const listTranscriptsBySessionId = internalQuery({
+  args: {
+    sessionId: v.id('sessions'),
+  },
+  handler: async ({ db }, { sessionId }) => {
+    return await db
+      .query('transcripts')
+      .withIndex('by_session', (q) => q.eq('sessionId', sessionId))
+      .order('asc')
+      .collect()
   },
 })
 
@@ -461,7 +478,7 @@ export const getTranscriptVectorSearch = internalAction({
     return await Promise.all(
       transcriptTimes.map((time) => {
         return runQuery(
-          internal.functions.transcripts.listTranscriptPartsByRecordingId,
+          internal.functions.transcripts.listTranscriptRangeByRecordingId,
           {
             recordingId: time.recId as Id<'recordings'>,
             range: {
