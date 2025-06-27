@@ -2,7 +2,7 @@ import { formatTime } from '@/utils'
 import { Button } from '@heroui/react'
 import { useMatch } from '@tanstack/react-router'
 import type { Id } from 'convex/_generated/dataModel'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useInfiniteLoader, useInfiniteTranscript } from './hooks'
 
 export { PersistedRecordingTimelineProvider } from './provider'
@@ -35,11 +35,24 @@ export function RecordingTimeline({
   })
 
   const loadMoreRef = useInfiniteLoader(fetchNextPage, hasNextPage, 500)
-
+  const lastLoadedTimeRef = useRef<number>(0)
   const focusRef = useRef<HTMLButtonElement>(null)
+
   if (focusRef.current && scrollToSeekTime) {
     focusRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  } else if (
+    currentTime > lastLoadedTimeRef.current &&
+    hasNextPage &&
+    !isFetching
+  ) {
+    fetchNextPage()
   }
+
+  useEffect(() => {
+    if (transcript && transcript.length > 0) {
+      lastLoadedTimeRef.current = transcript[transcript.length - 1].end / 1000
+    }
+  }, [transcript])
 
   return (
     <div className="my-4">
