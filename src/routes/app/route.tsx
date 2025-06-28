@@ -10,8 +10,14 @@ import {
 import { api } from 'convex/_generated/api'
 
 export const Route = createFileRoute('/app')({
-  beforeLoad: async ({ context }) => {
-    const token = context.auth.token
+  validateSearch: (search) => {
+    if (search.__clerk_handshake) {
+      return { token: search.__clerk_handshake }
+    }
+    return {}
+  },
+  beforeLoad: async ({ context, search }) => {
+    const token = context.auth.token || search.token
     if (!token) {
       throw redirect({ to: '/', search: { forceSignIn: true } })
     }
