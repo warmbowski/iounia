@@ -47,6 +47,8 @@ export const createCampaign = mutation({
     await db.insert('members', {
       campaignId: campaignId,
       userId,
+      status: 'active',
+      role: 'admin',
     })
 
     return campaignId
