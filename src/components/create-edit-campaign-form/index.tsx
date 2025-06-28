@@ -44,12 +44,15 @@ export function CreateEditCampaignForm({
     onClose()
   }
 
-  const handleTagInput = (value: string) => {
+  const handleTagInputChange = (value: string) => {
     setTagInput(value)
+  }
 
-    // Check if the last character is a comma
-    if (value.endsWith(',') || value.endsWith(' ')) {
-      const newTag = value.slice(0, -1).trim()
+  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (tagInput && (e.key === 'Enter' || e.key === ',' || e.key === ' ')) {
+      e.preventDefault()
+      // remove any leading/trailing whitespace and commas
+      const newTag = tagInput.trim().replace(/,$/, '')
       if (newTag && !tags.includes(newTag)) {
         setTags([...tags, newTag])
       }
@@ -87,7 +90,8 @@ export function CreateEditCampaignForm({
         <Input
           id="tags"
           value={tagInput}
-          onChange={(e) => handleTagInput(e.target.value)}
+          onChange={(e) => handleTagInputChange(e.target.value)}
+          onKeyDown={handleTagInputKeyDown}
           placeholder="Enter tags"
           label="Tags"
         />
