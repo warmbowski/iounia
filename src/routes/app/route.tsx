@@ -1,5 +1,5 @@
 import { APP_TITLE } from '@/constants'
-import { getAuthTokenFn } from '@/server-functions/auth'
+import { apiErrorToToast } from '@/utils'
 import { convexAction, convexQuery } from '@convex-dev/react-query'
 import {
   createFileRoute,
@@ -11,11 +11,14 @@ import { api } from 'convex/_generated/api'
 
 export const Route = createFileRoute('/app')({
   beforeLoad: async ({ context }) => {
-    const token = await getAuthTokenFn()
-    context.auth = { token }
+    const token = context.auth.token
     if (!token) {
       throw redirect({ to: '/', search: { forceSignIn: true } })
     }
+  },
+  onError: (error) => {
+    console.error('Error in app route:', error)
+    apiErrorToToast(error)
   },
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(

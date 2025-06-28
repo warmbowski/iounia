@@ -1,5 +1,5 @@
 import { convexQueryClient } from '@/router'
-import { addToast } from '@heroui/react'
+import { apiErrorToToast } from '@/utils'
 import { QueryCache, QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
@@ -19,11 +19,7 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
       if (query.state.data !== undefined) {
-        addToast({
-          title: 'Error',
-          description: `${error.message}`,
-          color: 'danger',
-        })
+        apiErrorToToast(error)
       }
     },
   }),

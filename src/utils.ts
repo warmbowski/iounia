@@ -1,3 +1,6 @@
+import { addToast } from '@heroui/react'
+import { ConvexError } from 'convex/values'
+
 /**
  *
  * @param date - date to format
@@ -58,6 +61,29 @@ export function ensureViteEnvironmentVariable(name: string): string {
     throw new Error(`missing environment variable ${name}`)
   }
   return value
+}
+
+export function apiErrorToToast(error: unknown) {
+  // Do not trigger toasts when queries are run on the server,
+  if (typeof window === 'undefined') return
+
+  if (error instanceof ConvexError) {
+    type Severity = 'danger' | 'warning' | 'default' | 'none'
+    const errorData = error.data as { severity: Severity; message: string }
+
+    if (errorData && errorData.severity !== 'none') {
+      addToast({
+        description: `${errorData.message}`,
+        color: errorData.severity,
+      })
+    }
+  } else {
+    addToast({
+      title: 'Something went wrong',
+      description: `${(error as Error).message}`,
+      color: 'danger',
+    })
+  }
 }
 
 /**

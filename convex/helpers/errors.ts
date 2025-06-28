@@ -1,52 +1,59 @@
 import { ConvexError } from 'convex/values'
 
+type Severity = 'danger' | 'warning' | 'info' | 'none'
+
 export class UnauthenticatedError extends ConvexError<{
   type: 'UNAUTHENTICATED'
+  severity: Severity
   message: string
   data?: any
 }> {
   constructor(message: string, data?: any) {
-    super({ type: 'UNAUTHENTICATED', message, data })
+    super({ type: 'UNAUTHENTICATED', severity: 'danger', message, data })
   }
 }
 
 export class UnauthorizedError extends ConvexError<{
   type: 'UNAUTHORIZED'
+  severity: Severity
   message: string
   data?: any
 }> {
   constructor(message: string, data?: any) {
-    super({ type: 'UNAUTHORIZED', message, data })
+    super({ type: 'UNAUTHORIZED', severity: 'danger', message, data })
   }
 }
 
 export class NotFoundError extends ConvexError<{
   type: 'NOT_FOUND'
+  severity: Severity
   message: string
   data?: any
 }> {
   constructor(message: string, data?: any) {
-    super({ type: 'NOT_FOUND', message, data })
+    super({ type: 'NOT_FOUND', severity: 'none', message, data })
   }
 }
 
 export class InvalidError extends ConvexError<{
   type: 'INVALID'
+  severity: Severity
   message: string
   data?: any
 }> {
   constructor(message: string, data?: any) {
-    super({ type: 'INVALID', message, data })
+    super({ type: 'INVALID', severity: 'warning', message, data })
   }
 }
 
 export class BadRequestError extends ConvexError<{
   type: 'BAD_REQUEST'
+  severity: Severity
   message: string
   data?: any
 }> {
   constructor(message: string, data?: any) {
-    super({ type: 'BAD_REQUEST', message, data })
+    super({ type: 'BAD_REQUEST', severity: 'danger', message, data })
   }
 }
 
@@ -57,22 +64,3 @@ const ERROR_TYPES = [
   InvalidError,
   BadRequestError,
 ]
-
-export function catchTypedError<T, E extends new (message?: string) => Error>(
-  promise: Promise<T>,
-  errorTypes: typeof ERROR_TYPES = ERROR_TYPES,
-): Promise<{ data: T } | { err: InstanceType<E> }> {
-  return promise
-    .then((data) => ({ data }))
-    .catch((error) => {
-      if (errorTypes.length === 0) {
-        return { err: error }
-      }
-
-      if (errorTypes.some((type) => error instanceof type)) {
-        return { err: error }
-      }
-
-      throw error
-    })
-}

@@ -10,6 +10,7 @@ import { api } from 'convex/_generated/api'
 import type { Doc, Id } from 'convex/_generated/dataModel'
 import { useState, type FormEvent } from 'react'
 import { MarkdownInput } from '@/components/markdown-input'
+import { apiErrorToToast } from '@/utils'
 
 type CreateEditSessionFormProps =
   | {
@@ -38,10 +39,12 @@ export function CreateEditSessionForm(props: CreateEditSessionFormProps) {
 
   const createSession = useMutation({
     mutationFn: useConvexMutation(api.functions.sessions.createSession),
+    onError: apiErrorToToast,
   })
 
   const updateSession = useMutation({
     mutationFn: useConvexMutation(api.functions.sessions.updateSession),
+    onError: apiErrorToToast,
   })
 
   const handleSubmit = async (e: FormEvent) => {

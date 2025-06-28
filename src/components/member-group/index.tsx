@@ -1,3 +1,4 @@
+import { apiErrorToToast } from '@/utils'
 import type { PresenceState } from '@convex-dev/presence/react'
 import { convexAction, useConvexMutation } from '@convex-dev/react-query'
 import {
@@ -54,6 +55,7 @@ export function MemberGroup({
   )
   const { mutateAsync: updateMember, isPending } = useMutation({
     mutationFn: useConvexMutation(api.functions.members.updateMembershipById),
+    onError: apiErrorToToast,
   })
 
   const filteredMembers = filter ? members.filter(filter) : members

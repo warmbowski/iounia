@@ -7,9 +7,8 @@ import { routeTree } from './routeTree.gen'
 import './styles.css'
 import { ConvexQueryClient } from '@convex-dev/react-query'
 import { QueryCache, QueryClient } from '@tanstack/react-query'
-import { addToast } from '@heroui/react'
 import { ConvexReactClient } from 'convex/react'
-import { ensureViteEnvironmentVariable } from '@/utils'
+import { apiErrorToToast, ensureViteEnvironmentVariable } from '@/utils'
 import { DefaultCatchBoundary } from './components/default-catch-boundary'
 import { NotFound } from './components/not-found'
 
@@ -26,11 +25,8 @@ export const queryClient = new QueryClient({
       if (typeof window === 'undefined') return
 
       if (query.state.data !== undefined) {
-        addToast({
-          title: 'Error',
-          description: `${error.message}`,
-          color: 'danger',
-        })
+        console.error('Query Cache error:', error)
+        apiErrorToToast(error)
       }
     },
   }),

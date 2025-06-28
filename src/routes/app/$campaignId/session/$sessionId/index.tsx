@@ -23,6 +23,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import { useEffect, useState } from 'react'
 import { ButtonConfirm } from '@/components/button-confirm'
+import { apiErrorToToast } from '@/utils'
 
 export const Route = createFileRoute('/app/$campaignId/session/$sessionId/')({
   loader: async ({ context, params }) => {
@@ -46,6 +47,7 @@ function RouteComponent() {
     mutationFn: useConvexAction(
       api.functions.transcripts.generateSessionSummary,
     ),
+    onError: apiErrorToToast,
   })
   const { data: session } = useSuspenseQuery(
     convexQuery(api.functions.sessions.readSession, {
@@ -66,6 +68,7 @@ function RouteComponent() {
     mutationFn: useConvexAction(
       api.functions.recordings.deleteRecordingAndTranscript,
     ),
+    onError: apiErrorToToast,
   })
 
   const {

@@ -1,3 +1,4 @@
+import { apiErrorToToast } from '@/utils'
 import { useConvexMutation } from '@convex-dev/react-query'
 import { Button, Chip, DatePicker, Input, Textarea } from '@heroui/react'
 import {
@@ -28,6 +29,7 @@ export function CreateEditCampaignForm({
   const [tags, setTags] = useState<string[]>(campaign?.tags || [])
   const { mutateAsync: createCampaign } = useMutation({
     mutationFn: useConvexMutation(api.functions.campaigns.createCampaign),
+    onError: apiErrorToToast,
   })
 
   const handleSubmit = async (e: FormEvent) => {

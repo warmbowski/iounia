@@ -2,6 +2,7 @@ import { CampaignCard } from '@/components/campaign-card'
 import { CreateEditSessionForm } from '@/components/create-edit-session-form'
 import { MemberGroup } from '@/components/member-group'
 import { SessionCard } from '@/components/session-card'
+import { apiErrorToToast } from '@/utils'
 import usePresence from '@convex-dev/presence/react'
 import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
 import {
@@ -60,6 +61,7 @@ function RouteComponent() {
   )
   const { mutateAsync: updateCampaign, isPending: isUpdating } = useMutation({
     mutationFn: useConvexMutation(api.functions.campaigns.updateCampaign),
+    onError: apiErrorToToast,
   })
   const {
     isOpen: drawerOpen,

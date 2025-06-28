@@ -7,6 +7,7 @@ import { useConvexMutation } from '@convex-dev/react-query'
 import { useMutation } from '@tanstack/react-query'
 import type { Id } from 'convex/_generated/dataModel'
 import { useUploadFile } from '@convex-dev/r2/react'
+import { apiErrorToToast } from '@/utils'
 
 interface FileUploadFormProps {
   sessionId: Id<'sessions'>
@@ -25,6 +26,7 @@ export function CreateRecordingForm({
   const uploadFile = useUploadFile(api.functions.cloudflareR2)
   const createRecording = useMutation({
     mutationFn: useConvexMutation(api.functions.recordings.createRecording),
+    onError: apiErrorToToast,
   })
 
   const handleSubmit = async (e: FormEvent) => {
