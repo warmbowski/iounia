@@ -12,6 +12,7 @@ import { generateObject, embedMany } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { v } from 'convex/values'
 import {
+  LUCIDE_ICONS_LIST,
   MIN_TEXT_LENGTH_FOR_EMBEDDING_GENERATION,
   SYSTEM_PROMPT_SHORT_SUMMARIZATION,
   SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION,
@@ -68,6 +69,7 @@ export const generateSessionSummary = action({
         temperature: 0.7,
         system:
           SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION +
+          `\n\nLucide Icon List: ${LUCIDE_ICONS_LIST}` +
           (summaryPrompt ? `\n\nClarifications: ${summaryPrompt}` : ''),
         prompt,
         schema: z.array(

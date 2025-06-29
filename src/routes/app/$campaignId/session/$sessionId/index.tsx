@@ -70,7 +70,6 @@ function RouteComponent() {
     ),
     onError: apiErrorToToast,
   })
-  console.log('session notes', session.notes)
   const fromMarkdown = useRemarkSync(session.notes || '**No notes available**')
 
   const {

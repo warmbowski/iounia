@@ -1,4 +1,5 @@
 import { ensureServerEnironmentVariable } from './helpers/utililties'
+import { iconlist } from './icons'
 
 export const MAX_RECORDING_DURATION_SEC = 60 * 60 * 0.5 // 30 minutes
 export const MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT = 10
@@ -38,7 +39,8 @@ The summary should be concise and capture the essence of the session.
 Return JSON structured data that is an array of objects with the following properties: icon, bulletItem.
 Each object should represent a bullet point in the summary.
 The icon property should be a string representing an icon name from the Lucide icon set.
-The icon should be relevant to the content of the bullet point when possible, or use the "feather" icon as a fallback.
+The icon should be relevant to the content of the bullet point text when possible, or use the "circle" 
+icon as a fallback.
 `
 
 export const SYSTEM_PROMPT_SHORT_SUMMARIZATION = `
@@ -58,3 +60,4 @@ Integrate stock dungeons and dragons type of locations and monsters. Make sure t
 in the style of a hand drawn map, with a parchment background and a vintage look.
 The map should include various terrains such as mountains, forests, rivers, and towns.
 `
+export const LUCIDE_ICONS_LIST = iconlist.join(', ')

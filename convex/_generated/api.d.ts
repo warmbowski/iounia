@@ -24,6 +24,7 @@ import type * as helpers_auth from "../helpers/auth.js";
 import type * as helpers_errors from "../helpers/errors.js";
 import type * as helpers_utililties from "../helpers/utililties.js";
 import type * as http from "../http.js";
+import type * as icons from "../icons.js";
 import type * as migrations from "../migrations.js";
 
 import type {
@@ -57,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   "helpers/errors": typeof helpers_errors;
   "helpers/utililties": typeof helpers_utililties;
   http: typeof http;
+  icons: typeof icons;
   migrations: typeof migrations;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
