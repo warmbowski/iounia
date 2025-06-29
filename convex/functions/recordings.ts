@@ -11,6 +11,7 @@ import { r2 } from './cloudflareR2'
 import { checkUserAuthentication } from '../helpers/auth'
 import { NotFoundError, UnauthorizedError } from '../helpers/errors'
 import { getTokenIdentifierParts } from '../helpers/utililties'
+import { MAX_RECORDING_DURATION_SEC } from '../constants'
 
 export const createRecording = mutation({
   args: {
@@ -22,6 +23,12 @@ export const createRecording = mutation({
   },
   handler: async ({ db, auth, scheduler }, args) => {
     const userId = await checkUserAuthentication(auth)
+
+    if (args.durationSec > MAX_RECORDING_DURATION_SEC) {
+      throw new Error(
+        `Recording duration exceeds maximum limit of ${MAX_RECORDING_DURATION_SEC / 60 / 60} hours`,
+      )
+    }
 
     const fileUrl = await r2.getUrl(args.storageId)
 

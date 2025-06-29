@@ -78,6 +78,7 @@ function RouteComponent() {
   const { data: fileUrl } = useQuery({
     ...convexQuery(api.functions.cloudflareR2.getUrl, {
       key: rec?.storageId || '',
+      expiresIn: 60 * 60 * 4, // 4 hours should be enough time to listen to a recording
     }),
     enabled: !!rec?.storageId,
   })

@@ -12,6 +12,7 @@ export const WEBHOOK_URL = `${CONVEX_SITE_URL}/webhooks/assemblyai`
 export const WEBHOOK_AUTH_HEADER_NAME = 'x-assemblyai-256'
 export const WEBHOOK_AUTH_HEADER_VALUE =
   ensureServerEnironmentVariable('WEBHOOK_SECRET')
+export const MAX_RECORDING_DURATION_SEC = 60 * 60 * 0.5 // 30 minutes
 
 /** system prompts */
 

@@ -63,11 +63,15 @@ export const {
 })
 
 export const getUrl = query({
-  args: { key: v.string() },
-  handler: async ({ auth }, { key }) => {
+  args: {
+    key: v.string(),
+    expiresIn: v.optional(v.number()),
+  },
+  handler: async ({ auth }, { key, expiresIn }) => {
     await checkUserAuthentication(auth)
+    const options = expiresIn ? { expiresIn } : undefined
 
-    const url = await r2.getUrl(key)
+    const url = await r2.getUrl(key, options)
     return url
   },
 })
