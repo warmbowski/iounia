@@ -36,17 +36,22 @@ export function RecordingTimeline({
 
   const loadMoreRef = useInfiniteLoader(fetchNextPage, hasNextPage, 500)
   const lastLoadedTimeRef = useRef<number>(0)
-  const focusRef = useRef<HTMLButtonElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  if (focusRef.current && scrollToSeekTime) {
-    focusRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  } else if (
-    currentTime > lastLoadedTimeRef.current &&
-    hasNextPage &&
-    !isFetching
-  ) {
-    fetchNextPage()
-  }
+  useEffect(() => {
+    const activeElement = containerRef.current?.querySelector(
+      '[data-active="true"]',
+    )
+    if (activeElement && scrollToSeekTime) {
+      activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    } else if (
+      currentTime > lastLoadedTimeRef.current &&
+      hasNextPage &&
+      !isFetching
+    ) {
+      fetchNextPage()
+    }
+  }, [currentTime])
 
   useEffect(() => {
     if (transcript && transcript.length > 0) {
@@ -61,19 +66,18 @@ export function RecordingTimeline({
         Click on a timestamp to jump to that part of the recording.
       </p>
       {transcript ? (
-        <div>
+        <div ref={containerRef}>
           {transcript.map((utterance) => {
             const isAtTime =
               currentTime >= utterance.start / 1000 &&
               currentTime < utterance.end / 1000
             return (
               <p
-                data-status={isAtTime}
                 key={utterance._id}
-                className="mt-2 data-[status=true]:text-warning-500 flex flex-col items-start"
+                data-active={isAtTime}
+                className="mt-2 data-[active=true]:text-warning-500 flex flex-col items-start"
               >
                 <Button
-                  ref={isAtTime ? focusRef : null}
                   className="font-mono bold text-sm focus:outline-solid"
                   size="sm"
                   variant="light"

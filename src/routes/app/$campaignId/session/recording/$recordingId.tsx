@@ -85,7 +85,7 @@ function RouteComponent() {
 
   return rec ? (
     <div className="w-full h-full">
-      <div className="absolute top-12 right-12 flex items-center gap-4 bg-background shadow-md">
+      <div className="absolute top-18 right-12 flex items-center gap-4 bg-background shadow-md">
         <Button
           className=""
           size="sm"

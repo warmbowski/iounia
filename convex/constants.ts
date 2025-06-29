@@ -1,18 +1,19 @@
 import { ensureServerEnironmentVariable } from './helpers/utililties'
 
+export const MAX_RECORDING_DURATION_SEC = 60 * 60 * 0.5 // 30 minutes
 export const MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT = 10
 export const MAX_CAMPAIGNS_PER_USER_COUNT = 3
 export const MIN_TEXT_LENGTH_FOR_EMBEDDING_GENERATION = 25
 export const TIME_SPAN_CONTEXT_LENGTH_MS = 1000 * 60 * 5 // 5 minutes
 export const AUDIO_CHUNK_DURATION_SEC = 15 * 60 // 15 minutes
+
+export const CONVEX_SITE_URL = ensureServerEnironmentVariable('CONVEX_SITE_URL')
 export const CONVEX_CLOUD_URL =
   ensureServerEnironmentVariable('CONVEX_CLOUD_URL')
-export const CONVEX_SITE_URL = ensureServerEnironmentVariable('CONVEX_SITE_URL')
 export const WEBHOOK_URL = `${CONVEX_SITE_URL}/webhooks/assemblyai`
 export const WEBHOOK_AUTH_HEADER_NAME = 'x-assemblyai-256'
 export const WEBHOOK_AUTH_HEADER_VALUE =
   ensureServerEnironmentVariable('WEBHOOK_SECRET')
-export const MAX_RECORDING_DURATION_SEC = 60 * 60 * 0.5 // 30 minutes
 
 /** system prompts */
 
