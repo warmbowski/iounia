@@ -2,7 +2,7 @@ import { CreateEditSessionForm } from '@/components/create-edit-session-form'
 import { CreateRecordingForm } from '@/components/create-recording-form'
 import { SessionCard } from '@/components/session-card'
 import { convexQuery, useConvexAction } from '@convex-dev/react-query'
-import { Remark } from 'react-remark'
+import { useRemarkSync } from 'react-remark'
 import {
   Button,
   Drawer,
@@ -70,6 +70,8 @@ function RouteComponent() {
     ),
     onError: apiErrorToToast,
   })
+  console.log('session notes', session.notes)
+  const fromMarkdown = useRemarkSync(session.notes || '**No notes available**')
 
   const {
     isOpen: addRecordingOpen,
@@ -114,9 +116,7 @@ function RouteComponent() {
           </p>
           <h3 className="text-xl font-semibold mt-4">Session Notes</h3>
           <article className="markdown-section text-balance">
-            <Remark>
-              {session.notes ? session.notes : `**No notes available**`}
-            </Remark>
+            {fromMarkdown}
           </article>
           <h3 className="text-xl font-semibold mt-4">Recordings</h3>
           <div className="flex flex-col gap-2">
