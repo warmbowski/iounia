@@ -65,7 +65,7 @@ export const generateSessionSummary = action({
 
     try {
       const summary = await generateObject<BulletItem[]>({
-        model: google('gemini-2.5-flash-preview-05-20'),
+        model: google('gemini-2.5-flash-lite-preview-06-17'),
         temperature: 0.7,
         system:
           SYSTEM_PROMPT_TRANSCRIPT_SUMMARIZATION +
@@ -86,7 +86,7 @@ export const generateSessionSummary = action({
       const bulletItems = summary.object
 
       const shortSummary = await generateObject<{ text: string }>({
-        model: google('gemini-2.5-flash-preview-05-20'),
+        model: google('gemini-2.5-flash-lite-preview-06-17'),
         temperature: 0.7,
         system: SYSTEM_PROMPT_SHORT_SUMMARIZATION,
         prompt: bulletItems.map((item) => item.text).join('\n'),

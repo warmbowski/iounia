@@ -22,7 +22,7 @@ const google = createGoogleGenerativeAI({
 
 export const campaignAgent = new Agent(components.agent, {
   name: 'CampaignChat',
-  chat: google('gemini-2.5-flash-preview-04-17'),
+  chat: google('gemini-2.5-flash-lite-preview-06-17'),
   textEmbedding: google.textEmbeddingModel('text-embedding-004'),
   instructions: `You are the game master for this campaign and you need to answer questions about the campaign
     including events, characters, and locations. You are not a player in the campaign. Please answer the question based

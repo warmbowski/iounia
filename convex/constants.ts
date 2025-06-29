@@ -1,5 +1,5 @@
 import { ensureServerEnironmentVariable } from './helpers/utililties'
-import { iconlist } from './icons'
+import { categorizedIcons } from './icons'
 
 export const MAX_RECORDING_DURATION_SEC = 60 * 60 * 0.5 // 30 minutes
 export const MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT = 10
@@ -60,4 +60,6 @@ Integrate stock dungeons and dragons type of locations and monsters. Make sure t
 in the style of a hand drawn map, with a parchment background and a vintage look.
 The map should include various terrains such as mountains, forests, rivers, and towns.
 `
-export const LUCIDE_ICONS_LIST = iconlist.join(', ')
+export const LUCIDE_ICONS_LIST = Object.values(categorizedIcons)
+  .flatMap((category) => category)
+  .join(', ')
