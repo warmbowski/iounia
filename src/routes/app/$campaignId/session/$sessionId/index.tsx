@@ -133,7 +133,10 @@ function RouteComponent() {
                     >
                       Recording {index + 1}
                     </a>
-                    <span className="text-sm text-gray-500">
+                    <span
+                      className="text-sm text-gray-500"
+                      suppressHydrationWarning
+                    >
                       {new Date(recording._creationTime).toLocaleDateString()}
                     </span>
                     <ButtonConfirm
