@@ -26,6 +26,10 @@ export function TopNav({ forceSignIn }: TopNavProps) {
     }
   }
 
+  const showInput =
+    location.pathname.startsWith('/app/') &&
+    !location.pathname.includes('/recording/')
+
   return (
     <Navbar maxWidth="full" isBordered>
       <NavbarContent
@@ -44,7 +48,7 @@ export function TopNav({ forceSignIn }: TopNavProps) {
 
       <NavbarContent className="flex-auto sm:flex-3">
         <NavbarItem className="w-full">
-          {isSignedIn && location.pathname.startsWith('/app/') && (
+          {isSignedIn && showInput && (
             <Input
               classNames={{
                 base: 'max-w-full sm:max-w-[24rem] h-10',

@@ -1,18 +1,11 @@
 import { formatTime } from '@/utils'
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Button,
-  Slider,
-  Spacer,
-} from '@heroui/react'
+import { Card, CardBody, Button, Slider } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useState, useRef, useEffect } from 'react'
 
 interface AudioPlayerCardProps {
   title: string
-  artist: string
+  date?: string
   duration: number
   audioSrc: string
   onTimeUpdate?: (time: number) => void
@@ -22,7 +15,7 @@ interface AudioPlayerCardProps {
 
 export function AudioPlayerCard({
   title,
-  artist,
+  date,
   duration,
   audioSrc,
   onTimeUpdate,
@@ -130,86 +123,86 @@ export function AudioPlayerCard({
   }, [seekTo])
 
   return (
-    <Card className="w-full">
-      <CardBody className="pb-2">
+    <Card className="w-full shadow-lg">
+      <CardBody className="py-2">
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-md bg-primary-100 flex items-center justify-center">
-            <Icon
-              icon="lucide:book-open"
-              className="text-primary-500 text-2xl"
-            />
+          <div className="flex items-center gap-2">
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              aria-label="Skip backward"
+              onPress={() => {
+                if (audioRef.current) {
+                  audioRef.current.currentTime = Math.max(0, currentTime - 10)
+                  setCurrentTime(audioRef.current.currentTime)
+                }
+              }}
+            >
+              <Icon icon="lucide:rewind" className="text-base" />
+            </Button>
+            <Button
+              isIconOnly
+              color="primary"
+              size="sm"
+              aria-label={isPlaying ? 'Pause' : 'Play'}
+              onPress={togglePlayPause}
+            >
+              <Icon
+                icon={isPlaying ? 'lucide:pause' : 'lucide:play'}
+                className="text-lg"
+              />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              aria-label="Skip forward"
+              onPress={() => {
+                if (audioRef.current) {
+                  audioRef.current.currentTime = Math.min(
+                    duration,
+                    currentTime + 10,
+                  )
+                  setCurrentTime(audioRef.current.currentTime)
+                }
+              }}
+            >
+              <Icon icon="lucide:fast-forward" className="text-base" />
+            </Button>
           </div>
+
           <div className="flex-1">
-            <h3 className="font-semibold text-xl">{title}</h3>
-            <p className="text-default-500">{artist}</p>
+            <div className="flex justify-between items-center">
+              <h4>{title}</h4>
+              <p className="text-secondary-500">{date}</p>
+            </div>
+            <div className="flex items-center w-full gap-2 mt-2">
+              <span className="text-tiny text-primary-500 w-18 text-right">
+                {formatTime(currentTime)}
+              </span>
+              <Slider
+                aria-label="Audio progress"
+                size="sm"
+                color="primary"
+                step={1}
+                maxValue={realDuration}
+                minValue={0}
+                value={[currentTime]}
+                className="flex-1"
+                onChange={handleSliderChange}
+              />
+              <span className="text-tiny text-primary-500 w-18 text-left">
+                {formatTime(realDuration)}
+              </span>
+            </div>
+          </div>
+
+          <div className="h-12 w-12 rounded-md bg-primary-100 flex items-center justify-center">
+            <Icon icon="lucide:book" className="text-primary-500 text-xl" />
           </div>
         </div>
       </CardBody>
-      <CardFooter className="flex flex-col pt-0">
-        <div className="flex items-center w-full gap-2">
-          <span className="text-small text-default-500 w-15 text-right">
-            {formatTime(currentTime)}
-          </span>
-          <Slider
-            aria-label="Audio progress"
-            size="sm"
-            color="primary"
-            step={1}
-            maxValue={realDuration}
-            minValue={0}
-            value={[currentTime]}
-            className="flex-1"
-            onChange={handleSliderChange}
-          />
-          <span className="text-small text-default-500 w-15">
-            {formatTime(realDuration)}
-          </span>
-        </div>
-        <Spacer y={2} />
-        <div className="flex justify-center gap-2">
-          <Button
-            isIconOnly
-            variant="light"
-            aria-label="Skip backward"
-            onPress={() => {
-              if (audioRef.current) {
-                audioRef.current.currentTime = Math.max(0, currentTime - 10)
-                setCurrentTime(audioRef.current.currentTime)
-              }
-            }}
-          >
-            <Icon icon="lucide:rewind" className="text-lg" />
-          </Button>
-          <Button
-            isIconOnly
-            color="primary"
-            aria-label={isPlaying ? 'Pause' : 'Play'}
-            onPress={togglePlayPause}
-            className="h-12 w-12"
-          >
-            <Icon
-              icon={isPlaying ? 'lucide:pause' : 'lucide:play'}
-              className="text-2xl"
-            />
-          </Button>
-          <Button
-            isIconOnly
-            variant="light"
-            aria-label="Skip forward"
-            onPress={() => {
-              if (audioRef.current) {
-                audioRef.current.currentTime = Math.min(
-                  duration,
-                  currentTime + 10,
-                )
-                setCurrentTime(audioRef.current.currentTime)
-              }
-            }}
-          >
-            <Icon icon="lucide:fast-forward" className="text-lg" />
-          </Button>
-        </div>
-      </CardFooter>
     </Card>
   )
 }

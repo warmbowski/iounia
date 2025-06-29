@@ -72,7 +72,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     context.convexQueryClient.serverHttpClient?.setAuth(token || '')
     const payload = token ? parseJwtPayload(token) : null
     const auth = { token, userId: payload?.sub || null }
-    return { auth } // update context with auth token
+    return { auth }
   },
 
   component: () => {

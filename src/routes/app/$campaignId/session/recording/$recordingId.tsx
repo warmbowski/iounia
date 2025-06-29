@@ -83,9 +83,8 @@ function RouteComponent() {
   })
 
   return rec ? (
-    <div className="w-full h-full px-6">
-      <div className="fixed w-full flex items-center gap-4 bg-background z-50 shadow-md">
-        <h2 className="text-xl font-bold">Transcript</h2>
+    <div className="w-full h-full">
+      <div className="absolute top-12 right-12 flex items-center gap-4 bg-background shadow-md">
         <Button
           className=""
           size="sm"
@@ -98,12 +97,32 @@ function RouteComponent() {
           {scrollToTime ? 'Following' : 'Follow'}
         </Button>
       </div>
-      <div className="fixed right-[20px] min-w-sm z-50 shadow-md">
+      <div
+        className="w-full h-auto pb-32 px-4"
+        onWheel={() => {
+          if (scrollToTime) {
+            setScrollToTime(false)
+          }
+        }}
+      >
+        <PersistedRecordingTimelineProvider
+          recordingId={recordingId}
+          cacheVersion={'v1'}
+        >
+          <RecordingTimeline
+            recordingId={recordingId}
+            currentTime={currentTime}
+            setSeekTime={setSeekTime}
+            scrollToSeekTime={scrollToTime}
+          />
+        </PersistedRecordingTimelineProvider>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 p-4 z-50">
         {
           <AudioPlayerCard
             key={rec._id}
             title={rec.fileName}
-            artist={formatDate(rec._creationTime)}
+            date={formatDate(rec._creationTime)}
             duration={rec.durationSec || 0}
             audioSrc={fileUrl || ''}
             onTimeUpdate={(time) => {
@@ -114,26 +133,6 @@ function RouteComponent() {
           />
         }
       </div>
-      <PersistedRecordingTimelineProvider
-        recordingId={recordingId}
-        cacheVersion={'v1'}
-      >
-        <div
-          className="pt-12"
-          onWheel={() => {
-            if (scrollToTime) {
-              setScrollToTime(false)
-            }
-          }}
-        >
-          <RecordingTimeline
-            recordingId={recordingId}
-            currentTime={currentTime}
-            setSeekTime={setSeekTime}
-            scrollToSeekTime={scrollToTime}
-          />
-        </div>
-      </PersistedRecordingTimelineProvider>
     </div>
   ) : (
     'Cannot find this recording in your campaign.'

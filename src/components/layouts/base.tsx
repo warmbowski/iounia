@@ -13,7 +13,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
   return (
     <section
       data-layout="base"
-      className="flex flex-col h-screen w-screen bg-content"
+      className="flex flex-col h-screen w-screen max-w-[1440px] mx-auto bg-content relative"
     >
       <TopNav forceSignIn={location?.search?.forceSignIn} />
       <div>
@@ -22,7 +22,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
             color="secondary"
             isIndeterminate
             aria-label="Loading page..."
-            className="fixed w-100vw"
+            className="absolute w-full"
             size="sm"
           />
         )}

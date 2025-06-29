@@ -20,7 +20,7 @@ import { Route as AppCampaignIdIndexRouteImport } from './routes/app/$campaignId
 import { Route as AppCampaignIdChatRouteImport } from './routes/app/$campaignId/chat'
 import { Route as AppCampaignIdSessionSessionIdRouteRouteImport } from './routes/app/$campaignId/session/$sessionId/route'
 import { Route as AppCampaignIdSessionSessionIdIndexRouteImport } from './routes/app/$campaignId/session/$sessionId/index'
-import { Route as AppCampaignIdSessionRecordingRecordingIdRouteImport } from './routes/app/$campaignId/session/recording.$recordingId'
+import { Route as AppCampaignIdSessionRecordingRecordingIdRouteImport } from './routes/app/$campaignId/session/recording/$recordingId'
 import { ServerRoute as ApiAuthServerRouteImport } from './routes/api/auth'
 
 const rootServerRouteImport = createServerRootRoute()

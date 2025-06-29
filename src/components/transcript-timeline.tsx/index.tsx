@@ -55,9 +55,13 @@ export function RecordingTimeline({
   }, [transcript])
 
   return (
-    <div className="my-4">
+    <div className="max-w-4xl my-4 mx-auto">
+      <h2 className="text-lg font-semibold mb-4">Transcript Timeline</h2>
+      <p className="text-sm text-default-500 mb-2">
+        Click on a timestamp to jump to that part of the recording.
+      </p>
       {transcript ? (
-        <div className="pr-100">
+        <div>
           {transcript.map((utterance) => {
             const isAtTime =
               currentTime >= utterance.start / 1000 &&
@@ -85,7 +89,7 @@ export function RecordingTimeline({
             )
           })}
           <div
-            className="relative w-[100vw] h-[50px] flex justify-center text-warning-500 items-center"
+            className="relative w-full h-[50px] flex justify-center text-warning-500 items-center"
             ref={loadMoreRef}
           >
             {hasNextPage && isFetching && 'Loading more...'}
