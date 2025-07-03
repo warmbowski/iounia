@@ -123,7 +123,7 @@ export function AudioPlayerCard({
   }, [seekTo])
 
   return (
-    <Card className="w-full shadow-lg">
+    <Card className="w-full glass3d bg-[none]">
       <CardBody className="py-2">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -175,10 +175,10 @@ export function AudioPlayerCard({
           <div className="flex-1">
             <div className="flex justify-between items-center">
               <h4>{title}</h4>
-              <p className="text-secondary-500">{date}</p>
+              <p className="text-secondary-600">{date}</p>
             </div>
             <div className="flex items-center w-full gap-2 mt-2">
-              <span className="text-tiny text-primary-500 w-18 text-right">
+              <span className="text-tiny text-secondary-600 w-18 text-right">
                 {formatTime(currentTime)}
               </span>
               <Slider
@@ -192,7 +192,7 @@ export function AudioPlayerCard({
                 className="flex-1"
                 onChange={handleSliderChange}
               />
-              <span className="text-tiny text-primary-500 w-18 text-left">
+              <span className="text-tiny text-secondary-600 w-18 text-left">
                 {formatTime(realDuration)}
               </span>
             </div>

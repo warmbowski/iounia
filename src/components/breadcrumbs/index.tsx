@@ -12,7 +12,7 @@ export function BreadcrumbsBar() {
   }
 
   return (
-    <Breadcrumbs className="bg-content px-4 py-2">
+    <Breadcrumbs className=" glass3d bg-[transparent] w-fit px-2 m-2 rounded-md">
       {crumbs.map((crumb, index) => (
         <BreadcrumbItem key={crumb.title || '' + index}>
           <Link to={crumb.to} params={crumb.params}>

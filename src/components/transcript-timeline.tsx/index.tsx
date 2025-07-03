@@ -75,7 +75,7 @@ export function RecordingTimeline({
               <p
                 key={utterance._id}
                 data-active={isAtTime}
-                className="mt-2 data-[active=true]:text-warning-500 flex flex-col items-start"
+                className="mt-2 data-[active=true]:text-primary flex flex-col items-start"
               >
                 <Button
                   className="font-mono bold text-sm focus:outline-solid"

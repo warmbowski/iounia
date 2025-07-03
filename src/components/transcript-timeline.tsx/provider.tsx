@@ -1,7 +1,7 @@
 import { convexQueryClient } from '@/router'
 import { apiErrorToToast } from '@/utils'
 import { QueryCache, QueryClient } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
   PersistQueryClientProvider,
   type PersistedClient,
@@ -57,7 +57,7 @@ export function PersistedRecordingTimelineProvider({
       }}
     >
       {children}
-      <ReactQueryDevtools buttonPosition="bottom-left" />
+      {/* <ReactQueryDevtools buttonPosition="bottom-left" /> */}
     </PersistQueryClientProvider>
   )
 }

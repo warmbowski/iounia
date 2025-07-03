@@ -16,7 +16,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
       className="flex flex-col h-screen w-screen max-w-[1440px] mx-auto bg-content relative"
     >
       <TopNav forceSignIn={location?.search?.forceSignIn} />
-      <div>
+      <div className="relative h-0 ">
         {isLoading && (
           <Progress
             color="secondary"
@@ -26,9 +26,12 @@ export function BaseLayout({ children }: BaseLayoutProps) {
             size="sm"
           />
         )}
+        <BreadcrumbsBar />
       </div>
-      <BreadcrumbsBar />
-      <main id="base-layout-scrollable-area" className="flex-1 overflow-auto">
+      <main
+        id="base-layout-scrollable-area"
+        className="flex-1 pt-6 overflow-auto bg-gradient-to-br from-default-50 from-20% via-primary-50 via-80% to-secondary-200"
+      >
         {children}
       </main>
     </section>
