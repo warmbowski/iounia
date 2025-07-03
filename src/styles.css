@@ -1,16 +1,6 @@
 @import 'tailwindcss'; /* source('../'); */
 @config '../tailwind.config.mjs';
 
-/*
-  Temp fix for focus ring problem:
-  https://github.com/heroui-inc/heroui/issues/5266
-*/
-.data-\[focus-visible\=true\]\:outline-focus {
-  &[data-focus-visible='true'] {
-    outline-style: solid;
-  }
-}
-
 body {
   font-family: 'Outfit', sans-serif;
   font-optical-sizing: auto;

@@ -105,6 +105,8 @@ This document tracks progress made on the IounAI TTRPG Campaign and Session Mana
 - Stream audio from R2 using Range requests
 - Considering Backblaze Media Storage/Streaming for improved media handling
 - Investigating solutions for transcription model optimization
+- Streaming transcriptions from Zoom RTMS
+  - https://www.assemblyai.com/docs/integrations/zoom-rtms
 - Problematic jwt session tokens when dev app left open for a long time
   - JWT `aud="convex"` claim is missing from token
   - may only affect development environment
