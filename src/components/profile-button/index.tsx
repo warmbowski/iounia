@@ -38,7 +38,10 @@ export function ProfileButton({ userInfo, onLogout }: ProfileButtonProps) {
     <div>
       <Dropdown placement="bottom">
         <DropdownTrigger>
-          <Button variant="flat" className="w-full justify-start">
+          <Button
+            variant="flat"
+            className="w-full justify-start pl-1 rounded-tl-full rounded-bl-full"
+          >
             <div className="flex items-center gap-3">
               <Avatar
                 src={userInfo.imageUrl}
