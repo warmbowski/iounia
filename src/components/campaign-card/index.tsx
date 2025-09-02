@@ -25,7 +25,7 @@ export function CampaignCard({
 
   return (
     <Card
-      className="min-w-[200px] max-w-[400px] bg-content2 text-content-foreground2 border-2"
+      className="min-w-[200px] max-w-[400px] bg-content4 text-content-foreground2 border-2"
       onPress={onPress ? () => onPress(campaign._id) : undefined}
       onMouseEnter={onHover ? () => onHover(campaign._id) : undefined}
       isPressable={!!onPress}
@@ -47,7 +47,7 @@ export function CampaignCard({
               isBordered
               color="primary"
             />
-            <span className="text-sm text-default-600">
+            <span className="text-sm text-default-700">
               {ownerUser?.fullName?.split(' ')[0] || 'Unknown'}'s Campaign
             </span>
           </div>
