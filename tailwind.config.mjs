@@ -1,5 +1,5 @@
 const { heroui } = require('@heroui/react')
-const { varnish } = require('./tailwind.themes.mjs')
+const { mytheme } = require('./tailwind.themes.mjs')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -11,5 +11,5 @@ module.exports = {
     extend: {},
   },
   darkMode: 'class',
-  plugins: [heroui(varnish)],
+  plugins: [heroui(mytheme)],
 }

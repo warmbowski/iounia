@@ -1,7 +1,7 @@
 import { ensureServerEnironmentVariable } from './helpers/utililties'
 import { categorizedIcons } from './icons'
 
-export const MAX_RECORDING_DURATION_SEC = 60 * 60 * 3 // 3 hours
+export const MAX_RECORDING_DURATION_SEC = 60 * 60 * 0.5 // 30 minutes
 export const MAX_ACTIVE_MEMBERS_PER_CAMPAIGN_COUNT = 10
 export const MAX_CAMPAIGNS_PER_USER_COUNT = 5
 export const MIN_TEXT_LENGTH_FOR_EMBEDDING_GENERATION = 25
